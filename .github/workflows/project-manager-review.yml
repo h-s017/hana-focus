@@ -1,0 +1,34 @@
+name: Project Manager Review
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: Project ID
+        required: true
+        default: wenqingji
+        type: choice
+        options:
+          - wenqingji
+  push:
+    branches: [hana-focus-preview]
+    paths:
+      - 'agent_data/**'
+      - 'agents/project_manager.py'
+      - '.github/workflows/project-manager-review.yml'
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate review report
+        run: python agents/project_manager.py --project wenqingji
+      - uses: actions/upload-artifact@v4
+        with:
+          name: project-manager-review
+          path: agent_output/*-review.md
+          retention-days: 30
