@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HANA FOCUS｜每日工作總管（測試版）</title>
+<style>:root{font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:#262626;background:#f7f7f5}*{box-sizing:border-box}body{max-width:820px;margin:auto;padding:26px 16px 90px}h1{font-family:Georgia,serif;font-weight:500;letter-spacing:.1em}small,.muted{color:#737373}header{display:flex;align-items:center;justify-content:space-between;gap:12px}.tag{border:1px solid #bbb;padding:5px 10px;border-radius:20px;font-size:12px}.panel{background:white;border:1px solid #e5e5e5;border-radius:14px;padding:20px;margin:14px 0}.task{padding:14px 0;border-top:1px solid #eee}.task:first-of-type{border-top:0}button,select,input,textarea{font:inherit;padding:10px;border:1px solid #bbb;border-radius:8px;background:white}button{cursor:pointer}button.primary{background:#222;color:white;border-color:#222}input,textarea{width:100%;margin:6px 0 10px}label{font-size:13px;color:#555}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.pill{display:inline-block;padding:4px 8px;background:#f1f1f1;border-radius:12px;font-size:12px}.row{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.warn{background:#faf6eb;padding:10px;border-radius:8px;font-size:13px}ul{padding-left:22px}li{margin:8px 0}@media(max-width:550px){.grid{grid-template-columns:1fr}h1{font-size:24px}}</style></head>
+<body><header><div><small>FOUNDER & CREATIVE DIRECTOR</small><h1>HANA FOCUS</h1><div class="muted">每日工作總管 · V1 測試版</div></div><span class="tag">本機資料</span></header>
+<section class="panel" aria-label="Agent 工作區與專案分類">
+<h2>雙 Agent 工作區</h2>
+<div class="grid">
+<div><h3>工作 Agent｜HANA WORK</h3>
+<p class="muted">依實際提供服務分類</p>
+<ul>
+<li><strong>品牌策略與視覺識別</strong>：文慶雞</li>
+<li><strong>氣味研發／品牌香氛</strong>：人生四喜｜中心新村香氛專案、B2B 香氛研發</li>
+<li><strong>香氛教育與課程</strong>：KPIA、氣味藝術序曲</li>
+<li><strong>企業合作與活動</strong>：北投老爺、旗袍調香</li>
+<li><strong>品牌營運與行銷</strong>：官網、SEO、預約</li>
+</ul></div>
+<div><h3>教會 Agent｜CHURCH WORK</h3><p class="muted">教會專案獨立管理</p><ul><li><strong>網站建置</strong>：<a href="https://github.com/h-s017/tjcshipai" target="_blank" rel="noopener noreferrer">tjcshipai</a></li></ul></div>
+</div>
+<p class="warn">目前此區是已同步的專案分類清單；下方任務表仍為單一瀏覽器測試資料，尚未實作兩個 Agent 的資料隔離或 AI 自動化。</p>
+</section>
+<section class="panel"><div class="row"><h2>今天最重要的 3 件事</h2><button id="reset">清除測試資料</button></div><p class="muted">依截止日、重要性與是否需本人決策排序；不會自動傳送或修改外部系統。</p><div id="top"></div></section>
+<div class="grid"><section class="panel"><h2>等待本人決策</h2><div id="decisions"></div></section><section class="panel"><h2>等待他人回覆</h2><div id="waiting"></div></section></div>
+<section class="panel"><h2>新增工作</h2><form id="form"><label>工作名稱<input name="title" required maxlength="140" placeholder="例如：確認提案交付清單"></label><div class="grid"><label>專案<input name="project" required maxlength="100" placeholder="專案名稱"></label><label>期限<input type="date" name="due"></label><label>工作類型<select name="role"><option>創作</option><option>策略</option><option>管理</option><option>行政</option></select></label><label>目前狀態<select name="status"><option>進行中</option><option>等待本人決策</option><option>等待回覆</option><option>待規劃</option><option>暫停</option><option>已完成</option></select></label><label>重要性<select name="importance"><option value="3">高</option><option value="2">中</option><option value="1">低</option></select></label><label>需要本人執行<select name="owner"><option value="yes">是</option><option value="no">否／可委派</option></select></label></div><button class="primary" type="submit">新增到工作板</button></form></section>
+<section class="panel"><h2>全部工作</h2><div id="all"></div></section>
+<section class="panel"><h2>構想暫存區</h2><p class="muted">新想法先暫存，不會自動成為待辦事項。</p><form id="ideaForm"><textarea name="idea" rows="3" required maxlength="1000" placeholder="記下新課程、品牌或合作想法"></textarea><button type="submit">儲存構想</button></form><ul id="ideas"></ul></section>
+<section class="panel"><h2>資料備份</h2><p class="warn">本版尚未串接 AI、Gmail、行事曆或雲端資料庫。資料只保存在目前瀏覽器，清除網站資料可能遺失；請定期匯出備份。請勿輸入客戶個資或敏感商業資料。</p><button id="export">匯出 JSON 備份</button></section>
+<script>
+const KEY='hana-focus-ai-office-demo-v1';
+let state;try{state=JSON.parse(localStorage.getItem(KEY))}catch{}
+if(!state||!Array.isArray(state.tasks)||!Array.isArray(state.ideas))state={tasks:[],ideas:[]};
+const save=()=>localStorage.setItem(KEY,JSON.stringify(state));
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function score(t){let n=Number(t.importance)*10+(t.owner==='yes'?5:0);if(t.due){const days=Math.ceil((new Date(t.due+'T23:59:59')-new Date())/86400000);n+=days<0?25:days<=2?20:days<=7?10:0}return n}
+function render(){const active=state.tasks.filter(t=>t.status!=='已完成'&&t.status!=='暫停');const top=active.filter(t=>t.status!=='等待回覆').sort((a,b)=>score(b)-score(a)).slice(0,3);const line=t=>'<div class="task"><strong>'+safe(t.title)+'</strong><div class="muted">'+safe(t.project)+' · '+safe(t.role)+' · '+safe(t.status)+(t.due?' · '+safe(t.due):'')+'</div></div>';
+document.getElementById('top').innerHTML=top.length?top.map(line).join(''):'<p class="muted">目前沒有工作。請在下方新增。</p>';
+document.getElementById('decisions').innerHTML=active.filter(t=>t.status==='等待本人決策').map(line).join('')||'<p class="muted">沒有待決策事項</p>';
+document.getElementById('waiting').innerHTML=active.filter(t=>t.status==='等待回覆').map(line).join('')||'<p class="muted">沒有待回覆事項</p>';
+document.getElementById('all').innerHTML=state.tasks.map(t=>'<div class="task row"><div><strong>'+safe(t.title)+'</strong><div class="muted">'+safe(t.project)+' · '+safe(t.status)+'</div></div><button data-done="'+safe(t.id)+'">'+(t.status==='已完成'?'恢復':'完成')+'</button></div>').join('')||'<p class="muted">尚無工作</p>';
+document.getElementById('ideas').innerHTML=state.ideas.map(i=>'<li>'+safe(i)+'</li>').join('')||'<li class="muted">尚無構想</li>';
+document.querySelectorAll('[data-done]').forEach(b=>b.onclick=()=>{const t=state.tasks.find(t=>t.id===b.dataset.done);if(t){t.status=t.status==='已完成'?'進行中':'已完成';save();render()}})}
+document.getElementById('form').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);state.tasks.push({id:crypto.randomUUID(),title:f.get('title'),project:f.get('project'),due:f.get('due'),role:f.get('role'),status:f.get('status'),importance:f.get('importance'),owner:f.get('owner')});save();e.target.reset();render()};
+document.getElementById('ideaForm').onsubmit=e=>{e.preventDefault();const v=new FormData(e.target).get('idea').trim();if(v){state.ideas.push(v);save();e.target.reset();render()}};
+document.getElementById('reset').onclick=()=>{if(confirm('確定清除這個測試工作板的全部資料？')){state={tasks:[],ideas:[]};save();render()}};
+document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='hana-focus-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+render();
+</script></body></html>
