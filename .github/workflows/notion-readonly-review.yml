@@ -1,0 +1,32 @@
+name: Notion Read-Only Review
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 1 * * 1'
+permissions:
+  contents: read
+jobs:
+  notion-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify Notion secret configured
+        env:
+          NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
+        run: |
+          if [ -z "$NOTION_API_TOKEN" ]; then
+            echo "::error::NOTION_API_TOKEN is missing. Configure repository Actions secret."
+            exit 1
+          fi
+      - name: Fetch Notion page and generate review
+        env:
+          NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
+        run: python agents/notion_readonly.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: notion-readonly-review
+          path: agent_output/notion-connection-review.md
+          retention-days: 14
