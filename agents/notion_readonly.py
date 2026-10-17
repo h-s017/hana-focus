@@ -47,6 +47,14 @@ def collect_blocks(token, block_id, depth=0):
             break
     return found
 
+def compare_snapshot(project, page):
+    """Page timestamp change only; task status cannot be inferred from unstructured text."""
+    return {
+        "page_changed": page.get("last_edited_time") != project.get("notion_last_edited_at"),
+        "task_status": "not_verified",
+        "review_required": True,
+    }
+
 def main():
     token = os.environ.get("NOTION_API_TOKEN", "").strip()
     if not token:
@@ -60,7 +68,7 @@ def main():
         raise SystemExit("Notion connection failed: " + type(e).__name__)
     data = json.loads((ROOT / "agent_data" / "projects.json").read_text(encoding="utf-8"))
     project = next(p for p in data["projects"] if p["id"] == "wenqingji")
-    page_text = "\n".join(lines)
+    comparison = compare_snapshot(project, page)
     edited = page.get("last_edited_time", "unknown")
     snapshot = project.get("notion_last_edited_at", "unknown")
     OUT = OUTPUT
@@ -72,14 +80,13 @@ def main():
         "- Checked (UTC): " + dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "- Notion page last edited: " + edited,
         "- GitHub snapshot last edited: " + snapshot,
-        "- Changed since snapshot: " + ("YES — manual review required" if edited != snapshot else "No timestamp change detected"),
+        "- Changed since snapshot: " + ("YES — manual review required" if comparison["page_changed"] else "No timestamp change detected"),
         "- Blocks read: " + str(len(lines)),
         "",
-        "## Existing tasks: text mention check (not proof of completion)",
+        "## Existing tasks: structured snapshot review (no status inference)",
     ]
     for task in project["tasks"]:
-        words = task["title"][:8]
-        report.append("- " + task["id"] + ": " + ("text possibly present" if words in page_text else "not found by exact prefix") + " — " + task["title"])
+        report.append("- " + task["id"] + ": NOT VERIFIED — task status must be checked by HANA; GitHub snapshot: " + task.get("status","unknown"))
     report += [
         "", "## Approval", "- [ ] HANA reviews changes in Notion before updating the GitHub snapshot.",
         "- [ ] HANA confirms contractual scope and visual decisions.",
