@@ -28,7 +28,13 @@ Python 3.12.14；離線fixture，不用真實Notion key。
 
 ## GitHub Actions 證據
 
-提交後讀取指定分支run、job steps與log，再填入實際URL及結果；本機測試不等同Actions驗證。
+功能提交 `c185cd84e671634c9c2add7f8dfef3303a4115fc`：
+- [PR Actions run 39060400543](https://github.com/h-s017/hana-focus/actions/runs/39060400543)：completed / success；event=pull_request。
+- 已讀回job 117477012339的steps及log：38 tests通過，快照報告成功，artifact上傳成功。
+- [project-manager-review artifact](https://github.com/h-s017/hana-focus/actions/runs/39060400543/artifacts/12111286666)，保留7天；只含GitHub快照，不含Notion原文。
+- push run：[39060397764](https://github.com/h-s017/hana-focus/actions/runs/39060397764)。PR run已確認成功；事件是PR，不宣稱手動dispatch成功。
+
+手動觸發實際嘗試：`gh workflow run project-manager-review.yml --repo h-s017/hana-focus --ref feature/issue-4-notion-validation -f project=wenqingji`。結果exit 1：proxyconnect／socket operation not permitted，尚未送達GitHub，沒有手動run URL。未嘗試繞過代理／審核。此阻礙不影響上述已完成的PR離線CI。
 
 ## 尚待授權／驗證
 
