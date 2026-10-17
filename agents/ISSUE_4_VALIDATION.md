@@ -10,8 +10,17 @@
 
 ## 遠端驗證
 
-待提交後填入實際 workflow run URL、head SHA 與結果，不把本機模擬寫成Actions通過。
-手動dispatch需GitHub可用的dispatch權限／工具，Notion真實讀取另需environment人工審核及secret；若不可用將記錄阻礙，不合併或發布以解鎖。
+已確認 [Project Manager Review run 39057189552](https://github.com/h-s017/hana-focus/actions/runs/39057189552) **completed / success**，觸發方式 push，驗證提交 `02e1db95c1dad134f3d81a572b9cac11f1382bd0`。
+已讀回 job 117467458808 的 steps 與完整 log：28 tests 全過、快照報告產生成功、artifact 上傳成功；執行權限 Contents: read。
+[project-manager-review Artifact](https://github.com/h-s017/hana-focus/actions/runs/39057189552/artifacts/12110251322)，ID 12110251322，保留7天。
+
+### 尚未完成的驗證
+- **workflow_dispatch 未驗證**：目前 GitHub connector 無 dispatch 方法。已嘗試 `gh workflow run project-manager-review.yml --repo h-s017/hana-focus --ref codex/issue-4-notion-readonly -f project=wenqingji`，環境在代理連線階段返回 socket operation not permitted，沒有建立手動 run。CLI 的 auth status 另顯示注入登入不可用；未索取、讀取或輸出金鑰。沒有以合併、發布或其他認證繞過限制。
+- **Notion 真實 API 未驗證**：本輪執行環境未配置 NOTION_API_TOKEN，且無法透過管理工具驗證 environment required reviewers 或 secret。未借用聊天的 Notion connector 代替 Actions 認證，也沒有未經核准讀取真實中心頁。
+- **HANA 環境審核待管理員確認**：依 NOTION_SETUP.md 唯一設定流程，確認 Read content、分享中心與三個映射頁、設定 required reviewer 與 prevent self-review、environment secret。之後在已審查分支手動執行並補 run URL；同一次 Notion 讀取授權不等於 G1–G5 核准。
+- 手動工作流程的 YAML／輸入及最少權限有離線測試；push 成功不能證明 workflow_dispatch 已成功。Issue #4 保留未結案，PR 等 HANA 審核。
+
+PR：[ #5](https://github.com/h-s017/hana-focus/pull/5)。以上是功能提交的執行證據；後續僅補文件不改動已測試程式。
 
 ## 安全與人工審核
 
