@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "projects": [
+    {
+      "id": "wenqingji",
+      "name": "文慶雞",
+      "workspace": "work",
+      "phase": "待核對",
+      "source": "使用者提供的專案摘要，尚未同步 Notion",
+      "references": [
+        {
+          "name": "Notion 專案中心",
+          "url": "https://app.notion.com/p/3fc9b41981ae8112bef6d0aa5b9616e3?pvs=204"
+        },
+        {
+          "name": "品牌策略 V1",
+          "url": "https://docs.google.com/document/d/15aRA0TDcv0JAxJvQMh-vWDPwC9Pc-yWI71IaULnRvDA/edit"
+        }
+      ],
+      "tasks": [
+        {
+          "id": "bkc-01",
+          "title": "核對正式報價、原有規範與品牌策略，整理衝突清單",
+          "priority": 3,
+          "status": "待核對",
+          "owner": "HANA",
+          "review_required": true,
+          "deliverable": "衝突清單"
+        },
+        {
+          "id": "bkc-02",
+          "title": "盤點 Logo、招牌、菜單與包裝原始設計資產",
+          "priority": 3,
+          "status": "待核對",
+          "owner": "HANA",
+          "review_required": true,
+          "deliverable": "資產盤點表"
+        },
+        {
+          "id": "bkc-03",
+          "title": "製作三套視覺延伸提案與選型標準",
+          "priority": 3,
+          "status": "待規劃",
+          "owner": "Creative Producer",
+          "review_required": true,
+          "deliverable": "三套提案草稿"
+        },
+        {
+          "id": "bkc-04",
+          "title": "確認施工尺寸、材料與打樣需求",
+          "priority": 2,
+          "status": "等待外部確認",
+          "owner": "施工與製造端",
+          "review_required": true,
+          "deliverable": "確認紀錄"
+        }
+      ]
+    }
+  ]
+}
