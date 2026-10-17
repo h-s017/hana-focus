@@ -1,0 +1,66 @@
+{
+  "project_id": "wenqingji",
+  "name": "文慶雞｜品牌視覺更新 × 空間識別整合",
+  "owner": "HANA Creative Director",
+  "status": "in_progress",
+  "source_of_truth": {
+    "notion_hub": "https://app.notion.com/p/3fc9b41981ae8112bef6d0aa5b9616e3?pvs=204",
+    "google_doc": "https://docs.google.com/document/d/15aRA0TDcv0JAxJvQMh-vWDPwC9Pc-yWI71IaULnRvDA/edit",
+    "notion_brand_spec": "https://app.notion.com/p/3d89b41981ae817596c2e02a61f8f8da?pvs=204",
+    "notion_quote": "https://app.notion.com/p/3db9b41981ae815fa6a3c624d09cd39d?pvs=204",
+    "github_issue": "https://github.com/h-s017/hana-focus/issues/1"
+  },
+  "agents": [
+    "01-project-manager",
+    "02-brand-strategist",
+    "03-creative-producer"
+  ],
+  "gates": {
+    "G1": "pending",
+    "G2": "pending",
+    "G3": "pending",
+    "G4": "pending",
+    "G5": "pending"
+  },
+  "tasks": [
+    {
+      "id": "brand-version-conflicts",
+      "agent": "02-brand-strategist",
+      "status": "in_progress",
+      "priority": "P1",
+      "notion": "https://app.notion.com/p/3fc9b41981ae816c8804fe5c27e500d1"
+    },
+    {
+      "id": "three-creative-directions",
+      "agent": "03-creative-producer",
+      "status": "backlog",
+      "priority": "P1",
+      "notion": "https://app.notion.com/p/3fc9b41981ae81568c7cdd9503779407"
+    },
+    {
+      "id": "menu-takeout-experience",
+      "agent": "03-creative-producer",
+      "status": "backlog",
+      "priority": "P2",
+      "notion": "https://app.notion.com/p/3fc9b41981ae811b9d10f4d3a4e848c6"
+    },
+    {
+      "id": "final-delivery-review",
+      "agent": "01-project-manager",
+      "status": "backlog",
+      "priority": "P2",
+      "notion": "https://app.notion.com/p/3fc9b41981ae8149bd5cd5da0da663c7"
+    }
+  ],
+  "known_conflicts": [
+    "brand red #A4655F vs #BF3A34",
+    "round chopstick symbol vs BKC/square emblem",
+    "quotation B vs C and packaging scope"
+  ],
+  "integration_status": {
+    "github": "connected_write_verified_via_issue",
+    "notion": "read_write_verified_in_chat_not_codex",
+    "google_drive": "write_verified_in_chat_not_codex",
+    "scheduled_runner": "not_deployed"
+  }
+}
