@@ -6,7 +6,7 @@
       "name": "文慶雞",
       "workspace": "work",
       "phase": "待核對",
-      "source": "使用者提供的專案摘要，尚未同步 Notion",
+      "source": "Notion 專案管理中心快照，最後編輯 2026-10-17T16:02:32Z；由 ChatGPT 於 2026-10-18 讀取後人工映射，非自動即時同步",
       "references": [
         {
           "name": "Notion 專案中心",
@@ -22,28 +22,31 @@
           "id": "bkc-01",
           "title": "核對正式報價、原有規範與品牌策略，整理衝突清單",
           "priority": 3,
-          "status": "待核對",
+          "status": "已產出初稿／待 HANA 審核",
           "owner": "HANA",
           "review_required": true,
-          "deliverable": "衝突清單"
+          "deliverable": "衝突清單",
+          "evidence": "https://app.notion.com/p/3fc9b41981ae816c8804fe5c27e500d1"
         },
         {
           "id": "bkc-02",
           "title": "盤點 Logo、招牌、菜單與包裝原始設計資產",
           "priority": 3,
-          "status": "待核對",
+          "status": "文件級盤點完成／原檔待取得",
           "owner": "HANA",
           "review_required": true,
-          "deliverable": "資產盤點表"
+          "deliverable": "資產盤點表",
+          "evidence": "https://app.notion.com/p/3d89b41981ae816887f0e92f0ec1cf62"
         },
         {
           "id": "bkc-03",
           "title": "製作三套視覺延伸提案與選型標準",
           "priority": 3,
-          "status": "待規劃",
+          "status": "三方向文字草稿完成／待 HANA 審核與視覺樣張",
           "owner": "Creative Producer",
           "review_required": true,
-          "deliverable": "三套提案草稿"
+          "deliverable": "三套提案草稿",
+          "evidence": "https://app.notion.com/p/3fc9b41981ae81568c7cdd9503779407"
         },
         {
           "id": "bkc-04",
@@ -53,6 +56,44 @@
           "owner": "施工與製造端",
           "review_required": true,
           "deliverable": "確認紀錄"
+        },
+        {
+          "id": "bkc-05",
+          "title": "確認正式合約是否包含包裝，再啟動包裝應用設計",
+          "priority": 3,
+          "status": "等待 HANA 核准",
+          "owner": "HANA",
+          "review_required": true,
+          "deliverable": "已簽核範圍確認紀錄"
+        }
+      ],
+      "notion_last_edited_at": "2026-10-17T16:02:32.870Z",
+      "review_gates": [
+        {
+          "id": "G1",
+          "name": "策略核准",
+          "status": "待 HANA 核准"
+        },
+        {
+          "id": "G2",
+          "name": "識別核准",
+          "status": "待 HANA 核准"
+        },
+        {
+          "id": "G3",
+          "name": "商務範圍核准",
+          "status": "待確認簽核版本",
+          "note": "Notion：B 46,500 未稅不含包裝；C 51,500 未稅含包裝。不得自行認定簽約方案。"
+        },
+        {
+          "id": "G4",
+          "name": "製作核准",
+          "status": "待施工與製造確認"
+        },
+        {
+          "id": "G5",
+          "name": "交付核准",
+          "status": "待確認"
         }
       ]
     }
