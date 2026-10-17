@@ -1,0 +1,25 @@
+{
+  "project_id": "wenqingji",
+  "task_id": "brand-version-conflicts",
+  "from_agent": "01-project-manager",
+  "to_agent": "02-brand-strategist",
+  "status": "ready_for_manual_execution",
+  "input_links": [
+    "https://app.notion.com/p/3fc9b41981ae8112bef6d0aa5b9616e3?pvs=204",
+    "https://docs.google.com/document/d/15aRA0TDcv0JAxJvQMh-vWDPwC9Pc-yWI71IaULnRvDA/edit",
+    "https://app.notion.com/p/3db9b41981ae815fa6a3c624d09cd39d?pvs=204",
+    "https://app.notion.com/p/3d89b41981ae817596c2e02a61f8f8da?pvs=204"
+  ],
+  "deliverables": [
+    "version conflict register",
+    "brand positioning brief",
+    "HANA decision checklist"
+  ],
+  "acceptance_criteria": [
+    "all conflicts traceable to source URLs",
+    "confirmed vs proposed clearly distinguished",
+    "no scope changes without approval"
+  ],
+  "approval_gate": "G1/G2/G3",
+  "evidence_links": []
+}
