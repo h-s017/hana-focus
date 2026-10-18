@@ -1,15 +1,26 @@
 import fs from 'node:fs/promises';
-const date = process.env.LESSON_DATE || new Date().toISOString().slice(0,10);
-const day = Math.max(1,Math.floor((Date.parse(date+'T00:00:00Z')-Date.parse('2026-10-19T00:00:00Z'))/86400000)+1);
-const path = `content/instagram/${date}`;
-await fs.mkdir(path,{recursive:true});
-const lesson = {day,date,title:day===1?'調香師究竟在做什麼？':`調香微課 Day ${day}`,status:'draft',pages:[
-{title:'氣味是一種想像',body:'調香，是將想像轉譯為嗅覺語言的創作。'},
-{title:'核心概念',body:'調香透過天然與合成香料、配方結構與嗅覺感知進行設計。'},
-{title:'四項核心能力',body:'嗅覺辨識、原料知識、配方設計、創意轉譯。'},
-{title:'今日練習',body:'觀察書本、樂器或日常物件，記錄三個聯想到的氣味詞彙；區分想像與實際嗅聞。'},
-{title:'今日測驗',body:'調香師的工作是什麼？答案：運用原料特性與配方結構，將概念轉譯為氣味。'}]};
-if(day!==1){lesson.status='needs-lesson';lesson.pages=[];lesson.note='Day 2 onward requires validated curriculum input; no fabricated lesson.';}
-await fs.writeFile(`${path}/lesson.json`,JSON.stringify(lesson,null,2)+'\n');
-await fs.writeFile(`${path}/review.json`,JSON.stringify({status:'pending-human-review',imagesGenerated:false,canvaCreated:false,published:false,checks:['scientific accuracy','image provenance','traditional Chinese','1080x1350','five independent pages','brand consistency']},null,2)+'\n');
-console.log(`Prepared ${path}; draft only, no image generation or Canva upload performed.`);
+const now = new Date();
+const date = process.env.LESSON_DATE || new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
+if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Invalid LESSON_DATE');
+const day = Math.floor((Date.parse(date+'T00:00:00Z')-Date.parse('2026-10-19T00:00:00Z'))/86400000)+1;
+if(day<1) throw new Error('Schedule starts on 2026-10-19');
+const folder = 'content/instagram/'+date;
+await fs.mkdir(folder,{recursive:true});
+const dayOne = {
+ title:'調香師究竟在做什麼？',
+ pages:[
+ {title:'調香師究竟在做什麼？',body:'氣味是一種想像。調香師讓抽象概念成為可以感受的氣味作品。'},
+ {title:'調香不是只有精油',body:'調香可能使用天然或合成香料，並依用途與安全條件設計配方。'},
+ {title:'調香師的四項能力',body:'嗅覺辨識、香材知識、配方結構，以及將故事轉譯為氣味的創意。'},
+ {title:'今日觀察',body:'選一件日常物件，寫下三個聯想的氣味詞，再分辨哪些是想像、哪些是實際觀察。'},
+ {title:'今日回顧',body:'調香不只是挑選喜歡的味道，而是以知識、感官與創作建構氣味。'}],
+ music:{composer:'Claude Debussy',work:'Préludes, Book I: La fille aux cheveux de lin',medium:'piano',reason:'以音樂的細緻層次對照氣味創作中的意象與結構',recordingRights:'Recording availability and licensing not verified'}
+};
+const lesson={date,day,title:day===1?dayOne.title:null,status:day===1?'draft':'needs-lesson',pages:day===1?dayOne.pages:[],music:day===1?dayOne.music:null,notes:day===1?'Human review required':'A validated curriculum for this day is not connected; do not fabricate educational content.'};
+await fs.writeFile(folder+'/lesson.json',JSON.stringify(lesson,null,2)+'\n');
+const review={date,day,status:'pending-founder-review',imagesGenerated:false,canvaCreated:false,published:false,checks:['subject accuracy','image provenance','traditional Chinese','1080x1350','5-8 independent pages','music recording rights','brand consistency']};
+await fs.writeFile(folder+'/review.json',JSON.stringify(review,null,2)+'\n');
+await fs.mkdir('content/instagram',{recursive:true});
+const manifest={lastRunAt:now.toISOString(),date,day,status:lesson.status,topic:lesson.title,imagesGenerated:false,slideCount:0,canvaDesignId:day===1?'DAHYYj6Kajs':null,canvaEditUrl:day===1?'https://www.canva.com/d/jnO7TQ8Dj85zFHU':null,music:lesson.music,reviewStatus:review.status,published:false,notes:lesson.notes||'Draft created. No automatic image generation or publication.'};
+await fs.writeFile('content/instagram/latest.json',JSON.stringify(manifest,null,2)+'\n');
+console.log('Social Editor generated '+date+' '+lesson.status+'; no PNGs or publication.');
