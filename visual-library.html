@@ -19,6 +19,6 @@ document.querySelectorAll('[data-id]').forEach(el=>el.onchange=()=>{const x=item
 $('upload').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const json=JSON.parse(await f.text());const incoming=Array.isArray(json)?json:json.items;if(!Array.isArray(incoming))throw Error('索引必須包含 items 陣列');const map=new Map(items.map(x=>[x.id,x]));for(const x of incoming){if(!x.id)continue;const prev=map.get(x.id);map.set(x.id,{...x,reviewStatus:prev?.reviewStatus||'pending-human-review'})}items=[...map.values()];save();render()}catch(err){alert('匯入失敗：'+err.message)}e.target.value=''};
 function download(data,name){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 $('export').onclick=()=>download({exportedAt:new Date().toISOString(),items},'hana-visual-review.json');
-$('approved').onclick=()=>download({exportedAt:new Date().toISOString(),items:items.filter(x=>x.reviewStatus==='approved'&&!x.needs_human_review)},'hana-social-editor-approved-assets.json');
+$('approved').onclick=()=>download({exportedAt:new Date().toISOString(),items:items.filter(x=>x.reviewStatus==='approved')},'hana-social-editor-approved-assets.json');
 ['search','category','status'].forEach(id=>$(id).addEventListener('input',render));render();
 </script></body></html>
