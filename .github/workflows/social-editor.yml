@@ -1,4 +1,4 @@
-name: Social Editor daily draft
+name: Social Editor daily draft and dashboard status
 on:
   schedule:
     - cron: '10 0 * * *'
@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Prepare daily draft and review checklist
+      - name: Prepare daily draft, music and live dashboard status
         run: node scripts/social-editor.mjs
       - name: Commit draft
         run: |
