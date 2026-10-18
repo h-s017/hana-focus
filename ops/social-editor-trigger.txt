@@ -1,0 +1,4 @@
+Social Editor smoke test request
+Requested: 2026-10-19
+Expected: GitHub Actions generates content/instagram/latest.json and a dated lesson/review draft.
+No Instagram publication or photo library access.
