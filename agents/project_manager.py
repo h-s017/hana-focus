@@ -10,6 +10,8 @@ DATA = ROOT / "agent_data" / "projects.json"
 OUT = ROOT / "agent_output"
 
 def build_report(project):
+    if project.get("id") != "wenqingji" or project.get("workspace") != "work":
+        raise ValueError("Only the wenqingji work project is permitted")
     tasks = project["tasks"]
     ordered = sorted(tasks, key=lambda t: (-int(t.get("priority", 0)), t["id"]))
     lines = [
@@ -28,7 +30,15 @@ def build_report(project):
     lines += ["", "## 任務優先序", "", "| 優先 | 任務 | 負責角色 | 目前狀態 | 交付物 |", "|---|---|---|---|---|"]
     for t in ordered:
         lines.append("| P" + str(4-int(t.get("priority", 1))) + " | " + t["title"] + " | " + t.get("owner","未指定") + " | " + t.get("status","未設定") + " | " + t.get("deliverable","待確認") + " |")
-    lines += ["", "## 人工審核關卡", ""]
+    lines += ["", "## 今日建議（最多三項；不是正式指派）", ""]
+    active = [t for t in ordered if t.get("status") not in ("完成", "已完成", "暫停")]
+    lines += ["- " + t["id"] + "｜" + t["title"] for t in active[:3]]
+    lines += ["", "## G1–G5 快照（不代表此次核准）", ""]
+    gates = {g["id"]: g for g in project.get("review_gates", [])}
+    for gid in ("G1", "G2", "G3", "G4", "G5"):
+        gate = gates.get(gid, {})
+        lines.append("- [ ] " + gid + "｜" + gate.get("name", "待確認") + "｜快照狀態：" + gate.get("status", "未知") + "；須 HANA 核對證據")
+    lines += ["- B/C 包裝範圍不得自動認定；快照不是有效簽約證據。", "", "## 人工審核關卡", ""]
     for t in ordered:
         if t.get("review_required"):
             lines.append("- [ ] " + t["id"] + "｜" + t["title"] + "：由 HANA 核對資料、成果及下一步")

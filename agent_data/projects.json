@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "projects": [
     {
       "id": "wenqingji",
@@ -26,7 +26,13 @@
           "owner": "HANA",
           "review_required": true,
           "deliverable": "衝突清單",
-          "evidence": "https://app.notion.com/p/3fc9b41981ae816c8804fe5c27e500d1"
+          "evidence": "https://app.notion.com/p/3fc9b41981ae816c8804fe5c27e500d1",
+          "notion_page_id": "3fc9b41981ae816c8804fe5c27e500d1",
+          "notion_snapshot": {
+            "status": null,
+            "last_edited_at": null,
+            "review_required": true
+          }
         },
         {
           "id": "bkc-02",
@@ -36,7 +42,13 @@
           "owner": "HANA",
           "review_required": true,
           "deliverable": "資產盤點表",
-          "evidence": "https://app.notion.com/p/3d89b41981ae816887f0e92f0ec1cf62"
+          "evidence": "https://app.notion.com/p/3d89b41981ae816887f0e92f0ec1cf62",
+          "notion_page_id": "3d89b41981ae816887f0e92f0ec1cf62",
+          "notion_snapshot": {
+            "status": null,
+            "last_edited_at": null,
+            "review_required": true
+          }
         },
         {
           "id": "bkc-03",
@@ -46,7 +58,13 @@
           "owner": "Creative Producer",
           "review_required": true,
           "deliverable": "三套提案草稿",
-          "evidence": "https://app.notion.com/p/3fc9b41981ae81568c7cdd9503779407"
+          "evidence": "https://app.notion.com/p/3fc9b41981ae81568c7cdd9503779407",
+          "notion_page_id": "3fc9b41981ae81568c7cdd9503779407",
+          "notion_snapshot": {
+            "status": null,
+            "last_edited_at": null,
+            "review_required": true
+          }
         },
         {
           "id": "bkc-04",
@@ -55,7 +73,13 @@
           "status": "等待外部確認",
           "owner": "施工與製造端",
           "review_required": true,
-          "deliverable": "確認紀錄"
+          "deliverable": "確認紀錄",
+          "notion_page_id": null,
+          "notion_snapshot": {
+            "status": null,
+            "last_edited_at": null,
+            "review_required": true
+          }
         },
         {
           "id": "bkc-05",
@@ -64,7 +88,13 @@
           "status": "等待 HANA 核准",
           "owner": "HANA",
           "review_required": true,
-          "deliverable": "已簽核範圍確認紀錄"
+          "deliverable": "已簽核範圍確認紀錄",
+          "notion_page_id": null,
+          "notion_snapshot": {
+            "status": null,
+            "last_edited_at": null,
+            "review_required": true
+          }
         }
       ],
       "notion_last_edited_at": "2026-10-17T16:02:32.870Z",
