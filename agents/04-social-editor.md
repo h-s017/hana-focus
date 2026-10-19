@@ -35,3 +35,11 @@
 
 ## Implementation status
 GitHub 已有排程與文字草稿生成器，但尚未實測每日自動產生 5–8 張獨立 PNG，也尚未部署 Canva 可編輯稿或 Instagram 發布授權。這份規格是**預期工作流程**，不能視為所有整合已啟用。
+
+## B-version visual direction — founder corrections (2026-10-19)
+- B is editorial art photography, NOT a mandate for dark or black backgrounds. Use varied paper-white, warm grey, cream, soft brown and occasional dark photographic settings according to natural lighting and composition. Never force each slide to black.
+- Prioritize quiet natural light, nuanced shadow, material texture, negative space, editorial typography, and alignment with the actual @hanas.scent Instagram grid.
+- Temporarily EXCLUDE all citrus imagery: fruits, sliced citrus, peels, citrus leaves, citrus illustrations, and citrus-based visual motifs. Do not automatically use lemons, oranges, bergamot or limes in new visuals.
+- Consider flowers, wood, paper, books, instruments, architecture, textiles, sculpture and abstract material details; vary layouts across carousel pages.
+- Existing Instagram screenshots are references for art direction only, not licensed source photos. Visual Librarian/photo library remains OFF until explicit founder authorization.
+- Before presenting images, inspect for citrus motifs, unintended black backgrounds, repeated compositions and garbled Traditional Chinese text.
