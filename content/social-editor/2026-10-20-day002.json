@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-20",
+  "day": 2,
+  "series": "HANA 嗅覺微課",
+  "topic": "我們如何聞到氣味？",
+  "syllabus_source": "365日主題 Day 002",
+  "slide_count": 6,
+  "slide_size": "1080x1350",
+  "slide_files": [
+    "HANA_Day002_01.png",
+    "HANA_Day002_02.png",
+    "HANA_Day002_03.png",
+    "HANA_Day002_04.png",
+    "HANA_Day002_05.png",
+    "HANA_Day002_06.png"
+  ],
+  "visual": "B版：低飽和編輯式靜物攝影；全新生成，無素材庫照片；無柑橘或樹葉光影",
+  "music": {
+    "work": "Claude Debussy — Reflets dans l’eau (Images, Book I, No. 1)",
+    "instrument": "piano",
+    "version": "未選定錄音版本",
+    "recording_licensed": false,
+    "recording_embedded": false
+  },
+  "sources": [
+    "https://www.nidcd.nih.gov/news/multimedia/journey-of-smell-to-brain-text-version",
+    "https://www.nidcd.nih.gov/health/smell-disorders",
+    "https://www.fabermusic.com/shop/images-book-1-p42307",
+    "https://www.facebook.com/help/instagram/402084904469945"
+  ],
+  "status": {
+    "copy": "draft_ready",
+    "images": "six_independent_png_generated",
+    "first_pass_review": "complete",
+    "founder_approved": false,
+    "music_approved": false,
+    "published": false,
+    "canva_created": false
+  },
+  "note": "Generated six separate review PNGs and a local review ZIP. Await founder approval. No Instagram publication or Canva edits."
+}
