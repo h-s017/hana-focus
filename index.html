@@ -27,7 +27,7 @@
 <section class="panel"><h2>資料備份</h2><p class="warn">工作／教會資料已在本機分開儲存；本版尚未串接 AI、Gmail、行事曆或雲端資料庫。資料只保存在目前瀏覽器，清除網站資料可能遺失；請定期匯出備份。請勿輸入客戶個資或敏感商業資料。</p><button id="export">匯出 JSON 備份</button></section>
 <script>
 const LEGACY='hana-focus-ai-office-demo-v1';
-const PROJECTS={work:['文慶雞','人生四喜｜中心新村香氛專案','B2B 香氛研發','KPIA','氣味藝術序曲','北投老爺','旗袍調香','官網與 SEO','預約管理','其他工作'],church:['主領','飛行天使','信仰見證','安排表','宗教教育','聖樂團','磐石樂團','資訊股','詩班組','葡萄園','石牌教會網站｜tjcshipai','其他教會工作']};
+const PROJECTS={work:['文慶雞','人生四喜｜中心新村香氛專案','B2B 香氛研發','KPIA','氣味藝術序曲','北投老爺','旗袍調香','旗袍合作','蟾蜍山','官網與 SEO','預約管理','其他工作'],church:['主領','飛行天使','信仰見證','安排表','宗教教育','聖樂團','磐石樂團','資訊股','詩班組','葡萄園','石牌教會網站｜tjcshipai','其他教會工作']};
 let workspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
 const key=w=>'hana-focus-workspace-v2-'+w;
 function load(w){let data;try{data=JSON.parse(localStorage.getItem(key(w)))}catch{}return data&&Array.isArray(data.tasks)&&Array.isArray(data.ideas)?data:{tasks:[],ideas:[]}}
@@ -38,6 +38,34 @@ let projectFilter='';
 const STATUSES=['待規劃','進行中','AI 初稿準備','等待本人審核','等待本人決策','等待回覆','暫停','已完成'];
 const CHURCH_STATUSES=['待規劃','準備文稿中','進行中','等待回覆','暫停','已完成'];
 const statuses=()=>workspace==='church'?CHURCH_STATUSES:STATUSES;
+const NEW_WORK_ITEMS_20261020=[
+['取得人生四喜展覽內容','人生四喜｜中心新村香氛專案','管理','等待回覆','2026-12-01','3'],
+['完成展覽現場氣味設計','人生四喜｜中心新村香氛專案','創作','進行中','2026-12-01','3'],
+['氣味設計完成後請示總監核准','人生四喜｜中心新村香氛專案','管理','待規劃','2026-12-01','3'],
+['規劃並產出人生四喜展覽商品（待氣味設計核准）','人生四喜｜中心新村香氛專案','創作','待規劃','2026-12-01','3'],
+['洽談商品同步於遊客中心寄賣','人生四喜｜中心新村香氛專案','策略','待規劃','2026-12-01','2'],
+['人生四喜 12/1 開展準備確認','人生四喜｜中心新村香氛專案','管理','待規劃','2026-12-01','3'],
+['旗袍合作會議｜10/22 14:00','旗袍合作','管理','待規劃','2026-10-22','3'],
+['會議確認旗袍快閃合作方式','旗袍合作','策略','待規劃','2026-10-22','3'],
+['會議確認旗袍陳列位置','旗袍合作','創作','待規劃','2026-10-22','3'],
+['會議確認妝髮空間','旗袍合作','管理','待規劃','2026-10-22','3'],
+['會議確認羊駝攝影合作','旗袍合作','管理','待規劃','2026-10-22','3'],
+['蟾蜍山｜11/1 前完成回填','蟾蜍山','行政','待規劃','2026-10-31','3'],
+['回填春節期間刮刮樂活動時間','蟾蜍山','行政','待規劃','2026-10-31','3'],
+['回填響應設計：以空間自行銷售為主','蟾蜍山','策略','待規劃','2026-10-31','3']
+];
+(function importWorkItemsOnce(){
+ const k='hana-focus-work-items-20261020-v1';
+ if(localStorage.getItem(k))return;
+ const work=load('work');
+ for(const [title,project,role,status,due,importance] of NEW_WORK_ITEMS_20261020){
+  if(work.tasks.some(t=>t.title===title&&t.project===project))continue;
+  work.tasks.push({id:crypto.randomUUID(),title,project,role,status,due,importance,owner:'yes'});
+ }
+ localStorage.setItem(key('work'),JSON.stringify(work));
+ localStorage.setItem(k,'1');
+ if(workspace==='work')state=work;
+})();
 const STARTER={
 work:[
 ['核對正式報價、品牌策略與原規範，建立衝突清單','文慶雞','策略','3','yes'],
