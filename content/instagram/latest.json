@@ -1,21 +1,15 @@
 {
-  "lastRunAt": "2026-10-19T04:33:54.772Z",
-  "date": "2026-10-19",
-  "day": 1,
-  "status": "draft",
-  "topic": "調香師究竟在做什麼？",
+  "lastRunAt": "2026-10-20T04:43:08.845Z",
+  "date": "2026-10-20",
+  "day": 2,
+  "status": "needs-lesson",
+  "topic": null,
   "imagesGenerated": false,
   "slideCount": 0,
-  "canvaDesignId": "DAHYYj6Kajs",
-  "canvaEditUrl": "https://www.canva.com/d/jnO7TQ8Dj85zFHU",
-  "music": {
-    "composer": "Claude Debussy",
-    "work": "Préludes, Book I: La fille aux cheveux de lin",
-    "medium": "piano",
-    "reason": "以音樂的細緻層次對照氣味創作中的意象與結構",
-    "recordingRights": "Recording availability and licensing not verified"
-  },
+  "canvaDesignId": null,
+  "canvaEditUrl": null,
+  "music": null,
   "reviewStatus": "pending-founder-review",
   "published": false,
-  "notes": "Human review required"
+  "notes": "A validated curriculum for this day is not connected; do not fabricate educational content."
 }
