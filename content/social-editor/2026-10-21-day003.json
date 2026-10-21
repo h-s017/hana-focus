@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-21",
+  "day": 3,
+  "series": "調香師從 0 養成｜HANA 嗅覺微課",
+  "topic": "嗅覺與味覺有什麼不同？",
+  "syllabus_source": "HANA_嗅覺微課_365日年度課綱.xlsx Day 003",
+  "version": "v1",
+  "slide_count": 6,
+  "slide_size": "1080x1350",
+  "slides": [
+    "01.png",
+    "02.png",
+    "03.png",
+    "04.png",
+    "05.png",
+    "06.png"
+  ],
+  "style": "復古科學圖鑑 × 色鉛筆淡彩，單日單一風格",
+  "image_provenance": "original programmatically drawn illustrations; no photo library, no user reference artwork reuse",
+  "visual_exclusions_verified": [
+    "no humans",
+    "no human organs or anatomical diagrams",
+    "no citrus",
+    "no repeated perfume bottles"
+  ],
+  "music": {
+    "composer": "Frédéric Chopin",
+    "work": "Prélude in D-flat major, Op. 28 No. 15",
+    "instrumentation": "solo piano",
+    "recording_version": "not selected",
+    "recording_licensed": false,
+    "recording_embedded": false
+  },
+  "sources": [
+    "https://www.nidcd.nih.gov/health/taste-disorders",
+    "https://www.nidcd.nih.gov/health/smell-disorders",
+    "https://monell.org/anosmia-faq/",
+    "https://chopin.nifc.pl/en/chopin/kompozycja/208",
+    "https://www.facebook.com/help/instagram/402084904469945"
+  ],
+  "status": {
+    "copy": "ai-reviewed",
+    "images": "six_independent_png_created_and_verified",
+    "qa": "first_pass_complete",
+    "founder_approved": false,
+    "music_approved": false,
+    "canva_created": false,
+    "instagram_integration_verified": false,
+    "published": false
+  },
+  "review_package": "HANA_Day003_2026-10-21_審核包.zip (conversation artifact)",
+  "notes": "Await founder review. No Canva creation or Instagram publishing."
+}
