@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>預約管理 Agent｜HANA WORKSPACE</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:#292928;background:#f7f7f5}
+*{box-sizing:border-box}body{margin:0;max-width:1040px;padding:25px 16px 80px;margin:auto}
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+h1{font-family:Georgia,"Noto Serif TC",serif;font-size:28px;font-weight:500;letter-spacing:.05em}
+h2{font-size:19px;font-weight:600;margin:0 0 16px}
+a{color:inherit}small,.muted{color:#686864}
+.panel{background:#fff;border:1px solid #e2e2de;padding:20px;margin:14px 0;border-radius:14px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+label{display:block;font-size:13px;color:#555;margin:8px 0}
+input{width:100%;margin-top:6px}button,input{font:inherit;border:1px solid #b9b9b3;border-radius:8px;padding:10px;background:#fff;color:inherit}
+button{cursor:pointer}button.primary{background:#30302e;border-color:#30302e;color:#fff}
+button:disabled{opacity:.55;cursor:default}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;border-bottom:1px solid #ededeb;padding:10px;vertical-align:top}
+.scroll{overflow:auto;max-height:340px}td:last-child{min-width:110px}
+button.small{font-size:12px;padding:6px}
+.notice{background:#f5f3ee;border-left:3px solid #87847a;padding:12px;border-radius:4px}
+.muted{line-height:1.6}#message{white-space:pre-wrap}
+.hidden{display:none!important}
+@media(max-width:690px){.cols{grid-template-columns:1fr}h1{font-size:23px}.panel{padding:15px}}
+</style></head>
+<body>
+<header><div><small>HANA WORKSPACE / OPERATIONS</small><h1>04｜Reservation Manager</h1>
+<p class="muted">預約網站、個人行程與課程名額｜單一工作後台</p></div>
+<div><a href="./">← 返回 HANA WORKSPACE</a></div></header>
+<p class="notice">本模組直接管理現有預約資料庫。新增忙碌時段後，網站對重疊場次停止接受新預約；已成立訂單不會被自動取消。Google Calendar 持續同步仍待獨立授權與部署。</p>
+<section id="loginPanel" class="panel">
+<h2>管理授權</h2><p class="muted">使用既有預約系統的管理金鑰。金鑰僅保留在本分頁記憶體，不寫入本機儲存空間。</p>
+<form id="loginForm"><label>管理金鑰<input id="adminKey" type="password" required minlength="32" autocomplete="off"></label>
+<button class="primary" type="submit">連結預約系統</button></form></section>
+<div id="app" class="hidden">
+<div class="row"><p id="summary" class="muted" aria-live="polite">尚未取得資料</p><button id="refresh" type="button">重新同步資料</button><button id="logout" type="button">結束管理</button></div>
+<div class="cols">
+<section class="panel">
+<h2 id="formTitle">新增行程／不可預約時段</h2>
+<form id="eventForm"><input type="hidden" id="eventId">
+<label>行程名稱<input id="eventTitle" required maxlength="120" placeholder="例如：品牌合作會議"></label>
+<label>開始（台灣時間）<input id="eventStart" type="datetime-local" required></label>
+<label>結束（台灣時間）<input id="eventEnd" type="datetime-local" required></label>
+<div class="row"><button class="primary" type="submit">儲存並檢查預約衝突</button><button type="button" id="clearEdit">清除／新增</button></div></form>
+<p class="muted">只有重疊場次會被暫停。刪除此行程後，系統仍保留其他禁約規則及原本關閉的場次。</p>
+</section>
+<section class="panel">
+<h2>現有行程封鎖</h2><div class="scroll"><table><thead><tr><th>行程／日期</th><th>管理</th></tr></thead><tbody id="eventRows"></tbody></table></div>
+</section></div>
+<section class="panel"><h2>預約衝突警示</h2><p class="muted">新增行程若與已成立或尚在付款程序中的預約衝突，僅列為待人工處理，不會取消訂單或退款。</p><div id="conflicts" aria-live="polite">尚未檢查新的行程。</div></section>
+<div class="cols">
+<section class="panel">
+<div class="row"><h2>網站場次／可預約狀態</h2><label>日期篩選<input id="slotDate" type="date"></label></div>
+<div class="scroll"><table><thead><tr><th>日期／課程</th><th>名額／狀態</th><th>管理</th></tr></thead><tbody id="slotRows"></tbody></table></div>
+</section>
+<section class="panel"><h2>最新預約訂單</h2><div class="scroll"><table><thead><tr><th>場次／姓名</th><th>付款／狀態</th></tr></thead><tbody id="orderRows"></tbody></table></div><p class="muted">僅供管理者檢視，資料不儲存到公開 GitHub 或本機裝置。</p></section>
+</div></div>
+<section class="panel"><h2>執行紀錄</h2><p id="message" role="status" class="muted">等待授權。</p></section>
+<script>
+'use strict';
+const API='https://hana-course-production.hana-reservation-payment.workers.dev';
+const get=id=>document.getElementById(id);
+let adminKey='',events=[],slots=[],orders=[];
+function td(tr,value){const cell=document.createElement('td');cell.textContent=String(value??'');tr.appendChild(cell);return cell;}
+function action(text,fn){const b=document.createElement('button');b.type='button';b.className='small';b.textContent=text;b.addEventListener('click',fn);return b;}
+function tzTime(seconds){return new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(seconds*1000));}
+function localTaipei(seconds){return new Date(seconds*1000+28800000).toISOString().slice(0,16);}
+function toUtc(value){const ms=Date.parse(value+':00+08:00');if(!Number.isFinite(ms))throw Error('日期時間格式不正確');return new Date(ms).toISOString();}
+function errorText(e){const messages={UNAUTHORIZED:'授權失敗，請檢查管理金鑰',BUSY_CONFLICT:'該時段已有其他行程',BAD_REQUEST:'請確認日期、起訖與欄位資料',SERVICE_UNAVAILABLE:'後端尚未部署／資料庫尚未更新',NOT_FOUND:'找不到指定資料'};return messages[e.message]||e.message;}
+async function api(path,data={}){const response=await fetch(API+'/api/admin/'+path,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+adminKey},body:JSON.stringify(data)});const payload=await response.json();if(!response.ok||!payload.ok)throw Error(payload.error||('HTTP '+response.status));return payload;}
+async function guarded(task){try{get('message').textContent='處理中…';await task();get('message').textContent='已同步。最後完成：'+new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});}catch(e){get('message').textContent='操作未完成：'+errorText(e);}}
+function render(){
+get('summary').textContent='資料已載入｜'+events.length+' 個行程限制｜'+slots.length+' 個未來課程場次｜'+orders.length+' 筆最近訂單';
+get('eventRows').replaceChildren();
+if(!events.length){const r=document.createElement('tr');td(r,'尚未建立其他行程');get('eventRows').append(r);}
+for(const item of events){const r=document.createElement('tr');td(r,item.title+'\n'+tzTime(item.starts_at)+' ～ '+tzTime(item.ends_at));const cell=td(r,'');cell.append(action('編輯',()=>{get('eventId').value=item.id;get('eventTitle').value=item.title;get('eventStart').value=localTaipei(item.starts_at);get('eventEnd').value=localTaipei(item.ends_at);get('formTitle').textContent='修改已登錄行程';window.scrollTo({top:0,behavior:'smooth'});}));
+cell.append(document.createTextNode(' '));cell.append(action('刪除',()=>{if(!confirm('移除這個行程限制？仍會保留其他禁約與已成立訂單。'))return;guarded(async()=>{await api('busy-delete',{id:item.id});await refresh();});}));get('eventRows').append(r);}
+get('slotRows').replaceChildren();
+const date=get('slotDate').value;
+for(const s of slots.filter(s=>!date||s.date===date).slice(0,100)){
+ const r=document.createElement('tr');td(r,s.date+' '+s.time+'\n'+s.course+(s.variant?'｜'+s.variant:''));td(r,s.booked+' / '+s.capacity+'\n'+s.status+(s.schedule_blocked?'（行程衝突）':''));
+ const cell=td(r,'');cell.append(action(s.status==='開放'?'關閉場次':(s.schedule_blocked?'行程中不可開放':'切換場次狀態'),()=>{
+ if(s.schedule_blocked){get('message').textContent='請先修改或移除衝突行程，再考慮開放該場次。';return;}
+ const next=s.status==='關閉'?'OPEN':'CLOSED';
+ if(!confirm('確認要'+(next==='OPEN'?'開放':'關閉')+'此場次？'))return;
+ guarded(async()=>{await api('slot',{id:s.id,status:next,capacity:s.capacity});await refresh();});
+ }));get('slotRows').append(r);
+}
+get('orderRows').replaceChildren();
+for(const o of orders.slice(0,100)){const r=document.createElement('tr');td(r,o.sessions+'\n'+o.course+'\n'+o.name);td(r,'NT$ '+o.amount+'\n'+o.status);get('orderRows').append(r);}
+}
+async function refresh(){const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const responses=await Promise.all([api('busy-list',{from:date}),api('slots',{from:date}),api('orders',{})]);events=responses[0].events;slots=responses[1].slots;orders=responses[2].orders;render();}
+get('loginForm').addEventListener('submit',e=>{e.preventDefault();adminKey=get('adminKey').value;get('adminKey').value='';guarded(async()=>{await refresh();get('loginPanel').classList.add('hidden');get('app').classList.remove('hidden');});});
+get('refresh').addEventListener('click',()=>guarded(refresh));
+get('slotDate').addEventListener('change',render);
+get('clearEdit').addEventListener('click',()=>{get('eventForm').reset();get('eventId').value='';get('formTitle').textContent='新增行程／不可預約時段';});
+get('logout').addEventListener('click',()=>{adminKey='';events=[];slots=[];orders=[];get('loginPanel').classList.remove('hidden');get('app').classList.add('hidden');get('message').textContent='已登出。';});
+get('eventForm').addEventListener('submit',e=>{e.preventDefault();guarded(async()=>{
+const title=get('eventTitle').value.trim(),start=toUtc(get('eventStart').value),end=toUtc(get('eventEnd').value);
+if(Date.parse(end)<=Date.parse(start))throw Error('結束時間必須晚於開始時間');
+const id=get('eventId').value;
+const saved=await api('busy-upsert',{...(id?{id}:{}),title,start,end});
+get('conflicts').replaceChildren();
+if(saved.conflicts.length){const p=document.createElement('p');p.className='notice';p.textContent='發現 '+saved.conflicts.length+' 筆既有預約衝突，請人工聯繫學員與安排。';get('conflicts').append(p);
+for(const c of saved.conflicts){const x=document.createElement('p');x.textContent=c.date+' '+c.time+'｜訂單 '+c.order_id+'（'+c.status+'）';get('conflicts').append(x);}}
+else get('conflicts').textContent='沒有既有訂單衝突；重疊場次已加入防護規則。';
+get('clearEdit').click();await refresh();
+});});
+</script></body></html>
