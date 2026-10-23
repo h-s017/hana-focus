@@ -151,7 +151,8 @@ for(const item of events){
 }
 const cal=calendarSyncState;
 const stamp=cal?.last_success_at?'最近成功：'+new Date(cal.last_success_at*1000).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):'尚無成功同步紀錄';
-get('calendarStatus').textContent=!cal?'狀態未知':!cal.configured?'尚未授權指定 Google Calendar｜請先完成後端安全設定':cal.status==='OK'?'同步正常｜'+stamp+'｜讀取 '+cal.event_count+' 個行程':cal.status==='ERROR'?'同步失敗（'+cal.error_code+'）｜'+stamp:'等待首次同步｜'+stamp;
+const syncAge=cal?.last_success_at?Math.floor(Date.now()/1000)-cal.last_success_at:null;
+get('calendarStatus').textContent=!cal?'狀態未知':!cal.configured?'尚未授權指定 Google Calendar｜請先完成後端安全設定':cal.status==='OK'&&syncAge!==null&&syncAge<=3600?'同步正常｜'+stamp+'｜讀取 '+cal.event_count+' 個行程':cal.status==='OK'?'同步資料已超過一小時未更新｜'+stamp+'｜請檢查排程':cal.status==='ERROR'?'同步失敗（'+cal.error_code+'）｜'+stamp:'等待首次同步｜'+stamp;
 get('calendarConflicts').replaceChildren();
 if(!calendarOverlaps.length)get('calendarConflicts').textContent='沒有偵測到 Google 行程與現有訂單撞期。';
 else{
@@ -181,6 +182,7 @@ get('calendarSync').addEventListener('click',()=>guarded(async()=>{
  const result=await api('calendar-sync',{});
  await refresh();
  if(!result.configured)return '尚未設定 Google Calendar 權限與指定日曆；正式同步尚未啟用。';
+ if(result.status==='SKIPPED')return '較新的同步已完成，這次舊同步結果已安全略過。';
  if(result.status!=='OK')return 'Google Calendar 同步失敗：'+result.error_code+'；原本封鎖仍保留。';
  return 'Google Calendar 已同步 '+result.event_count+' 個時段。請檢查上方撞期警示。';
 }));
