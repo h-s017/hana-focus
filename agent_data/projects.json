@@ -146,6 +146,237 @@
           "G5"
         ]
       }
+    },
+    {
+      "id": "qipao-pop-up",
+      "name": "旗袍合作｜心村快閃活動",
+      "workspace": "work",
+      "phase": "組合方案整理完成／價格與上線條件待審核",
+      "source": "HANA 2026-10-24 提供的「心村快閃小活動」畫面截圖與三項組合需求；來源為人工整理，非外部即時同步。",
+      "references": [
+        {
+          "name": "既有預約網站（待整合／尚未新增商品）",
+          "url": "https://reservation.hanascent.com/"
+        }
+      ],
+      "offer_source_version": "2026-10-24-user-screenshot-v1",
+      "service_pricing": {
+        "currency": "TWD",
+        "qipao_styled": {
+          "women": {
+            "price": 1000,
+            "original_price": 1500,
+            "inclusions": "旗袍1套、配件、跟鞋與簡易妝髮（依合作方方案）"
+          },
+          "men": {
+            "price": 700,
+            "original_price": 1000,
+            "inclusions": "長袍1套、配件與簡易妝髮"
+          },
+          "children": {
+            "price": 300,
+            "original_price": 500,
+            "inclusions": "旗袍或長袍、配件與簡易妝髮；年齡與尺碼須確認"
+          }
+        },
+        "qipao_unstyled": {
+          "women": 800,
+          "men": 500,
+          "notes": "單租不含簡易妝髮，非三方案預設服務"
+        },
+        "perfumery": {
+          "price": 1000,
+          "original_price": 1500,
+          "volume_ml": 30,
+          "duration": "1–2小時",
+          "inclusions": "一份小點心"
+        },
+        "photography": {
+          "price": 700,
+          "original_price": 900,
+          "duration": "20–30分鐘",
+          "edited_color_photos": 10,
+          "post_processing": "僅基本調色，不含精修",
+          "retouch_single_addon": 200,
+          "retouch_all_addon": 1500,
+          "notes": "加購精修全部的張數範圍、每個預約單位的拍攝費計價方式需合作方確認"
+        }
+      },
+      "combinations": [
+        {
+          "id": "A",
+          "name": "旗袍＋調香",
+          "includes": [
+            "qipao_styled",
+            "perfumery"
+          ],
+          "duration": "調香1–2小時，另加換裝及妝髮時間（待確認）",
+          "provisional_total_twd": {
+            "women": 2000,
+            "men": 1700,
+            "children": 1300
+          },
+          "pricing_status": "僅單項專案價加總；非正式上線組合價"
+        },
+        {
+          "id": "B",
+          "name": "旗袍＋攝影",
+          "includes": [
+            "qipao_styled",
+            "photography"
+          ],
+          "duration": "攝影20–30分鐘，另加換裝及妝髮時間（待確認）",
+          "provisional_total_twd": {
+            "women": 1700,
+            "men": 1400,
+            "children": 1000
+          },
+          "pricing_status": "僅單項專案價加總；攝影計價單位待確認"
+        },
+        {
+          "id": "C",
+          "name": "旗袍＋調香＋攝影",
+          "includes": [
+            "qipao_styled",
+            "perfumery",
+            "photography"
+          ],
+          "duration": "調香1–2小時、攝影20–30分鐘，妝髮/轉場另計（待確認）",
+          "provisional_total_twd": {
+            "women": 2700,
+            "men": 2400,
+            "children": 2000
+          },
+          "pricing_status": "僅單項專案價加總；非正式組合價"
+        }
+      ],
+      "booking_rules": {
+        "status": "設計待確認／尚未串接預約網站與日曆",
+        "inventory": "A和C共同消耗調香席次；B和C共同消耗攝影檔期；A/B/C全部消耗服裝與妝髮量能",
+        "duration": "須明確拆為換裝妝髮、調香、攝影與轉場資源，不得只用最短體驗時間當可預約總時段",
+        "availability": "新增預約與手動新增行程皆需檢查共同資源與 Google Calendar 衝突；尚未部署",
+        "publication": "所有方案描述、售價、訂金/退款、場地與檔期在 HANA 人工核准前不得對外發布",
+        "children": "兒童是否能參加調香體驗、攝影計價、最低年齡、陪同與安全條件需確認，不得以算式價格直接售票"
+      },
+      "tasks": [
+        {
+          "id": "qpf-01",
+          "title": "確認旗袍／妝髮／鞋款／尺寸與園區歸還時間規則",
+          "priority": 3,
+          "status": "等待合作方確認",
+          "owner": "Project Manager",
+          "review_required": true,
+          "deliverable": "旗袍與妝髮服務規格／供給上限"
+        },
+        {
+          "id": "qpf-02",
+          "title": "確認調香材料、30ml作品、小點心與1–2小時課程容量",
+          "priority": 3,
+          "status": "待 HANA 確認",
+          "owner": "Project Manager",
+          "review_required": true,
+          "deliverable": "調香席次、材料及動線規格"
+        },
+        {
+          "id": "qpf-03",
+          "title": "確認攝影700元的計價單位、精修交付方式、照片使用權及攝影師檔期",
+          "priority": 3,
+          "status": "等待攝影合作方確認",
+          "owner": "Project Manager",
+          "review_required": true,
+          "deliverable": "攝影供給/選片交件條款"
+        },
+        {
+          "id": "qpf-04",
+          "title": "核准A/B/C組合價格、單項折扣是否可疊加及合作分帳方式",
+          "priority": 3,
+          "status": "等待本人決策",
+          "owner": "HANA",
+          "review_required": true,
+          "deliverable": "核准組合售價與結算表"
+        },
+        {
+          "id": "qpf-05",
+          "title": "規劃三組方案預約商品與共享資源鎖位、防止調香與攝影時段超賣",
+          "priority": 3,
+          "status": "待規劃",
+          "owner": "Project Manager",
+          "review_required": true,
+          "deliverable": "三方案預約及共享庫存規格"
+        },
+        {
+          "id": "qpf-06",
+          "title": "檢查reservation.hanascent.com與Google Calendar衝突檢查可行性",
+          "priority": 3,
+          "status": "尚未串接／等待技術評估",
+          "owner": "Project Manager",
+          "review_required": true,
+          "deliverable": "預約整合可行性與授權需求"
+        },
+        {
+          "id": "qpf-07",
+          "title": "撰寫A/B/C活動標題、注意事項、活動頁文案與清楚的加購說明",
+          "priority": 2,
+          "status": "待企劃",
+          "owner": "Brand Strategist",
+          "review_required": true,
+          "deliverable": "三組預約頁／LINE發布文案草稿"
+        },
+        {
+          "id": "qpf-08",
+          "title": "製作三種組合視覺圖、價目卡與現場指引",
+          "priority": 2,
+          "status": "待創作",
+          "owner": "Creative Producer",
+          "review_required": true,
+          "deliverable": "上線素材及場地視覺草稿"
+        },
+        {
+          "id": "qpf-09",
+          "title": "確認活動日期、場地、人力、換裝妝髮動線與多人體驗規則",
+          "priority": 3,
+          "status": "等待合作方確認",
+          "owner": "Project Manager",
+          "review_required": true,
+          "deliverable": "可上線場次表與現場執行SOP"
+        },
+        {
+          "id": "qpf-10",
+          "title": "完成最終上線前人工審核與測試訂單",
+          "priority": 3,
+          "status": "阻擋上線：前置核准未完成",
+          "owner": "HANA",
+          "review_required": true,
+          "deliverable": "核准紀錄與預約流程驗收"
+        }
+      ],
+      "review_gates": [
+        {
+          "id": "Q1",
+          "name": "合作內容與資源確認",
+          "status": "未核准"
+        },
+        {
+          "id": "Q2",
+          "name": "價格及分帳核准",
+          "status": "未核准"
+        },
+        {
+          "id": "Q3",
+          "name": "文案與視覺核准",
+          "status": "未核准"
+        },
+        {
+          "id": "Q4",
+          "name": "預約場次與共享資源衝突測試",
+          "status": "未核准"
+        },
+        {
+          "id": "Q5",
+          "name": "正式對外上線",
+          "status": "未核准"
+        }
+      ]
     }
   ]
 }
