@@ -53,6 +53,10 @@ button.small{font-size:12px;padding:6px}
  <button id="calendarSync" type="button">立即同步 Google Calendar</button></div>
  <p class="muted">只讀取明確授權的「不可預約」日曆，不修改其他行事曆。排程預計每 10 分鐘檢查，實際時間以部署與連線驗證為準。</p>
  <div id="calendarConflicts" class="muted">尚未檢查 Google 日曆撞期訂單。</div></section>
+<section class="panel" aria-label="新預約通知">
+<div class="row"><div><h2>新預約通知｜LINE ＋ Email</h2><p class="muted" id="notifyStatus" aria-live="polite">等待查詢通知設定。</p></div><button id="notifySend" type="button">檢查待發送通知</button></div>
+<p class="muted">付款成功、LINE 洽詢、付款失敗、取消或退款等事件，由現有預約資料庫產生紀錄；通知尚未授權時不會對外發送。</p>
+<div class="scroll"><table><thead><tr><th>管道</th><th>狀態</th><th>筆數</th></tr></thead><tbody id="notifyRows"></tbody></table></div></section>
 <section class="panel" aria-label="預約日期與行程總覽"><div class="row"><h2>網站檔期｜月曆總覽</h2><div class="row"><button type="button" id="monthPrevious">上個月</button><strong id="monthTitle"></strong><button type="button" id="monthNext">下個月</button></div></div>
 <p class="legend">數字顯示網站可預約場次、已關閉或額滿場次，以及忙碌行程數。點選日期可篩選下方場次。</p>
 <div id="monthGrid" class="calendar-grid" role="group" aria-label="每月預約場次"></div></section>
@@ -82,7 +86,7 @@ button.small{font-size:12px;padding:6px}
 'use strict';
 const API='https://hana-course-production.hana-reservation-payment.workers.dev';
 const get=id=>document.getElementById(id);
-let adminKey='',events=[],slots=[],orders=[],calendarSyncState=null,calendarOverlaps=[];
+let adminKey='',events=[],slots=[],orders=[],calendarSyncState=null,calendarOverlaps=[],notificationInfo=null;
 const monthParts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'numeric'}).formatToParts(new Date());
 let displayedMonth=new Date(Number(monthParts.find(p=>p.type==='year').value),Number(monthParts.find(p=>p.type==='month').value)-1,1);
 function td(tr,value){const cell=document.createElement('td');cell.textContent=String(value??'');tr.appendChild(cell);return cell;}
@@ -133,7 +137,16 @@ function renderMonth(){
  }
 }
 
+function renderNotifications(){
+ const n=notificationInfo;
+ get('notifySend').disabled=!n?.enabled;
+ get('notifyStatus').textContent=!n?'通知狀態尚未取得':!n.enabled?'通知尚未啟用（安全預設）｜需先完成 LINE 與 Email 發送授權':(!n.configured?.line||!n.configured?.email)?'部分通知管道尚未設定：LINE '+(n.configured?.line?'已備妥':'待設定')+'／Email '+(n.configured?.email?'已備妥':'待設定'):'LINE 與 Email 已設定｜待處理 '+n.pending+' 筆';
+ get('notifyRows').replaceChildren();
+ for(const item of n?.counts||[]){const r=document.createElement('tr');td(r,item.channel==='line'?'LINE':'Email');td(r,item.status);td(r,item.total);get('notifyRows').append(r);}
+ if(!(n?.counts||[]).length){const r=document.createElement('tr');td(r,'尚無通知紀錄');td(r,'—');td(r,'0');get('notifyRows').append(r);}
+}
 function render(){
+renderNotifications();
 get('summary').textContent='資料已載入｜'+events.length+' 個行程限制｜'+slots.length+' 個未來課程場次｜'+orders.length+' 筆最近訂單';
 get('eventRows').replaceChildren();
 if(!events.length){const r=document.createElement('tr');td(r,'尚未建立其他行程');get('eventRows').append(r);}
@@ -175,7 +188,7 @@ get('orderRows').replaceChildren();
 for(const o of orders.slice(0,100)){const r=document.createElement('tr');td(r,o.sessions+'\n'+o.course+'\n'+o.name);td(r,'NT$ '+o.amount+'\n'+o.status);get('orderRows').append(r);}
 renderMonth();
 }
-async function refresh(){const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const responses=await Promise.all([api('busy-list',{from:date}),api('slots',{from:date}),api('orders',{}),api('calendar-status',{}),api('calendar-conflicts',{})]);events=responses[0].events;slots=responses[1].slots;orders=responses[2].orders;calendarSyncState=responses[3];calendarOverlaps=responses[4].conflicts;render();}
+async function refresh(){const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const responses=await Promise.all([api('busy-list',{from:date}),api('slots',{from:date}),api('orders',{}),api('calendar-status',{}),api('calendar-conflicts',{}),api('notifications',{})]);events=responses[0].events;slots=responses[1].slots;orders=responses[2].orders;calendarSyncState=responses[3];calendarOverlaps=responses[4].conflicts;notificationInfo=responses[5];render();}
 get('loginForm').addEventListener('submit',e=>{e.preventDefault();adminKey=get('adminKey').value;get('adminKey').value='';guarded(async()=>{await refresh();get('loginPanel').classList.add('hidden');get('app').classList.remove('hidden');});});
 get('refresh').addEventListener('click',()=>guarded(refresh));
 get('calendarSync').addEventListener('click',()=>guarded(async()=>{
@@ -185,6 +198,11 @@ get('calendarSync').addEventListener('click',()=>guarded(async()=>{
  if(result.status==='SKIPPED')return '較新的同步已完成，這次舊同步結果已安全略過。';
  if(result.status!=='OK')return 'Google Calendar 同步失敗：'+result.error_code+'；原本封鎖仍保留。';
  return 'Google Calendar 已同步 '+result.event_count+' 個時段。請檢查上方撞期警示。';
+}));
+get('notifySend').addEventListener('click',()=>guarded(async()=>{
+ const outcome=await api('notifications-dispatch',{});
+ await refresh();
+ return !outcome.enabled?'通知尚未啟用；請先完成發送授權。':'本次發送完成 '+outcome.sent+' 筆；待重試 '+outcome.retry+' 筆，需人工確認 '+outcome.review+' 筆。';
 }));
 get('slotDate').addEventListener('change',render);
 get('monthPrevious').addEventListener('click',()=>{displayedMonth.setMonth(displayedMonth.getMonth()-1);renderMonth();});
