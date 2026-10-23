@@ -157,6 +157,10 @@
         {
           "name": "既有預約網站（待整合／尚未新增商品）",
           "url": "https://reservation.hanascent.com/"
+        },
+        {
+          "name": "旗袍快閃 Agent 交接規格",
+          "url": "https://github.com/h-s017/hana-focus/blob/hana-focus-preview/agents/QIPAO_POP_UP_HANDOFF.md"
         }
       ],
       "offer_source_version": "2026-10-24-user-screenshot-v1",
@@ -376,7 +380,8 @@
           "name": "正式對外上線",
           "status": "未核准"
         }
-      ]
+      ],
+      "record_updated_on": "2026-10-24"
     }
   ]
 }
