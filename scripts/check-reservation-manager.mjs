@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const html=readFileSync(new URL('../docs/reservation-manager.html',import.meta.url),'utf8');
+const homepage=readFileSync(new URL('../docs/index.html',import.meta.url),'utf8');
+assert.match(homepage,/reservation-manager\.html/);
+assert.match(html,/id="eventForm"/);
+assert.match(html,/id="conflicts"/);
+assert.match(html,/api\/admin\/|\/api\/admin\//);
+const match=html.match(/<script>([\s\S]*?)<\/script>/);
+assert.ok(match,'Inline module script is required');
+new Function(match[1]);
+assert.ok(!match[1].includes('localStorage'),'Do not persist admin token or customer data');
+assert.ok(!match[1].includes('sessionStorage'),'Do not persist admin token');
+console.log('HANA WORKSPACE reservation manager static checks passed');
