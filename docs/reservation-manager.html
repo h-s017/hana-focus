@@ -83,7 +83,8 @@ button.small{font-size:12px;padding:6px}
 const API='https://hana-course-production.hana-reservation-payment.workers.dev';
 const get=id=>document.getElementById(id);
 let adminKey='',events=[],slots=[],orders=[],calendarSyncState=null,calendarOverlaps=[];
-let displayedMonth=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Taipei'}));displayedMonth.setDate(1);
+const monthParts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'numeric'}).formatToParts(new Date());
+let displayedMonth=new Date(Number(monthParts.find(p=>p.type==='year').value),Number(monthParts.find(p=>p.type==='month').value)-1,1);
 function td(tr,value){const cell=document.createElement('td');cell.textContent=String(value??'');tr.appendChild(cell);return cell;}
 function action(text,fn){const b=document.createElement('button');b.type='button';b.className='small';b.textContent=text;b.addEventListener('click',fn);return b;}
 function tzTime(seconds){return new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(seconds*1000));}
