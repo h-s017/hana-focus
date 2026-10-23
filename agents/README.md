@@ -16,3 +16,10 @@
 - 不自動修改外部資料、不建立正式交付、不替 HANA 核准。
 - 工作板 localStorage 不會自動同步到此 JSON；需要後續建置授權資料介面。
 - 文慶雞資料是待核對的初始快照，不代表最新實際進度。
+
+## 文慶雞｜品牌識別手冊 V1.0（2026-10-23）
+
+- [Agent 三角色交接與審閱規格](./WENQINGJI_MANUAL_V1_HANDOFF.md)
+- [Notion 內部手冊審閱基準](https://app.notion.com/p/4029b41981ae8161bda0eb5f9f3adc76?pvs=204)
+- `agent_data/projects.json` 已登錄 `bkc-06` Project Manager、`bkc-07` Brand Strategist、`bkc-08` Creative Producer。
+- 此為工作規格與規則式 PM 快照更新。**Brand Strategist／Creative Producer 尚未部署可自動執行的 Agent**；手冊仍待 HANA 審核，PDF/DOCX 尚未確認上傳至共享雲端。
