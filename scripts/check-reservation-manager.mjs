@@ -5,6 +5,9 @@ const homepage=readFileSync(new URL('../docs/index.html',import.meta.url),'utf8'
 assert.match(homepage,/reservation-manager\.html/);
 assert.match(html,/id="eventForm"/);
 assert.match(html,/id="conflicts"/);
+assert.match(html,/id="monthGrid"/);
+assert.match(html,/function renderMonth\(/);
+assert.match(html,/id="calendarStatus"/);
 assert.match(html,/api\/admin\/|\/api\/admin\//);
 const match=html.match(/<script>([\s\S]*?)<\/script>/);
 assert.ok(match,'Inline module script is required');
