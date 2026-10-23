@@ -1,0 +1,40 @@
+name: HANA PWA static validation
+on:
+  pull_request:
+    paths:
+      - 'workspace.html'
+      - 'manifest.webmanifest'
+      - 'sw.js'
+      - 'icons/**'
+      - '.github/workflows/pwa-validate.yml'
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate manifest, icon paths and PNG dimensions
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, re, struct
+          root=pathlib.Path('.')
+          manifest=json.loads((root/'manifest.webmanifest').read_text())
+          assert manifest['display']=='standalone'
+          assert manifest['start_url']=='./workspace.html'
+          assert (root/'workspace.html').exists()
+          assert (root/'sw.js').exists()
+          for icon in manifest['icons']:
+              assert (root/icon['src']).is_file(),icon['src']
+          html=(root/'workspace.html').read_text()
+          modules=re.findall(r'src="(\./icons/module-[^"]+\.png)"',html)
+          assert len(modules)==9,(len(modules),modules)
+          for path in modules:
+              assert (root/path).is_file(),path
+          for size in (192,512):
+              p=root/f'icons/hana-app-{size}.png'
+              b=p.read_bytes()
+              assert b[:8]==b'\x89PNG\r\n\x1a\n',p
+              w,h=struct.unpack('>II',b[16:24])
+              assert (w,h)==(size,size),(p,w,h)
+          print('PWA static validation passed')
+          PY

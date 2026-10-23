@@ -1,0 +1,31 @@
+{
+  "id": "./workspace.html",
+  "name": "HANA WORKSPACE",
+  "short_name": "HANA",
+  "description": "HANA FOCUS integrated creative workspace",
+  "start_url": "./workspace.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f5f1",
+  "theme_color": "#f6f5f1",
+  "icons": [
+    {
+      "src": "./icons/hana-app-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/hana-app-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/hana-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
