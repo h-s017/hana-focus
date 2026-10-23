@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - wenqingji
+          - qipao-pop-up
   push:
     branches: [hana-focus-preview]
     paths:
@@ -26,7 +27,15 @@ jobs:
         with:
           python-version: '3.12'
       - name: Generate review report
-        run: python agents/project_manager.py --project wenqingji
+        env:
+          REQUESTED_PROJECT: ${{ github.event.inputs.project || 'all' }}
+        run: |
+          if [ "$REQUESTED_PROJECT" = "all" ]; then
+            python agents/project_manager.py --project wenqingji
+            python agents/project_manager.py --project qipao-pop-up
+          else
+            python agents/project_manager.py --project "$REQUESTED_PROJECT"
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: project-manager-review
