@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-23",
+  "day": 5,
+  "series": "調香師從 0 養成｜HANA 嗅覺微課",
+  "topic": "氣味如何成為藝術媒材？",
+  "syllabus_source": "agents/04-social-editor.md — first seven days Day 005",
+  "version": "v1",
+  "slide_count": 6,
+  "slide_size": "1080x1350",
+  "slides": [
+    "01.png",
+    "02.png",
+    "03.png",
+    "04.png",
+    "05.png",
+    "06.png"
+  ],
+  "style": "當代抽象藝術 × 編輯設計，單日一種風格",
+  "image_provenance": "One newly generated original AI abstract artwork, composed and typeset into six independent PNG files with Pillow. No photo library was scanned, read or used.",
+  "content_sources": [
+    "https://icaphila.org/press_releases/first-major-us-exhibition-of-work-by-interdisciplinary-norwegian-born-artist-sissel-tolaas-opens-at-ica-on-september-16/",
+    "https://artandolfaction.com/about/"
+  ],
+  "music": {
+    "composer": "Modest Mussorgsky",
+    "work": "Pictures at an Exhibition (1874)",
+    "selected_version": "original solo piano suite",
+    "suggested_section": "Promenade",
+    "verified_source": "https://www.clevelandorchestra.com/works/pictures-at-an-exhibition-mussorgsky",
+    "recording_version": "not selected",
+    "recording_licensed": false,
+    "recording_embedded": false,
+    "rights_source": "https://www.facebook.com/help/instagram/402084904469945"
+  },
+  "status": {
+    "copy": "ai-reviewed",
+    "images": "six_independent_png_verified",
+    "qa": "first_pass_complete",
+    "founder_approved": false,
+    "music_approved": false,
+    "canva_created": false,
+    "instagram_integration_verified": false,
+    "published": false
+  },
+  "review_package": "HANA_Day005_2026-10-23_審核包.zip (conversation artifact)",
+  "notes": "Founder's visual review pending. No Canva creation, music embedding or Instagram publication. Visuals are conceptual abstract artwork, not depictions of real installations or the artist's works."
+}
