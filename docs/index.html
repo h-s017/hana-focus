@@ -18,6 +18,7 @@
 </div>
 </div><p class="warn">兩個工作區的任務與構想分開儲存於本機瀏覽器；目前尚無 AI 自動化與雲端同步。</p>
 </section>
+<section class="panel"><div class="row"><h2>旗袍合作｜心村快閃活動</h2><a href="https://github.com/h-s017/hana-focus/blob/hana-focus-preview/agents/QIPAO_POP_UP_HANDOFF.md" target="_blank" rel="noopener noreferrer">查看三方案 Agent 規格 →</a></div><p class="muted">A 旗袍＋調香／B 旗袍＋攝影／C 旗袍＋調香＋攝影。價格尚待核准，預約庫存尚未串接；工作任務已納入「旗袍合作」專案。</p></section>
 <section class="panel"><div class="row"><h2>專案啟動清單</h2><button type="button" id="seed">匯入待核對任務</button></div><p class="muted">僅匯入目前工作區的範例待辦；不會覆蓋已建立的任務，也不代表已完成核對。</p><div id="seedStatus" class="muted"></div></section><section class="panel"><div class="row"><h2>今天最重要的 3 件事</h2><button id="reset">清除測試資料</button></div><p class="muted">依截止日、重要性與是否需本人決策排序；不會自動傳送或修改外部系統。</p><div id="top"></div></section>
 <div class="grid"><section class="panel"><h2>等待本人決策</h2><div id="decisions"></div></section><section class="panel"><h2>等待他人回覆</h2><div id="waiting"></div></section></div>
 <section class="panel"><h2>新增工作</h2><form id="form"><label>工作名稱<input name="title" required maxlength="140" placeholder="例如：確認提案交付清單"></label><div class="grid"><label>專案<select name="project" id="projectSelect" required></select></label><label>期限<input type="date" name="due"></label><label>工作類型<select name="role"><option>創作</option><option>策略</option><option>管理</option><option>行政</option></select></label><label>目前狀態<select name="status"><option>進行中</option><option>等待本人決策</option><option>等待回覆</option><option>待規劃</option><option>AI 初稿準備</option><option>等待本人審核</option><option>暫停</option><option>已完成</option></select></label><label>重要性<select name="importance"><option value="3">高</option><option value="2">中</option><option value="1">低</option></select></label><label>需要本人執行<select name="owner"><option value="yes">是</option><option value="no">否／可委派</option></select></label></div><button class="primary" type="submit">新增到工作板</button></form></section>
@@ -63,6 +64,30 @@ const NEW_WORK_ITEMS_20261020=[
  }
  localStorage.setItem(key('work'),JSON.stringify(work));
  localStorage.setItem(k,'1');
+ if(workspace==='work')state=work;
+})();
+const QIPAO_LAUNCH_ITEMS_20261024=[
+['核對心村快閃旗袍服裝、妝髮內容與園區歸還時限','旗袍合作','管理','等待回覆','3','no'],
+['確認攝影700元費用計價單位、精修交件與攝影師檔期','旗袍合作','管理','等待回覆','3','no'],
+['核准A/B/C三組套餐售價及合作分帳與付款退款規範','旗袍合作','策略','等待本人決策','3','yes'],
+['決定兒童調香適用條件及三組活動的兒童售價','旗袍合作','策略','等待本人決策','3','yes'],
+['確認調香30ml作品、小點心與1–2小時體驗容量','旗袍合作','管理','待規劃','3','yes'],
+['設計三組商品的共享服裝、妝髮、調香和攝影檔期鎖位','旗袍合作','管理','待規劃','3','no'],
+['評估預約網站與Google Calendar互相更新及衝突提醒','旗袍合作','管理','待規劃','3','no'],
+['撰寫三種旗袍快閃活動預約文案與加購注意事項','旗袍合作','策略','待規劃','2','no'],
+['製作三方案價格比較卡、宣傳素材與現場指示','旗袍合作','創作','待規劃','2','no'],
+['確認心村活動日期場地與上線前測試預約流程','旗袍合作','管理','待規劃','3','yes']
+];
+(function importQipaoCampaignOnce(){
+ const marker='hana-focus-qipao-campaign-20261024-v1';
+ if(localStorage.getItem(marker))return;
+ const work=load('work');
+ for(const [title,project,role,status,importance,owner] of QIPAO_LAUNCH_ITEMS_20261024){
+  if(work.tasks.some(t=>t.title===title&&t.project===project))continue;
+  work.tasks.push({id:crypto.randomUUID(),title,project,role,status,importance,owner,due:''});
+ }
+ localStorage.setItem(key('work'),JSON.stringify(work));
+ localStorage.setItem(marker,'1');
  if(workspace==='work')state=work;
 })();
 const STARTER={
