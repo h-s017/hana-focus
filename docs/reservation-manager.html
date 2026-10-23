@@ -36,6 +36,11 @@ button.small{font-size:12px;padding:6px}
 <button class="primary" type="submit">連結預約系統</button></form></section>
 <div id="app" class="hidden">
 <div class="row"><p id="summary" class="muted" aria-live="polite">尚未取得資料</p><button id="refresh" type="button">重新同步資料</button><button id="logout" type="button">結束管理</button></div>
+<section class="panel" aria-label="Google Calendar 同步狀態">
+ <div class="row"><div><h2>Google Calendar｜自動檔期同步</h2><p id="calendarStatus" class="muted" aria-live="polite">尚未查詢同步狀態。</p></div>
+ <button id="calendarSync" type="button">立即同步 Google Calendar</button></div>
+ <p class="muted">只讀取明確授權的「不可預約」日曆，不修改其他行事曆。排程預計每 10 分鐘檢查，實際時間以部署與連線驗證為準。</p>
+ <div id="calendarConflicts" class="muted">尚未檢查 Google 日曆撞期訂單。</div></section>
 <div class="cols">
 <section class="panel">
 <h2 id="formTitle">新增行程／不可預約時段</h2>
@@ -62,7 +67,7 @@ button.small{font-size:12px;padding:6px}
 'use strict';
 const API='https://hana-course-production.hana-reservation-payment.workers.dev';
 const get=id=>document.getElementById(id);
-let adminKey='',events=[],slots=[],orders=[];
+let adminKey='',events=[],slots=[],orders=[],calendarSyncState=null,calendarOverlaps=[];
 function td(tr,value){const cell=document.createElement('td');cell.textContent=String(value??'');tr.appendChild(cell);return cell;}
 function action(text,fn){const b=document.createElement('button');b.type='button';b.className='small';b.textContent=text;b.addEventListener('click',fn);return b;}
 function tzTime(seconds){return new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(seconds*1000));}
@@ -75,8 +80,28 @@ function render(){
 get('summary').textContent='資料已載入｜'+events.length+' 個行程限制｜'+slots.length+' 個未來課程場次｜'+orders.length+' 筆最近訂單';
 get('eventRows').replaceChildren();
 if(!events.length){const r=document.createElement('tr');td(r,'尚未建立其他行程');get('eventRows').append(r);}
-for(const item of events){const r=document.createElement('tr');td(r,item.title+'\n'+tzTime(item.starts_at)+' ～ '+tzTime(item.ends_at));const cell=td(r,'');cell.append(action('編輯',()=>{get('eventId').value=item.id;get('eventTitle').value=item.title;get('eventStart').value=localTaipei(item.starts_at);get('eventEnd').value=localTaipei(item.ends_at);get('formTitle').textContent='修改已登錄行程';window.scrollTo({top:0,behavior:'smooth'});}));
-cell.append(document.createTextNode(' '));cell.append(action('刪除',()=>{if(!confirm('移除這個行程限制？仍會保留其他禁約與已成立訂單。'))return;guarded(async()=>{await api('busy-delete',{id:item.id});await refresh();});}));get('eventRows').append(r);}
+for(const item of events){
+ const r=document.createElement('tr');
+ td(r,item.title+'\n'+tzTime(item.starts_at)+' ～ '+tzTime(item.ends_at));
+ const cell=td(r,'');
+ if(item.source==='google'){cell.textContent='Google 同步（唯讀）';}
+ else{
+  cell.append(action('編輯',()=>{get('eventId').value=item.id;get('eventTitle').value=item.title;get('eventStart').value=localTaipei(item.starts_at);get('eventEnd').value=localTaipei(item.ends_at);get('formTitle').textContent='修改已登錄行程';window.scrollTo({top:0,behavior:'smooth'});}));
+  cell.append(document.createTextNode(' '));
+  cell.append(action('刪除',()=>{if(!confirm('移除這個行程限制？仍會保留其他禁約與已成立訂單。'))return;guarded(async()=>{await api('busy-delete',{id:item.id});await refresh();});}));
+ }
+ get('eventRows').append(r);
+}
+const cal=calendarSyncState;
+const stamp=cal?.last_success_at?'最近成功：'+new Date(cal.last_success_at*1000).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):'尚無成功同步紀錄';
+get('calendarStatus').textContent=!cal?'狀態未知':!cal.configured?'尚未授權指定 Google Calendar｜請先完成後端安全設定':cal.status==='OK'?'同步正常｜'+stamp+'｜讀取 '+cal.event_count+' 個行程':cal.status==='ERROR'?'同步失敗（'+cal.error_code+'）｜'+stamp:'等待首次同步｜'+stamp;
+get('calendarConflicts').replaceChildren();
+if(!calendarOverlaps.length)get('calendarConflicts').textContent='沒有偵測到 Google 行程與現有訂單撞期。';
+else{
+ const note=document.createElement('p');note.className='notice';note.textContent='Google 行事曆有 '+calendarOverlaps.length+' 筆既有訂單撞期，請人工核對。';
+ get('calendarConflicts').append(note);
+ for(const item of calendarOverlaps){const x=document.createElement('p');x.textContent=item.date+' '+item.time+'｜訂單 '+item.order_id+'（'+item.status+'）';get('calendarConflicts').append(x);}
+}
 get('slotRows').replaceChildren();
 const date=get('slotDate').value;
 for(const s of slots.filter(s=>!date||s.date===date).slice(0,100)){
@@ -91,9 +116,16 @@ for(const s of slots.filter(s=>!date||s.date===date).slice(0,100)){
 get('orderRows').replaceChildren();
 for(const o of orders.slice(0,100)){const r=document.createElement('tr');td(r,o.sessions+'\n'+o.course+'\n'+o.name);td(r,'NT$ '+o.amount+'\n'+o.status);get('orderRows').append(r);}
 }
-async function refresh(){const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const responses=await Promise.all([api('busy-list',{from:date}),api('slots',{from:date}),api('orders',{})]);events=responses[0].events;slots=responses[1].slots;orders=responses[2].orders;render();}
+async function refresh(){const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const responses=await Promise.all([api('busy-list',{from:date}),api('slots',{from:date}),api('orders',{}),api('calendar-status',{}),api('calendar-conflicts',{})]);events=responses[0].events;slots=responses[1].slots;orders=responses[2].orders;calendarSyncState=responses[3];calendarOverlaps=responses[4].conflicts;render();}
 get('loginForm').addEventListener('submit',e=>{e.preventDefault();adminKey=get('adminKey').value;get('adminKey').value='';guarded(async()=>{await refresh();get('loginPanel').classList.add('hidden');get('app').classList.remove('hidden');});});
 get('refresh').addEventListener('click',()=>guarded(refresh));
+get('calendarSync').addEventListener('click',()=>guarded(async()=>{
+ const result=await api('calendar-sync',{});
+ await refresh();
+ if(!result.configured)get('message').textContent='尚未設定 Google Calendar 權限與指定日曆；正式同步尚未啟用。';
+ else if(result.status!=='OK')get('message').textContent='Google Calendar 同步失敗：'+result.error_code+'；原本封鎖仍保留。';
+ else get('message').textContent='Google Calendar 已同步 '+result.event_count+' 個時段。請檢查上方撞期警示。';
+}));
 get('slotDate').addEventListener('change',render);
 get('clearEdit').addEventListener('click',()=>{get('eventForm').reset();get('eventId').value='';get('formTitle').textContent='新增行程／不可預約時段';});
 get('logout').addEventListener('click',()=>{adminKey='';events=[];slots=[];orders=[];get('loginPanel').classList.remove('hidden');get('app').classList.add('hidden');get('message').textContent='已登出。';});
