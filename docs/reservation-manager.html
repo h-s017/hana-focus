@@ -23,6 +23,18 @@ button.small{font-size:12px;padding:6px}
 .notice{background:#f5f3ee;border-left:3px solid #87847a;padding:12px;border-radius:4px}
 .muted{line-height:1.6}#message{white-space:pre-wrap}
 .hidden{display:none!important}
+
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.calendar-grid .weekday{text-align:center;padding:9px 0;color:#71716c;font-size:12px}
+.calendar-grid .day{min-height:77px;border:1px solid #e3e3df;border-radius:8px;padding:8px 4px;background:#fff;text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.calendar-grid .day.selected{outline:2px solid #575752}
+.calendar-grid .day.empty{background:transparent;border-color:transparent;cursor:default}
+.calendar-grid .day .num{font-size:13px;font-weight:600}
+.calendar-grid .day .info{font-size:11px;color:#6a6a65}
+.calendar-grid .day .closed{color:#976b52}
+.calendar-grid .day.today{background:#f6f5f1}
+.legend{font-size:12px;color:#666;line-height:1.7}
+@media(max-width:690px){.calendar-grid .day{min-height:60px;padding:5px 3px}.calendar-grid .day .info{font-size:10px}}
 @media(max-width:690px){.cols{grid-template-columns:1fr}h1{font-size:23px}.panel{padding:15px}}
 </style></head>
 <body>
@@ -41,6 +53,9 @@ button.small{font-size:12px;padding:6px}
  <button id="calendarSync" type="button">立即同步 Google Calendar</button></div>
  <p class="muted">只讀取明確授權的「不可預約」日曆，不修改其他行事曆。排程預計每 10 分鐘檢查，實際時間以部署與連線驗證為準。</p>
  <div id="calendarConflicts" class="muted">尚未檢查 Google 日曆撞期訂單。</div></section>
+<section class="panel" aria-label="預約日期與行程總覽"><div class="row"><h2>網站檔期｜月曆總覽</h2><div class="row"><button type="button" id="monthPrevious">上個月</button><strong id="monthTitle"></strong><button type="button" id="monthNext">下個月</button></div></div>
+<p class="legend">數字顯示網站可預約場次、已關閉或額滿場次，以及忙碌行程數。點選日期可篩選下方場次。</p>
+<div id="monthGrid" class="calendar-grid" role="group" aria-label="每月預約場次"></div></section>
 <div class="cols">
 <section class="panel">
 <h2 id="formTitle">新增行程／不可預約時段</h2>
@@ -68,6 +83,7 @@ button.small{font-size:12px;padding:6px}
 const API='https://hana-course-production.hana-reservation-payment.workers.dev';
 const get=id=>document.getElementById(id);
 let adminKey='',events=[],slots=[],orders=[],calendarSyncState=null,calendarOverlaps=[];
+let displayedMonth=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Taipei'}));displayedMonth.setDate(1);
 function td(tr,value){const cell=document.createElement('td');cell.textContent=String(value??'');tr.appendChild(cell);return cell;}
 function action(text,fn){const b=document.createElement('button');b.type='button';b.className='small';b.textContent=text;b.addEventListener('click',fn);return b;}
 function tzTime(seconds){return new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(seconds*1000));}
@@ -75,7 +91,47 @@ function localTaipei(seconds){return new Date(seconds*1000+28800000).toISOString
 function toUtc(value){const ms=Date.parse(value+':00+08:00');if(!Number.isFinite(ms))throw Error('日期時間格式不正確');return new Date(ms).toISOString();}
 function errorText(e){const messages={UNAUTHORIZED:'授權失敗，請檢查管理金鑰',BUSY_CONFLICT:'該時段已有其他行程',BAD_REQUEST:'請確認日期、起訖與欄位資料',SERVICE_UNAVAILABLE:'後端尚未部署／資料庫尚未更新',NOT_FOUND:'找不到指定資料'};return messages[e.message]||e.message;}
 async function api(path,data={}){const response=await fetch(API+'/api/admin/'+path,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+adminKey},body:JSON.stringify(data)});const payload=await response.json();if(!response.ok||!payload.ok)throw Error(payload.error||('HTTP '+response.status));return payload;}
-async function guarded(task){try{get('message').textContent='處理中…';await task();get('message').textContent='已同步。最後完成：'+new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});}catch(e){get('message').textContent='操作未完成：'+errorText(e);}}
+async function guarded(task){try{get('message').textContent='處理中…';const status=await task();get('message').textContent=typeof status==='string'?status:'已同步。最後完成：'+new Date().toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});}catch(e){get('message').textContent='操作未完成：'+errorText(e);}}
+function dateKey(year,month,day){return String(year).padStart(4,'0')+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0');}
+function renderMonth(){
+ const year=displayedMonth.getFullYear(),month=displayedMonth.getMonth()+1;
+ get('monthTitle').textContent=year+' 年 '+month+' 月';
+ const slotMap=new Map(),eventMap=new Map();
+ for(const s of slots){
+  const cur=slotMap.get(s.date)||{open:0,unavailable:0};
+  if(s.status==='開放'&&s.booked<s.capacity)cur.open++;
+  else cur.unavailable++;
+  slotMap.set(s.date,cur);
+ }
+ for(const e of events){
+  const start=e.starts_at*1000,end=e.ends_at*1000;
+  if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start)continue;
+  const days=new Date(year,month,0).getDate();
+  for(let day=1;day<=days;day++){
+   const key=dateKey(year,month,day);
+   const begin=Date.parse(key+'T00:00:00+08:00');
+   if(start<begin+86400000&&end>begin)eventMap.set(key,(eventMap.get(key)||0)+1);
+  }
+ }
+ const grid=get('monthGrid');grid.replaceChildren();
+ for(const day of ['日','一','二','三','四','五','六']){const el=document.createElement('span');el.className='weekday';el.textContent=day;grid.append(el);}
+ for(let i=0;i<new Date(year,month-1,1).getDay();i++){const blank=document.createElement('span');blank.className='day empty';grid.append(blank);}
+ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ for(let day=1;day<=new Date(year,month,0).getDate();day++){
+  const date=dateKey(year,month,day),counts=slotMap.get(date)||{open:0,unavailable:0},blocked=eventMap.get(date)||0;
+  const b=document.createElement('button');b.type='button';b.className='day';
+  if(get('slotDate').value===date)b.classList.add('selected');
+  if(today===date)b.classList.add('today');
+  b.setAttribute('aria-label',date+'，可預約 '+counts.open+' 場，已關閉或額滿 '+counts.unavailable+' 場，行程 '+blocked+' 件');
+  const number=document.createElement('span');number.className='num';number.textContent=String(day);b.append(number);
+  if(counts.open){const x=document.createElement('span');x.className='info';x.textContent='可約 '+counts.open;b.append(x);}
+  if(counts.unavailable){const x=document.createElement('span');x.className='info closed';x.textContent='停約 '+counts.unavailable;b.append(x);}
+  if(blocked){const x=document.createElement('span');x.className='info closed';x.textContent='行程 '+blocked;b.append(x);}
+  b.addEventListener('click',()=>{get('slotDate').value=date;render();get('slotRows').closest('.panel').scrollIntoView({behavior:'smooth'});});
+  grid.append(b);
+ }
+}
+
 function render(){
 get('summary').textContent='資料已載入｜'+events.length+' 個行程限制｜'+slots.length+' 個未來課程場次｜'+orders.length+' 筆最近訂單';
 get('eventRows').replaceChildren();
@@ -115,6 +171,7 @@ for(const s of slots.filter(s=>!date||s.date===date).slice(0,100)){
 }
 get('orderRows').replaceChildren();
 for(const o of orders.slice(0,100)){const r=document.createElement('tr');td(r,o.sessions+'\n'+o.course+'\n'+o.name);td(r,'NT$ '+o.amount+'\n'+o.status);get('orderRows').append(r);}
+renderMonth();
 }
 async function refresh(){const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const responses=await Promise.all([api('busy-list',{from:date}),api('slots',{from:date}),api('orders',{}),api('calendar-status',{}),api('calendar-conflicts',{})]);events=responses[0].events;slots=responses[1].slots;orders=responses[2].orders;calendarSyncState=responses[3];calendarOverlaps=responses[4].conflicts;render();}
 get('loginForm').addEventListener('submit',e=>{e.preventDefault();adminKey=get('adminKey').value;get('adminKey').value='';guarded(async()=>{await refresh();get('loginPanel').classList.add('hidden');get('app').classList.remove('hidden');});});
@@ -122,11 +179,14 @@ get('refresh').addEventListener('click',()=>guarded(refresh));
 get('calendarSync').addEventListener('click',()=>guarded(async()=>{
  const result=await api('calendar-sync',{});
  await refresh();
- if(!result.configured)get('message').textContent='尚未設定 Google Calendar 權限與指定日曆；正式同步尚未啟用。';
- else if(result.status!=='OK')get('message').textContent='Google Calendar 同步失敗：'+result.error_code+'；原本封鎖仍保留。';
- else get('message').textContent='Google Calendar 已同步 '+result.event_count+' 個時段。請檢查上方撞期警示。';
+ if(!result.configured)return '尚未設定 Google Calendar 權限與指定日曆；正式同步尚未啟用。';
+ if(result.status!=='OK')return 'Google Calendar 同步失敗：'+result.error_code+'；原本封鎖仍保留。';
+ return 'Google Calendar 已同步 '+result.event_count+' 個時段。請檢查上方撞期警示。';
 }));
 get('slotDate').addEventListener('change',render);
+get('monthPrevious').addEventListener('click',()=>{displayedMonth.setMonth(displayedMonth.getMonth()-1);renderMonth();});
+get('monthNext').addEventListener('click',()=>{displayedMonth.setMonth(displayedMonth.getMonth()+1);renderMonth();});
+
 get('clearEdit').addEventListener('click',()=>{get('eventForm').reset();get('eventId').value='';get('formTitle').textContent='新增行程／不可預約時段';});
 get('logout').addEventListener('click',()=>{adminKey='';events=[];slots=[];orders=[];get('loginPanel').classList.remove('hidden');get('app').classList.add('hidden');get('message').textContent='已登出。';});
 get('eventForm').addEventListener('submit',e=>{e.preventDefault();guarded(async()=>{
