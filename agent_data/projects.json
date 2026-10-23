@@ -15,6 +15,10 @@
         {
           "name": "品牌策略 V1",
           "url": "https://docs.google.com/document/d/15aRA0TDcv0JAxJvQMh-vWDPwC9Pc-yWI71IaULnRvDA/edit"
+        },
+        {
+          "name": "品牌識別手冊 V1.0｜Agent 審閱基準（內部草稿）",
+          "url": "https://app.notion.com/p/4029b41981ae8161bda0eb5f9f3adc76?pvs=204"
         }
       ],
       "tasks": [
@@ -65,6 +69,36 @@
           "owner": "HANA",
           "review_required": true,
           "deliverable": "已簽核範圍確認紀錄"
+        },
+        {
+          "id": "bkc-06",
+          "title": "維護品牌識別手冊 V1.0 版本索引與 G1–G5 核准關卡",
+          "priority": 3,
+          "status": "內部初稿已登錄／待 HANA 審核",
+          "owner": "Project Manager",
+          "review_required": true,
+          "deliverable": "手冊版本索引、核准與缺件追蹤",
+          "evidence": "https://app.notion.com/p/4029b41981ae8161bda0eb5f9f3adc76?pvs=204"
+        },
+        {
+          "id": "bkc-07",
+          "title": "審核 V1.0 品牌定位、標語、英文名稱與品牌沿革",
+          "priority": 3,
+          "status": "待業主確認與 HANA 審核",
+          "owner": "Brand Strategist",
+          "review_required": true,
+          "deliverable": "品牌文案與歷史事實核對表",
+          "evidence": "https://app.notion.com/p/4029b41981ae8161bda0eb5f9f3adc76?pvs=204"
+        },
+        {
+          "id": "bkc-08",
+          "title": "檢核 V1.0 書法 Logo、候選家徽、色票、招牌與包裝示意",
+          "priority": 3,
+          "status": "排版初稿完成／原始向量與工廠資訊待取得",
+          "owner": "Creative Producer",
+          "review_required": true,
+          "deliverable": "視覺差異與原檔／打樣缺件表",
+          "evidence": "https://app.notion.com/p/4029b41981ae8161bda0eb5f9f3adc76?pvs=204"
         }
       ],
       "notion_last_edited_at": "2026-10-17T16:02:32.870Z",
@@ -95,7 +129,23 @@
           "name": "交付核准",
           "status": "待確認"
         }
-      ]
+      ],
+      "brand_manual": {
+        "title": "文慶雞｜品牌識別手冊",
+        "version": "1.0",
+        "edition": "2026-10-23",
+        "state": "內部審閱／非正式完稿／尚未客戶核准",
+        "notion_reference": "https://app.notion.com/p/4029b41981ae8161bda0eb5f9f3adc76?pvs=204",
+        "original_files_note": "28 頁 A4 PDF 與可編輯 Word 由 ChatGPT 對話提供；尚未驗證 PDF/DOCX 上傳至 Notion 或 Google Drive",
+        "source_of_truth": "Notion Agent 審閱基準與正式核准紀錄優先；與舊規範衝突者由 HANA 審核，不自動覆蓋",
+        "approval_gates": [
+          "G1",
+          "G2",
+          "G3",
+          "G4",
+          "G5"
+        ]
+      }
     }
   ]
 }
