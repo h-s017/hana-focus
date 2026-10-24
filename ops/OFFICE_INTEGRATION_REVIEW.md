@@ -89,3 +89,11 @@ Supabase changelog Markdown抓取因工具content-type不支援失敗，已改�
 ### 本輪文慶雞來源讀回
 
 已透過既有連接器實際讀取Notion中心（最後編輯2026-10-23T04:07:22.467Z）、其連結的[品牌識別手冊V1.0審閱基準](https://app.notion.com/p/4029b41981ae8161bda0eb5f9f3adc76)（2026-10-23T04:10:54.789Z）及Google Docs策略V1。新版手冊仍標DRAFT／INTERNAL REVIEW、非業主核准版；G2紅色、Symbol、G3方案範圍仍待核准，故測試需求保留未決，沒有將較新編輯時間當作客戶批准。這是本次按需讀取，不是已建立持續同步。
+
+## HANA 授權紀錄｜2026-10-24
+
+已由HANA在任務對話確認：採用Resend Free，不升級付費；發信子域auth.hanascent.com；寄件人login@auth.hanascent.com，名稱Hana Scent Artist。可進行免費帳號／發信網域設定準備，不啟用不必要收信。
+
+尚未完成或核准：Resend帳號及網域是否已建立／驗證尚未知；未取得面板實際DKIM／SPF／MX值。DNS實際變更仍需先檢視該批紀錄再核准，不取代根網域MX／SPF。SMTP憑證僅能填入安全的服務端設定，不貼聊天或Issue；此確認不代表正式對外自動發送、schema／Edge／Pages發布已獲核准。
+
+目前工具未提供Resend帳號／網域管理或瀏覽器操作連線，故沒有宣稱已代建立、驗證或修改DNS。
