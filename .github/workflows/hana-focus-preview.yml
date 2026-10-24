@@ -1,5 +1,8 @@
 name: HANA FOCUS Preview
 on:
+  push:
+    branches: [hana-focus-preview]
+    paths: ['.github/release-approvals/pr-9.json']
   workflow_dispatch:
     inputs:
       hana_publish_authorized:
@@ -9,6 +12,7 @@ on:
         default: false
 permissions:
   contents: read
+  pull-requests: read
   pages: write
   id-token: write
 concurrency:
@@ -16,7 +20,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/hana-focus-preview' && inputs.hana_publish_authorized == true
+    if: github.ref == 'refs/heads/hana-focus-preview' && (github.event_name == 'push' || inputs.hana_publish_authorized == true)
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -25,6 +29,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Validate one-time approved release and actual Pages Source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            node -e 'const a=require("./.github/release-approvals/pr-9.json");if(a.release!=="pr-9"||a.approved!==true||a.paid_ai!==false||a.calendar_writes!==false||a.automatic_external_notifications!==false)process.exit(1)'
+            merge_sha=$(gh api "repos/$GITHUB_REPOSITORY/pulls/9" --jq 'select(.merged == true) | .merge_commit_sha')
+            test "$merge_sha" = "$GITHUB_SHA"
+          fi
+          build_type=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.build_type')
+          test "$build_type" = workflow
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -35,3 +50,28 @@ jobs:
           path: ./public-site
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify deployed office pages and protected function
+        run: |
+          python - <<'PYTEST'
+          import urllib.request, urllib.error, time
+          base='https://h-s017.github.io/hana-focus/'
+          expected={'workspace.html':'hana-office-root','ai-office.html':'./js/office-app.mjs','js/office-app.mjs':'產生PM進度草稿'}
+          for attempt in range(6):
+            try:
+              for page,marker in expected.items():
+                request=urllib.request.Request(base+page+'?release='+str(attempt),headers={'Cache-Control':'no-cache'})
+                with urllib.request.urlopen(request,timeout=20) as response:
+                  assert response.status==200
+                  assert marker in response.read().decode('utf8'),page
+              break
+            except Exception:
+              if attempt==5: raise
+              time.sleep(5)
+          request=urllib.request.Request('https://ihmvziqisputjnjkuhvm.supabase.co/functions/v1/hana-agent',data=b'{}',headers={'Content-Type':'application/json'},method='POST')
+          try:
+            urllib.request.urlopen(request,timeout=20)
+            raise AssertionError('Unauthenticated function request unexpectedly accepted')
+          except urllib.error.HTTPError as error:
+            assert error.code==401,error.code
+          print('PASS: published WORKSPACE, AI OFFICE and module return expected content; anonymous function call rejected with 401')
+          PYTEST

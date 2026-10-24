@@ -1,0 +1,39 @@
+name: HANA OFFICE release readiness
+on:
+  push:
+    branches: [feature/office-auth-agent-integration]
+    paths: ['.github/release-approvals/pr-9.json', '.github/workflows/office-release-readiness.yml']
+permissions:
+  contents: read
+  pages: read
+jobs:
+  pages-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Read actual Pages Source (no settings changes)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/pages" --jq '{build_type, source, html_url}' > release-pages.json
+          cat release-pages.json
+      - name: Require Actions Source before merging the approved release
+        run: |
+          node - <<'JS'
+          const fs=require('fs');
+          const approval=JSON.parse(fs.readFileSync('.github/release-approvals/pr-9.json'));
+          if(!approval.approved || approval.release!=='pr-9' || approval.paid_ai!==false)throw Error('Invalid approval');
+          const p=JSON.parse(fs.readFileSync('release-pages.json'));
+          if(p.build_type!=='workflow')throw Error('PAGES_SOURCE_OWNER_ACTION_REQUIRED: Settings > Pages > Build and deployment > Source must be GitHub Actions. This read-only job cannot change administration settings.');
+          console.log('PASS: actual Pages Source is GitHub Actions');
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-pages-readiness
+          path: release-pages.json
+          if-no-files-found: warn
+          retention-days: 7

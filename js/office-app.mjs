@@ -37,7 +37,7 @@ $('form').onsubmit=async e=>{e.preventDefault();if(!current||loading)return;load
 };
 $('refresh').onclick=refresh;$('filter').onchange=refresh;
 $('bkc').onclick=()=>{const f=$('form');f.elements.project.value='文慶雞';f.elements.role.value='Project Manager';f.elements.title.value='文慶雞｜策略→審核→設計規劃測試';f.elements.brief.value='AI測試草稿，非客戶核准資料。保留既有文慶雞識別。品牌紅 #A4655F／#BF3A34、圓形雙筷／BKC家徽、報價B／C包裝範圍皆待HANA核准。策略來源：https://docs.google.com/document/d/15aRA0TDcv0JAxJvQMh-vWDPwC9Pc-yWI71IaULnRvDA/edit\nNotion來源：https://app.notion.com/p/3fc9b41981ae8112bef6d0aa5b9616e3\n先產工作分解與待確認事項。策略本人審核後才交Creative Producer，再次核准後交PM彙整。G1–G5不得自動通過；未取得原檔不宣稱設計交付完成。';message('已載入需求，請核對後手動儲存。');};
-const errors={ai_not_configured:'AI憑證尚未由服務端設定；任務維持排隊中。',office_access_required:'此帳號尚未取得AI OFFICE服務端授權。',state_conflict:'狀態已變更或請求重複，請重新整理。',provider_failed:'AI服務失敗，任務已記錄失敗，可人工重試。',provider_timeout:'AI服務逾時，任務已記錄失敗。',operation_failed:'操作未確認成功；請先重新整理檢查，不要連續重試。'};
+const errors={ai_not_configured:'本版尚未啟用付費 AI；任務維持排隊中，可先使用 PM 規則式草稿。',office_access_required:'此帳號尚未取得AI OFFICE服務端授權。',state_conflict:'狀態已變更或請求重複，請重新整理。',provider_failed:'AI服務失敗，任務已記錄失敗，可人工重試。',provider_timeout:'AI服務逾時，任務已記錄失敗。',operation_failed:'操作未確認成功；請先重新整理檢查，不要連續重試。'};
 async function action(task,kind,decision){if(!current||busy.has(task.id))return;busy.add(task.id);message('處理中，請勿重複點擊…');
  try{const {data,error}=await db.functions.invoke('hana-agent',{body:{task_id:task.id,action:kind,decision,request_id:crypto.randomUUID()}});
  if(error){let code;try{code=(await error.context?.json())?.error;}catch{}message(errors[code]||'服務未完成，請確認登入、後端版本或系統設定。');}
