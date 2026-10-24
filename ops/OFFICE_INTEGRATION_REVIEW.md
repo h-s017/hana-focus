@@ -97,3 +97,13 @@ Supabase changelog Markdown抓取因工具content-type不支援失敗，已改�
 尚未完成或核准：Resend帳號及網域是否已建立／驗證尚未知；未取得面板實際DKIM／SPF／MX值。DNS實際變更仍需先檢視該批紀錄再核准，不取代根網域MX／SPF。SMTP憑證僅能填入安全的服務端設定，不貼聊天或Issue；此確認不代表正式對外自動發送、schema／Edge／Pages發布已獲核准。
 
 目前工具未提供Resend帳號／網域管理或瀏覽器操作連線，故沒有宣稱已代建立、驗證或修改DNS。
+
+### HANA 核准SMTP與Auth設定｜2026-10-24
+
+HANA已確認以下設定方案：SMTP host smtp.resend.com、port465、username resend；password為Resend API key，僅在Supabase Dashboard服務端安全欄位設定。
+
+- Site URL：https://h-s017.github.io/hana-focus/workspace.html
+- Redirect URL精確白名單：https://h-s017.github.io/hana-focus/ai-office.html
+- 不新增廣泛wildcard；確認受邀帳號後，可對HANA另行指定的本人測試信箱執行一次實際投遞與登入驗證。測試收件信箱尚未指定，不推定為任何連接器帳號。
+
+這是方案核准，不是已套用證據。現有工具沒有Supabase Auth／SMTP管理設定能力，也沒有Resend或瀏覽器操作連線；實際Site URL、Redirect白名單、SMTP憑證與郵件投遞仍待帳號擁有人設定及驗證。未要求任何密碼／key貼到聊天、Issue或repo。尚未發送測試郵件，亦未啟用對外自動發送或正式發布。
