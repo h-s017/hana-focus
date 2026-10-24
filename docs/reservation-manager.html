@@ -138,27 +138,67 @@ function renderMonth(){
  }
 }
 
+function reviewReason(e){
+ const reasons={
+ COURSE_REFERENCE:'可能是已開放招生的課程，不能自動封閉',
+ ALL_DAY_UNCERTAIN:'全天行程未標明實際占用時段',
+ UNCONFIRMED_INVITATION:'邀請尚未確定參加',
+ ALL_DAY_UNAVAILABLE:'已確定的整天休假或不可用',
+ CONFIRMED_BUSY:'已確認的計時忙碌行程',
+ EXPLICIT_BLOCK:'Google 行程明確標示不可預約',
+ OWNER_BLOCK:'由 HANA WORKSPACE 手動指定封鎖',
+ OWNER_IGNORE:'由 HANA WORKSPACE 手動指定不封鎖'
+ };
+ return reasons[e.reason]||'系統已分類';
+}
+function decisionAction(event,decision){
+ return ()=>{guarded(async()=>{
+  if(decision==='BLOCK'&&!confirm('此操作將把行程重疊的網站場次暫停新預約。已成立訂單不會取消。繼續？'))return '未修改。';
+  await api('calendar-decision',{id:event.id,decision});
+  const outcome=await api('calendar-sync',{});
+  const preview=await api('calendar-preview',{});
+  renderCalendarPreview(preview);
+  await refresh();
+  if(outcome.status!=='OK'&&outcome.status!=='SKIPPED')
+   return '判斷已儲存，但同步尚未完成；原網站場次狀態未確認，請檢查同步錯誤。';
+  return '已套用 Google 行程判斷；請核對場次與既有訂單衝突。';
+ });};
+}
 function renderCalendarPreview(result){
  const area=get('calendarReview');area.replaceChildren();
  if(!result.configured){area.textContent='尚未授權連接原有 Google Calendar；目前不會自動封鎖網站場次。';return;}
  const counts=result.counts||{blocked:0,review:0,ignored:0};
  const info=document.createElement('p');info.className='notice';
- info.textContent='自動封鎖 '+counts.blocked+' 件｜待你確認 '+counts.review+' 件｜不影響預約 '+counts.ignored+' 件。預覽未更改預約網站。';
+ info.textContent='封鎖 '+counts.blocked+' 件｜待確認 '+counts.review+' 件｜不影響預約 '+counts.ignored+' 件。以下操作只變更預約網站的行程判斷，不會改動 Google Calendar。';
  area.append(info);
- if(!result.review?.length)return;
- const table=document.createElement('table');const head=document.createElement('thead');const top=document.createElement('tr');
- for(const title of ['待確認行程','原因']){const col=document.createElement('th');col.textContent=title;top.append(col);}
- head.append(top);table.append(head);
- const body=document.createElement('tbody');
- const reasons={COURSE_REFERENCE:'可能是已有公開招生的課程，避免把原課程關閉',ALL_DAY_UNCERTAIN:'全天行程未明確說明是否整天不能授課',UNCONFIRMED_INVITATION:'邀請尚未確認是否參加'};
- for(const entry of result.review.slice(0,100)){
-  const row=document.createElement('tr');
-  const schedule=(entry.start?.dateTime||entry.start?.date||'')+' ～ '+(entry.end?.dateTime||entry.end?.date||'');
-  td(row,(entry.title||'未命名行程')+'\n'+schedule);
-  td(row,reasons[entry.reason]||'需要人工確認');
-  body.append(row);
+ const sections=[
+  {name:'待確認',items:result.review||[]},
+  {name:'預計自動封鎖',items:result.blocked||[]},
+  {name:'已設定不封鎖',items:result.ignored||[]}
+ ];
+ for(const section of sections){
+  if(!section.items.length)continue;
+  const heading=document.createElement('h3');heading.textContent=section.name+'（'+section.items.length+'）';area.append(heading);
+  const table=document.createElement('table'),thead=document.createElement('thead'),top=document.createElement('tr');
+  for(const label of ['Google 行程','判斷原因','你可以決定']){const cell=document.createElement('th');cell.textContent=label;top.append(cell);}
+  thead.append(top);table.append(thead);
+  const tbody=document.createElement('tbody');
+  for(const entry of section.items.slice(0,100)){
+   const row=document.createElement('tr');
+   const schedule=(entry.start?.dateTime||entry.start?.date||'')+' ～ '+(entry.end?.dateTime||entry.end?.date||'');
+   td(row,(entry.title||'未命名行程')+'\n'+schedule);
+   td(row,reviewReason(entry));
+   const controls=td(row,'');
+   if(section.name!=='預計自動封鎖')controls.append(action('封鎖',decisionAction(entry,'BLOCK')));
+   if(section.name!=='已設定不封鎖'){controls.append(document.createTextNode(' '));controls.append(action('不封鎖',decisionAction(entry,'IGNORE')));}
+   if(entry.decision){controls.append(document.createTextNode(' '));controls.append(action('恢復自動',decisionAction(entry,'RESET')));}
+   tbody.append(row);
+  }
+  table.append(tbody);const scroll=document.createElement('div');scroll.className='scroll';scroll.append(table);area.append(scroll);
  }
- table.append(body);area.append(table);
+ if(!result.review?.length&&!result.blocked?.length&&!result.ignored?.length){
+  const p=document.createElement('p');p.textContent='沒有需要審核的 Google 行程。';area.append(p);
+ }
 }
 
 function renderNotifications(){
