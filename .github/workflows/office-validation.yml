@@ -1,0 +1,84 @@
+name: HANA OFFICE integration validation
+on:
+  push:
+    branches: [feature/office-auth-agent-integration]
+  pull_request:
+    paths: ['ai-office.html','workspace.html','js/**','supabase/**','scripts/build-office-site.mjs','tests/office/**','.github/workflows/office-validation.yml','.github/workflows/hana-focus-preview.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Unit and state-machine tests (no credentials)
+        run: |
+          for file in tests/office/*.test.mjs; do node "$file"; done
+          for file in js/*.mjs supabase/functions/hana-agent/*.mjs; do node --check "$file"; done
+      - name: Stage complete public site with no backend reports or secrets
+        run: node scripts/build-office-site.mjs
+      - name: Install pinned isolated browser test dependency
+        run: |
+          npm install --ignore-scripts --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Browser interaction tests (all API calls mocked)
+        run: node tests/office/browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: office-test-evidence
+          path: test-artifacts/
+          if-no-files-found: warn
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hana-office-review-site
+          path: public-site/
+          if-no-files-found: error
+          retention-days: 7
+  edge-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: 'v2.2.0'
+      - name: Type check Edge adapter (no deploy, no environment secrets)
+        run: deno check supabase/functions/hana-agent/index.ts
+  database-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ci-fixture-only
+          POSTGRES_DB: hana_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: PostgreSQL claim, audit, handoff and rollback tests (ephemeral fixtures)
+        env:
+          PGHOST: localhost
+          PGPORT: '5432'
+          PGUSER: postgres
+          PGPASSWORD: ci-fixture-only
+          PGDATABASE: hana_test
+        run: psql -v ON_ERROR_STOP=1 -f tests/office/db-run.sql

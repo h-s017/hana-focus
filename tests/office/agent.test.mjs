@@ -1,0 +1,37 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {handler} from '../../supabase/functions/hana-agent/core.mjs';
+import {NEXT_ROLE,canTransition,instructions} from '../../js/office-workflow.mjs';
+const owner='10000000-0000-4000-8000-000000000001',id='20000000-0000-4000-8000-000000000001';
+let requestN=0;const rid=()=>`30000000-0000-4000-8000-${String(++requestN).padStart(12,'0')}`;
+function fixture(role='Brand Strategist'){
+ const tasks=new Map([[id,{id,owner_id:owner,role,project:'文慶雞',title:'測試',brief:'未核准資料',status:'queued'}]]),runs=[],reviews=[],seen=new Set();let seq=0;
+ const conflict=()=>Object.assign(Error('private-db-error'),{conflict:true});
+ const store={
+  getTask:async(o,t)=>{const x=tasks.get(t);return x?.owner_id===o?{...x}:null;},
+  claim:async(o,t,r)=>{const x=tasks.get(t);if(x.owner_id!==o||!['queued','failed'].includes(x.status)||seen.has(r))throw conflict();seen.add(r);x.status='running';const run=rid();x.run=run;runs.push({id:run,status:'running'});return run},
+  finish:async(o,t,r,result,error)=>{const x=tasks.get(t);if(x.owner_id!==o||x.status!=='running'||x.run!==r)throw conflict();x.status=error?'failed':'review';x.result=result;runs.find(x=>x.id===r).status=x.status;},
+  review:async(o,t,d,n)=>{const x=tasks.get(t);if(x.owner_id!==o||x.status!=='review')throw conflict();x.status=d;reviews.push({task:t,decision:d})},
+  handoff:async(o,t,r)=>{const x=tasks.get(t);if(x.owner_id!==o||x.status!=='approved'||x.child||(x.role==='Project Manager'&&x.parent_task_id))throw conflict();const child=`40000000-0000-4000-8000-${String(++seq).padStart(12,'0')}`;x.child=child;tasks.set(child,{...x,id:child,status:'queued',role:NEXT_ROLE[x.role],parent_task_id:x.id,child:null});return child;},
+  recover:async()=>{throw conflict()},
+  requeue:async(o,t)=>{const x=tasks.get(t);if(x.owner_id!==o||x.status!=='rejected')throw conflict();x.status='queued';return 'queued'}
+ };
+ let providerCalls=0;
+ const deps={store,authenticate:async()=>({id:owner,app_metadata:{hana_office_access:true}}),ready:()=>true,generate:async()=>{providerCalls++;return 'AI草稿・待核准'}};
+ const call=async(body,headers={authorization:'Bearer fixture',origin:'https://h-s017.github.io'})=>{const response=await handler(deps)(new Request('https://example.invalid',{method:'POST',headers,body:JSON.stringify({task_id:id,request_id:rid(),...body})}));return {status:response.status,body:await response.json()}};
+ return {tasks,runs,reviews,deps,call,calls:()=>providerCalls};
+}
+test('all roles have distinct instructions and cannot bypass approvals',()=>{for(const role of Object.keys(NEXT_ROLE)){assert.match(instructions(role),/G1/);assert.match(instructions(role),/禁止/)}assert.equal(canTransition('queued','approved'),false);assert.equal(canTransition('review','approved'),true)});
+test('PM works without provider credentials but remains review',async()=>{const f=fixture('Project Manager');f.deps.ready=()=>false;const r=await f.call({action:'generate'});assert.equal(r.status,200);assert.equal(f.calls(),0);assert.equal(f.tasks.get(id).status,'review');assert.match(f.tasks.get(id).result,/規則式/)});
+test('missing AI key does not claim task',async()=>{const f=fixture();f.deps.ready=()=>false;const r=await f.call({action:'generate'});assert.equal(r.status,503);assert.equal(f.tasks.get(id).status,'queued');assert.equal(f.runs.length,0)});
+test('concurrent generate has single winner',async()=>{const f=fixture();const r=await Promise.all([f.call({action:'generate'}),f.call({action:'generate'})]);assert.deepEqual(r.map(x=>x.status).sort(),[200,409]);assert.equal(f.calls(),1);assert.equal(f.runs.length,1)});
+test('provider failure records failed and allows explicit retry',async()=>{const f=fixture();f.deps.generate=async()=>{throw Error('secret-provider-raw')};const r=await f.call({action:'generate'});assert.equal(r.status,502);assert.equal(r.body.error,'provider_failed');assert.ok(!JSON.stringify(r).includes('secret-provider'));assert.equal(f.tasks.get(id).status,'failed');f.deps.generate=async()=>'retry draft';assert.equal((await f.call({action:'generate'})).status,200);assert.equal(f.tasks.get(id).status,'review')});
+test('timeout and empty output are safely failed',async()=>{for(const cause of ['timeout','empty']){const f=fixture();f.deps.generate=async()=>{if(cause==='timeout')throw Object.assign(Error('raw'),{name:'TimeoutError'});return ''};const r=await f.call({action:'generate'});assert.equal(r.status,502);assert.equal(f.tasks.get(id).status,'failed')}});
+test('audit decision cannot precede draft or repeat',async()=>{const f=fixture();assert.equal((await f.call({action:'review',decision:'approved'})).status,409);await f.call({action:'generate'});assert.equal((await f.call({action:'review',decision:'approved'})).status,200);assert.equal((await f.call({action:'review',decision:'rejected'})).status,409);assert.equal(f.reviews.length,1)});
+test('unauthorized owner and user editable metadata cannot gain access',async()=>{const f=fixture();f.deps.authenticate=async()=>({id:owner,user_metadata:{hana_office_access:true}});assert.equal((await f.call({action:'generate'})).status,403);f.deps.authenticate=async()=>({id:rid(),app_metadata:{hana_office_access:true}});assert.equal((await f.call({action:'generate'})).status,404)});
+test('wrong origin and absent login rejected before provider',async()=>{const f=fixture();assert.equal((await f.call({action:'generate'},{})).status,401);assert.equal((await f.call({action:'generate'},{origin:'https://evil.invalid'})).status,403);assert.equal(f.calls(),0)});
+test('rejected draft must requeue explicitly',async()=>{const f=fixture();await f.call({action:'generate'});await f.call({action:'review',decision:'rejected'});assert.equal((await f.call({action:'generate'})).status,409);assert.equal((await f.call({action:'requeue'})).body.status,'queued')});
+test('duplicate handoff is blocked even with a new request ID',async()=>{const f=fixture();await f.call({action:'generate'});await f.call({action:'review',decision:'approved'});assert.equal((await f.call({action:'handoff'})).status,200);assert.equal((await f.call({action:'handoff'})).status,409)});
+test('BKC full approved handoff sequence uses no external delivery',async()=>{const f=fixture('Project Manager');let current=id;for(const role of ['Project Manager','Brand Strategist','Creative Producer','Project Manager']){assert.equal(f.tasks.get(current).role,role);assert.equal((await f.call({task_id:current,action:'generate'})).body.status,'review');assert.equal((await f.call({task_id:current,action:'handoff'})).status,409);const review=await f.call({task_id:current,action:'review',decision:'approved'});assert.equal(review.body.external_delivery,false);if(role==='Project Manager'&&current!==id){assert.equal((await f.call({task_id:current,action:'handoff'})).status,409);break;}const handoff=await f.call({task_id:current,action:'handoff'});assert.equal(handoff.status,200);current=handoff.body.task_id;}assert.equal(f.reviews.length,4);assert.equal(f.runs.length,4)});
+test('invalid action and UUID rejected',async()=>{const f=fixture();assert.equal((await f.call({action:'send'})).status,400);assert.equal((await f.call({action:'generate',task_id:'bad'})).status,400)});
+
+test('PM uses the service AI when configured and labels mode explicitly',async()=>{const f=fixture('Project Manager');const r=await f.call({action:'generate'});assert.equal(r.body.mode,'ai');assert.equal(f.calls(),1);assert.match(f.tasks.get(id).result,/AI 草稿.*Project Manager/);});
