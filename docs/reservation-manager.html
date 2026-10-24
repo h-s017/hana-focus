@@ -49,10 +49,11 @@ button.small{font-size:12px;padding:6px}
 <div id="app" class="hidden">
 <div class="row"><p id="summary" class="muted" aria-live="polite">尚未取得資料</p><button id="refresh" type="button">重新同步資料</button><button id="logout" type="button">結束管理</button></div>
 <section class="panel" aria-label="Google Calendar 同步狀態">
- <div class="row"><div><h2>Google Calendar｜自動檔期同步</h2><p id="calendarStatus" class="muted" aria-live="polite">尚未查詢同步狀態。</p></div>
- <button id="calendarSync" type="button">立即同步 Google Calendar</button></div>
- <p class="muted">只讀取明確授權的「不可預約」日曆，不修改其他行事曆。排程預計每 10 分鐘檢查，實際時間以部署與連線驗證為準。</p>
- <div id="calendarConflicts" class="muted">尚未檢查 Google 日曆撞期訂單。</div></section>
+ <div class="row"><div><h2>Google Calendar｜行程衝突自動辨識</h2><p id="calendarStatus" class="muted" aria-live="polite">尚未查詢同步狀態。</p></div>
+ <div class="row"><button id="calendarPreview" type="button">預覽自動判斷</button><button id="calendarSync" type="button">立即同步行程</button></div></div>
+ <p class="muted">使用原本 Google Calendar：已確認的計時行程會封鎖撞期場次；原有課程紀錄、時間不確定的邀請與一般全天行程先列入待確認，不直接關閉課程。預覽不會更改預約或付款資料。</p>
+ <div id="calendarReview" class="muted" aria-live="polite">點選「預覽自動判斷」查看需要人工確認的行程。</div>
+ <div id="calendarConflicts" class="muted">尚未檢查 Google 行程撞期訂單。</div></section>
 <section class="panel" aria-label="新預約通知">
 <div class="row"><div><h2>新預約通知｜LINE ＋ Email</h2><p class="muted" id="notifyStatus" aria-live="polite">等待查詢通知設定。</p></div><button id="notifySend" type="button">檢查待發送通知</button></div>
 <p class="muted">付款成功、LINE 洽詢、付款失敗、取消或退款等事件，由現有預約資料庫產生紀錄；通知尚未授權時不會對外發送。</p>
@@ -137,6 +138,29 @@ function renderMonth(){
  }
 }
 
+function renderCalendarPreview(result){
+ const area=get('calendarReview');area.replaceChildren();
+ if(!result.configured){area.textContent='尚未授權連接原有 Google Calendar；目前不會自動封鎖網站場次。';return;}
+ const counts=result.counts||{blocked:0,review:0,ignored:0};
+ const info=document.createElement('p');info.className='notice';
+ info.textContent='自動封鎖 '+counts.blocked+' 件｜待你確認 '+counts.review+' 件｜不影響預約 '+counts.ignored+' 件。預覽未更改預約網站。';
+ area.append(info);
+ if(!result.review?.length)return;
+ const table=document.createElement('table');const head=document.createElement('thead');const top=document.createElement('tr');
+ for(const title of ['待確認行程','原因']){const col=document.createElement('th');col.textContent=title;top.append(col);}
+ head.append(top);table.append(head);
+ const body=document.createElement('tbody');
+ const reasons={COURSE_REFERENCE:'可能是已有公開招生的課程，避免把原課程關閉',ALL_DAY_UNCERTAIN:'全天行程未明確說明是否整天不能授課',UNCONFIRMED_INVITATION:'邀請尚未確認是否參加'};
+ for(const entry of result.review.slice(0,100)){
+  const row=document.createElement('tr');
+  const schedule=(entry.start?.dateTime||entry.start?.date||'')+' ～ '+(entry.end?.dateTime||entry.end?.date||'');
+  td(row,(entry.title||'未命名行程')+'\n'+schedule);
+  td(row,reasons[entry.reason]||'需要人工確認');
+  body.append(row);
+ }
+ table.append(body);area.append(table);
+}
+
 function renderNotifications(){
  const n=notificationInfo;
  get('notifySend').disabled=!n?.enabled;
@@ -191,13 +215,18 @@ renderMonth();
 async function refresh(){const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const responses=await Promise.all([api('busy-list',{from:date}),api('slots',{from:date}),api('orders',{}),api('calendar-status',{}),api('calendar-conflicts',{}),api('notifications',{})]);events=responses[0].events;slots=responses[1].slots;orders=responses[2].orders;calendarSyncState=responses[3];calendarOverlaps=responses[4].conflicts;notificationInfo=responses[5];render();}
 get('loginForm').addEventListener('submit',e=>{e.preventDefault();adminKey=get('adminKey').value;get('adminKey').value='';guarded(async()=>{await refresh();get('loginPanel').classList.add('hidden');get('app').classList.remove('hidden');});});
 get('refresh').addEventListener('click',()=>guarded(refresh));
+get('calendarPreview').addEventListener('click',()=>guarded(async()=>{
+ const result=await api('calendar-preview',{});
+ renderCalendarPreview(result);
+ return '已載入 Google Calendar 自動辨識預覽；此操作未修改預約網站。';
+}));
 get('calendarSync').addEventListener('click',()=>guarded(async()=>{
  const result=await api('calendar-sync',{});
  await refresh();
  if(!result.configured)return '尚未設定 Google Calendar 權限與指定日曆；正式同步尚未啟用。';
  if(result.status==='SKIPPED')return '較新的同步已完成，這次舊同步結果已安全略過。';
  if(result.status!=='OK')return 'Google Calendar 同步失敗：'+result.error_code+'；原本封鎖仍保留。';
- return 'Google Calendar 已同步 '+result.event_count+' 個時段。請檢查上方撞期警示。';
+ return 'Google Calendar 已同步 '+result.event_count+' 個封鎖時段；另有 '+(result.counts?.review||0)+' 件待確認。請檢查預覽與撞期警示。';
 }));
 get('notifySend').addEventListener('click',()=>guarded(async()=>{
  const outcome=await api('notifications-dispatch',{});
