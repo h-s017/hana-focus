@@ -3,6 +3,7 @@ alter table auth.users add column deleted_at timestamptz;
 alter table auth.users add column raw_app_meta_data jsonb not null default '{}';
 \i supabase/schema/hana-automation.sql
 insert into auth.users(id,raw_app_meta_data) values('10000000-0000-4000-8000-000000000003','{"hana_office_access":true}');
+set local role service_role;
 do $$
 declare o uuid:='10000000-0000-4000-8000-000000000003'; t uuid; v jsonb; child uuid;
 begin
@@ -39,6 +40,7 @@ begin
  if has_table_privilege('authenticated','public.hana_connector_credentials','select') then raise exception 'credential_exposed'; end if;
  if has_table_privilege('authenticated','public.hana_automation_settings','update') then raise exception 'direct_enable_exposed'; end if;
 end $$;
+reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000003',true);
 select set_config('request.jwt.claims','{"app_metadata":{"hana_office_access":true}}',true);

@@ -6,6 +6,7 @@ This extends the existing tasks/reviews and workspace; it does not replace them.
 ## Implemented
 
 - Durable task queue uses existing hana_tasks/run states. A separate server-only worker claims one task per invocation, serializes work per owner, checks Asia/Taipei daily reservations and project limits, and leaves every result in review. Approved handoffs use existing atomic RPCs. Final PM stops the chain.
+- Live read-only inspection confirmed service_role cannot select auth.users by default. Candidate SQL grants only id, deleted_at and raw_app_meta_data SELECT for revocation checks; no email, other columns or Auth writes. Ephemeral worker SQL tests run as service_role, not only as postgres.
 - Background operation is independent of an open chat/browser once the approved five-minute cron is installed. SQL claims use row locks, SKIP LOCKED and an owner advisory lock; overlapping ticks cannot claim the same task or bypass reservation limits.
 - Paused projects are not claimed. Two checks before source/provider calls detect pause. An already-sent provider request cannot be undone. Its result still goes to review.
 - Stale workers become failed, not automatically retried. Human retry is bounded to three total attempts and still subject to daily limits. An ambiguous response after a provider call requires review, avoiding silent repeated billing. Existing failed tasks and approval decisions are retained.

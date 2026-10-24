@@ -1,4 +1,7 @@
 -- Release candidate only. No cron, paid calls, existing task changes or external writes.
+-- Invoker RPCs need only these three Auth columns to reject revoked/deleted owners.
+-- Supabase service_role does not have auth.users SELECT by default; do not grant email or other columns.
+grant select(id,deleted_at,raw_app_meta_data) on auth.users to service_role;
 create table public.hana_automation_settings (
  owner_id uuid not null references auth.users(id), project text not null check(length(btrim(project)) between 1 and 100 and project=btrim(project)),
  enabled boolean not null default false, daily_limit integer not null default 3 check(daily_limit between 1 and 6),
@@ -34,7 +37,7 @@ create function public.hana_automation_claim(p_cap integer default 3) returns js
 language plpgsql security invoker set search_path='' as $$
 declare t record; v_run uuid; v_day timestamptz := date_trunc('day',now() at time zone 'Asia/Taipei') at time zone 'Asia/Taipei';
 begin
- if p_cap not between 1 and 10 then raise exception 'invalid_cap'; end if;
+ if p_cap is null or p_cap not between 1 and 10 then raise exception 'invalid_cap'; end if;
  for t in select q.*,s.daily_limit,s.scope_note,s.source_item_id,s.source_read_allowed
  from public.hana_tasks q join public.hana_automation_settings s using(owner_id,project)
  join auth.users u on u.id=q.owner_id
