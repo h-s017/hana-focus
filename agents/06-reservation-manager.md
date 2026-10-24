@@ -15,6 +15,7 @@ HANA WORKSPACE > Reservation Manager. Operators should not need to visit another
 - Proposed periodic read-only sync classifies original calendar events into BLOCK (confirmed timed busy events; explicit unavailable/all-day rest), REVIEW (all-day general events, existing multi-student HANA classes and unanswered/tentative invitations) and IGNORE (cancelled, Google free/transparent, declined, explicit keep-open).
 - Google events that look like existing public teaching sessions must not automatically close their own class. Show these under **預覽自動判斷**, so the operator can review uncertain dates.
 - Administrator-only calendar-preview never modifies reservations. Manager-created busy intervals remain separate from Google-derived blocks and continue to take effect independently.
+- In V2, the manager can set an individual Google event to BLOCK, IGNORE, or RESET-to-automatic directly in the HANA WORKSPACE preview. The Worker saves only hashed event IDs and decisions in migration 0013; Google Calendar event content is not changed. Declined/free/cancelled events keep protective precedence.
 - Google authorization to ChatGPT Calendar does **not** grant a Cloudflare Worker permission to read it. A separate read-only service-account share (with the true owner's calendar ID, never the service account's `primary`) or scoped OAuth setup is still needed.
 ## Current limitations
 - Rule-based automation only; no LLM agent. Main-Calendar event classification and periodic Google sync are committed in Reservation PR #9, **not** deployed or authorized on production.
