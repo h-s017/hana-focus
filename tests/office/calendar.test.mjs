@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {instant,busyIntervals,availableSlots} from '../../js/calendar-availability.mjs';
 const window={start:'2026-10-26T09:00:00+08:00',end:'2026-10-26T12:00:00+08:00'};
 const e=(a,b,extra={})=>({status:'confirmed',start:{dateTime:a},end:{dateTime:b},...extra});
-test('timezone is explicit, not host-dependent',()=>{assert.equal(instant('2026-10-26T09:00:00+08:00'),instant('2026-10-26T01:00:00Z'));assert.throws(()=>instant('2026-10-26T09:00:00'),/timezone/)});
+test('timezone is explicit, not host-dependent',()=>{assert.equal(instant('2026-10-26T09:00:00+08:00'),instant('2026-10-26T01:00:00Z'));assert.throws(()=>instant('2026-10-26T09:00:00'),/timezone/);assert.throws(()=>instant('2026-02-30'),/invalid_date/)});
 test('busy overlap and buffers do not create bookable overlaps',()=>{const events=[e('2026-10-26T10:00:00+08:00','2026-10-26T11:00:00+08:00')];const s=availableSlots(events,window);assert.equal(s.length,2);assert.equal(s[0].start,'2026-10-26T01:00:00.000Z');assert.equal(s[1].start,'2026-10-26T03:00:00.000Z')});
 test('all day end is exclusive Taipei midnight',()=>{const result=busyIntervals([{start:{date:'2026-10-26'},end:{date:'2026-10-27'}}],window);assert.equal(result[0][0],instant(window.start));assert.equal(availableSlots([{start:{date:'2026-10-26'},end:{date:'2026-10-27'}}],window).length,0)});
 test('cancelled and transparent events release capacity',()=>{const ev=e(window.start,window.end,{status:'cancelled'});assert.equal(busyIntervals([ev],window).length,0);assert.equal(busyIntervals([{...ev,status:'confirmed',transparency:'transparent'}],window).length,0)});

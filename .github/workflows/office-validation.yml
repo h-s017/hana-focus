@@ -54,7 +54,7 @@ jobs:
         with:
           deno-version: 'v2.2.0'
       - name: Type check Edge adapter (no deploy, no environment secrets)
-        run: deno check --no-lock supabase/functions/hana-agent/index.ts
+        run: deno check supabase/functions/hana-agent/index.ts
   database-test:
     runs-on: ubuntu-latest
     timeout-minutes: 5

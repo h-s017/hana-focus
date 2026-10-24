@@ -1,6 +1,9 @@
 // Read-only calculations. No Google credentials, calendar writes or reservation updates.
 const dateOnly = /^\d{4}-\d{2}-\d{2}$/;
 export function instant(value) {
+  // Reject normalized invalid dates (e.g. February 30), not just NaN.
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (!match || new Date(Date.UTC(Number(match[1]),Number(match[2])-1,Number(match[3]))).toISOString().slice(0,10)!==match[0]) throw Error('invalid_date');
   // Google all-day dates use calendar-local midnight; this module deliberately supports Taipei only.
   if (dateOnly.test(value)) value += 'T00:00:00+08:00';
   if (!/(Z|[+-]\d{2}:\d{2})$/.test(value)) throw Error('timezone_required');
