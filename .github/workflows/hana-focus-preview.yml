@@ -1,28 +1,37 @@
 name: HANA FOCUS Preview
 on:
-  push:
-    branches: [hana-focus-preview]
   workflow_dispatch:
+    inputs:
+      hana_publish_authorized:
+        description: HANA approves this exact reviewed site release
+        type: boolean
+        required: true
+        default: false
 permissions:
   contents: read
   pages: write
   id-token: write
 concurrency:
   group: hana-focus-pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/hana-focus-preview' && inputs.hana_publish_authorized == true
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
         with:
-          enablement: true
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node scripts/build-office-site.mjs
+      - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs
+          path: ./public-site
       - id: deployment
         uses: actions/deploy-pages@v4
