@@ -34,19 +34,22 @@ export function handler({authenticate,store,generate,ready=()=>true,authorize=us
    if(!task.project||task.project.length>100||!task.title||task.title.length>140||!task.brief||task.brief.length>12000)return json({error:'invalid_brief'},400);
    if(!ROLES.includes(task.role))return json({error:'invalid_role'},400);
    if(!['queued','failed'].includes(task.status))return json({error:'state_conflict'},409);
-   if(task.role!=='Project Manager'&&!ready())return json({error:'ai_not_configured'},503);
+   const useAI=ready();
+   if(task.role!=='Project Manager'&&!useAI)return json({error:'ai_not_configured'},503);
    const run=await store.claim(user.id,task.id,body.request_id);
    let result;
    try {
-    result=task.role==='Project Manager'?projectReport(task):await generate({instructions:instructions(task.role),input:JSON.stringify({project:task.project,title:task.title,brief:task.brief})});
-    if(typeof result!=='string'||!result.trim()||result.length>50000)throw Error('empty_result');
+    result=task.role==='Project Manager'&&!useAI?projectReport(task):await generate({instructions:instructions(task.role),input:JSON.stringify({project:task.project,title:task.title,brief:task.brief})});
+    if(typeof result!=='string'||!result.trim())throw Error('empty_result');
+    if(useAI)result='AI 草稿｜'+task.role+'（待本人審核，非客戶核准）\n'+result;
+    if(result.length>50000)throw Error('result_too_large');
    } catch(error) {
     const code=error?.name==='TimeoutError'||error?.name==='AbortError'?'provider_timeout':'provider_failed';
     await store.finish(user.id,task.id,run,null,code);
     return json({error:code,status:'failed',run_id:run},502);
    }
    await store.finish(user.id,task.id,run,result,null);
-   return json({status:'review',run_id:run});
+   return json({status:'review',run_id:run,mode:useAI?'ai':'rules'});
   }catch(error){return json({error:error?.conflict?'state_conflict':'operation_failed',requires_refresh:true},error?.conflict?409:503);}
  };
 }

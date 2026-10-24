@@ -45,7 +45,7 @@ Supabase changelog Markdown抓取因工具content-type不支援失敗，已改�
 
 ## 測試證據
 
-- 本機：Node24；agent13、auth10、calendar6、site1、server adapter3，共33項測試通過；模擬完整文慶雞四步交接，不含真實AI呼叫或郵件。
+- 本機：Node24；agent14、auth10、calendar6、site1、server adapter3，共34項測試通過；模擬完整文慶雞四步交接，不含真實AI呼叫或郵件。
 - JavaScript syntax checks、workflow YAML解析通過。
 - 真實Supabase候選SQL嘗試使用BEGIN／ROLLBACK驗證時工具回傳Invalid or expired requestState，故不算SQL驗證成功。隨後已查證run table及active_run_id欄位未持久化，原tasks／reviews仍各0筆。正式schema未改動。
 - 已加入CI隔離Postgres17合成fixture，測試SQL編譯、原子狀態、審核audit、owner RLS、RPC權限、交接唯一性、失敗重試、逾時回收及ROLLBACK；不另外建立Supabase專案。
@@ -85,3 +85,7 @@ Supabase changelog Markdown抓取因工具content-type不支援失敗，已改�
 - job120882676207：Postgres17合成fixture之claim、audit、交接唯一性、失敗重試、逾時回收、RPC權限、owner RLS及rollback均PASS。
 - [瀏覽器截圖證據包](https://github.com/h-s017/hana-focus/actions/runs/40097489686/artifacts/12560969775)；[完整靜態測試包](https://github.com/h-s017/hana-focus/actions/runs/40097489686/artifacts/12561970030)，均保留7天，未公開部署。
 - [PR #9](https://github.com/h-s017/hana-focus/pull/9)為審核入口，未合併。後續Edge原生HTTP adapter變更會再由CI驗證；不以先前版本結果替代新提交。
+
+### 本輪文慶雞來源讀回
+
+已透過既有連接器實際讀取Notion中心（最後編輯2026-10-23T04:07:22.467Z）、其連結的[品牌識別手冊V1.0審閱基準](https://app.notion.com/p/4029b41981ae8161bda0eb5f9f3adc76)（2026-10-23T04:10:54.789Z）及Google Docs策略V1。新版手冊仍標DRAFT／INTERNAL REVIEW、非業主核准版；G2紅色、Symbol、G3方案範圍仍待核准，故測試需求保留未決，沒有將較新編輯時間當作客戶批准。這是本次按需讀取，不是已建立持續同步。

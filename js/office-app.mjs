@@ -55,7 +55,7 @@ async function refresh(){if(!current)return;const v=++refreshVersion,owner=curre
  for(const t of data||[]){if($('filter').value&&$('filter').value!==t.status)continue;
  const el=document.createElement('article');el.innerHTML='<h3>'+escape(t.title)+'</h3><p>'+escape(t.project)+'｜'+escape(t.role)+'｜'+escape(STATES[t.status]||'未知狀態')+'</p><small>'+escape(new Date(t.created_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}))+'</small>'+(t.due_at?'<p>期限：'+escape(new Date(t.due_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}))+'</p>':'')+'<p>'+escape(t.brief)+'</p>'+(t.result?'<pre>'+escape(t.result)+'</pre>':'');
  const button=(label,fn)=>{const b=document.createElement('button');b.textContent=label;b.disabled=busy.has(t.id);b.onclick=fn;el.append(b);};
- if(['queued','failed'].includes(t.status))button(t.role==='Project Manager'?'產生PM規則式草稿':'執行AI草稿',()=>action(t,'generate'));
+ if(['queued','failed'].includes(t.status))button(t.role==='Project Manager'?'產生PM進度草稿':'執行AI草稿',()=>action(t,'generate'));
  if(t.status==='review')for(const [text,d] of [['核准內部草稿','approved'],['退回修改','rejected']])button(text,()=>{if(confirm(text+'？此操作不代表客戶核准、不會對外發布。'))action(t,'review',d);});
  if(t.status==='rejected')button('重新排隊（不自動執行）',()=>action(t,'requeue'));
  if(t.status==='running' && Date.now()-Date.parse(t.updated_at)>600000)button('回收逾時任務',()=>action(t,'recover'));
