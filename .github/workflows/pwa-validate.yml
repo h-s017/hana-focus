@@ -27,7 +27,8 @@ jobs:
               assert (root/icon['src']).is_file(),icon['src']
           html=(root/'workspace.html').read_text()
           modules=re.findall(r'src="(\./icons/module-[^"]+\.png)"',html)
-          assert len(modules)==9,(len(modules),modules)
+          required={f'./icons/module-{name}.png' for name in ['dashboard','social-editor','ai-studio','brand-projects','courses','church','review','schedule','settings']}
+          assert required.issubset(set(modules)),sorted(required-set(modules))
           for path in modules:
               assert (root/path).is_file(),path
           for size in (192,512):
