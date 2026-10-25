@@ -25,3 +25,4 @@
 #hana-office-root :focus-visible{outline:3px solid #91b1a1;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 @media(max-width:360px){#hana-office-root .focus-composer{padding:14px}#hana-office-root .focus-context{grid-template-columns:1fr}#hana-office-root #office-focus>h2{font-size:24px}}
+#office-google-connection a{display:inline-block;min-height:44px;line-height:1.8;color:#334b40}#office-google-connection p{line-height:1.8}nav.tiles [aria-current="page"]{background:#e7ede6;box-shadow:inset 0 0 0 1px #b5c6b7}nav.tiles{margin-bottom:26px}#hana-month-calendar[hidden]{display:none!important}#office-focus [hidden]{display:none!important}

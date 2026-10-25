@@ -96,3 +96,11 @@ test('duplicate ids and invalid slot dates fail closed rather than dropping book
  assert.throws(()=>build({slots:[slot,slot]}),/invalid_sources/);assert.throws(()=>build({slots:[{...slot,date:'2026-11-99'}]}),/invalid_date/);
 });
 test('fully booked slots block proposed openings',()=>{const d=build({slots:[{id:'full',date:'2026-11-02',time:'10:00-15:00',booked:2,capacity:2,status:'開放'}]});assert.equal(date(d,'02').existingOpen.length,0);assert.equal(date(d,'02').proposed.length,0);});
+
+
+test('verified Reservation inventory stays visible without Google; never produces candidates',()=>{
+ const slot={id:'open',date:'2026-11-02',time:'10:00–11:00',booked:1,capacity:3,status:'開放',course:'fixture'};
+ const d=build({sources:{calendar:false,reservation:true},slots:[slot,{...slot,id:'closed',status:'關閉'},{...slot,id:'full',booked:3}]});
+ const day=date(d,'02');assert.equal(day.status,'calendar_unverified');assert.equal(day.reservationSlots.length,3);assert.equal(day.existingOpen.length,1);assert.equal(day.existingOpen[0].remaining,2);assert.deepEqual(day.proposed,[]);assert.equal(d.sourceVerified,false);assert.equal(d.published,false);assert.equal(d.externalWrites,false);
+});
+test('unverified Reservation contents are never displayed as verified inventory',()=>{const d=build({sources:{calendar:false,reservation:false},slots:[{id:'fake',date:'2026-11-02',time:'10:00–11:00',booked:0,capacity:3,status:'開放'}]});assert.deepEqual(date(d,'02').reservationSlots,[]);assert.deepEqual(date(d,'02').existingOpen,[]);});
