@@ -7,6 +7,11 @@ export function automationStore({url,service,fetcher=fetch}) {
  }
  const query=(table,params)=>table+'?'+new URLSearchParams(params),rpc=(name,body={})=>request('rpc/'+name,'POST',body);
  const store={...base.store,
+  claimRules:cap=>rpc('hana_automation_claim_rules',{p_cap:cap}),verifyWorker:token=>rpc('hana_worker_authorized',{p_token:token}),
+  bookingChanges:owner=>request(query('hana_booking_changes',{owner_id:'eq.'+owner,select:'*',order:'created_at.desc',limit:'50'})),
+  async bookingGet(owner,id){const rows=await request(query('hana_booking_changes',{owner_id:'eq.'+owner,id:'eq.'+id,select:'*'}));return rows[0]||null;},
+  bookingSave:(owner,requestId,c)=>rpc('hana_booking_save',{p_owner:owner,p_request:requestId,p_target:c.target,p_target_id:c.target_id,p_proposal:c.proposal,p_snapshot:c.source_snapshot,p_verified:c.source_verified}),
+  bookingReview:(owner,id,decision)=>rpc('hana_booking_review',{p_owner:owner,p_change:id,p_decision:decision}),
   recover:()=>rpc('hana_automation_recover'),advance:()=>rpc('hana_automation_advance'),claim:cap=>rpc('hana_automation_claim',{p_cap:cap}),
   async allowed(owner,project){const rows=await request(query('hana_automation_settings',{owner_id:'eq.'+owner,project:'eq.'+project,select:'enabled'}));return rows[0]?.enabled===true;},
   event:(owner,project,task,run,code,details={})=>request('hana_automation_events','POST',{owner_id:owner,project,task_id:task,run_id:run,code,details}),
