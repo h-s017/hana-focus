@@ -42,7 +42,7 @@ export function monthlyWorker({store,run,enabled,verify,now=Date.now}){
   for(const setting of (await store.monthlyScheduled()).slice(0,10)){
    if(!await store.monthlyClaim(setting.owner_id,clock.toISOString()))continue;
    try{const prior=await store.monthlyGet(setting.owner_id,plan.targetMonth);
-    const value=await run(setting.owner_id,{action:'monthly_generate',month:plan.targetMonth,revision:prior?.revision||0,request_id:crypto.randomUUID(),policy:setting.policy});results.push({status:value.record?.state||'unverified'});
+    const value=await run(setting.owner_id,{action:'monthly_generate',month:plan.targetMonth,revision:prior?.revision||0,request_id:crypto.randomUUID(),policy:Object.keys(prior?.policy||{}).length?prior.policy:setting.policy});results.push({status:value.record?.state||'unverified'});
    }catch{await store.event(setting.owner_id,'課程預約',null,null,'monthly_job_failed',{run_day:day,requires_human:true,external_writes:false});results.push({status:'failed'});}
   }
   return Response.json({status:'processed',results,externalWrites:false,paid_api_calls:0});

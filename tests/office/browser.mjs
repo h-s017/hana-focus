@@ -90,6 +90,8 @@ try{
  assert.equal(await page.locator('#office-materials a').getAttribute('href'),'https://onedrive.live.com/?id=updated');
  assert.equal(await page.evaluate(()=>localStorage.getItem('hana-focus-workspace-v2-church')),'legacy-kept');await page.locator('#office-logout').click();await page.locator('#office-private').waitFor({state:'hidden'});assert.equal(await page.locator('#office-tasks article').count(),0);assert.equal(await page.locator('#office-materials a').count(),0);assert.equal(await page.locator('#office-automation button').count(),0);assert.equal(await page.locator('#office-orders').textContent(),'');assert.deepEqual(errors,[]);
 
+ // Open a new document before the callback; changing only the current page hash does not rerun module init.
+ await page.goto('https://h-s017.github.io/hana-focus/workspace.html');
  // Re-login through the existing callback; private monthly records are API fixtures only.
  await page.goto('https://h-s017.github.io/hana-focus/ai-office.html#access_token=fixture&refresh_token=fixture2');await page.locator('#office-private').waitFor({state:'visible'});
  await page.goto('https://h-s017.github.io/hana-focus/workspace.html');
