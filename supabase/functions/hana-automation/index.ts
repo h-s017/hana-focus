@@ -1,6 +1,7 @@
 import {automationStore} from './store.mjs';
 import {microsoft,cipher} from './microsoft.mjs';
 import {calendarPreview} from './calendar.mjs';
+import {reservationReader} from './reservations.mjs';
 import {bookingService} from './booking.mjs';
 import {control} from './control.mjs';
 const env=(name:string)=>Deno.env.get(name)||'';
@@ -9,7 +10,8 @@ const readiness=()=>({worker:env('HANA_AUTOMATION_ENABLED')!=='false',mode:'rule
 const connector=readiness().microsoft?microsoft({clientId:env('MICROSOFT_CLIENT_ID'),tenant:env('MICROSOFT_TENANT')||'consumers',store,encryption:cipher(env('HANA_CONNECTOR_ENCRYPTION_KEY'))}):null;
 // HANA budget NT$0: no callable paid provider implementation in this release.
 const calendar=readiness().calendar?calendarPreview({clientId:env('GOOGLE_CLIENT_ID'),clientSecret:env('GOOGLE_CLIENT_SECRET'),seedRefreshToken:env('GOOGLE_CALENDAR_REFRESH_TOKEN'),ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),calendarId:env('GOOGLE_CALENDAR_ID')||'primary',store,encryption:cipher(env('HANA_CONNECTOR_ENCRYPTION_KEY'))}):null;
-const controls=control({store,authenticate,connector,readiness,calendarPreview:calendar,booking:bookingService({store})});
+const reservations=reservationReader({token:env('RESERVATION_ADMIN_TOKEN'),store});
+const controls=control({store,authenticate,connector,readiness,calendarPreview:calendar,booking:bookingService({store,reservations}),reservations});
 // This function performs its own per-request Auth validation; the NT$0 cron runs SQL locally.
 // every user action validates the bearer with Supabase Auth and trusted app_metadata.
 // Existing hana-agent retains verify_jwt=true and its paid-call switch remains off.
