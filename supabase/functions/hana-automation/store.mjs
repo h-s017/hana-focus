@@ -7,6 +7,9 @@ export function automationStore({url,service,fetcher=fetch}) {
  }
  const query=(table,params)=>table+'?'+new URLSearchParams(params),rpc=(name,body={})=>request('rpc/'+name,'POST',body);
  const store={...base.store,
+  beginWork:(owner,input)=>rpc('hana_begin_work',{p_owner:owner,p_request:input.request,p_project:input.project,p_instruction:input.instruction,p_action:input.action}),
+  finishWork:(owner,request,state,summary)=>rpc('hana_finish_work',{p_owner:owner,p_request:request,p_state:state,p_summary:summary}),
+  workHistory:owner=>rpc('hana_work_history',{p_owner:owner}),
   claimRules:cap=>rpc('hana_automation_claim_rules',{p_cap:cap}),
   bookingChanges:owner=>request(query('hana_booking_changes',{owner_id:'eq.'+owner,select:'*',order:'created_at.desc',limit:'50'})),
   async bookingGet(owner,id){const rows=await request(query('hana_booking_changes',{owner_id:'eq.'+owner,id:'eq.'+id,select:'*'}));return rows[0]||null;},
