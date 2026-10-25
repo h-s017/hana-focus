@@ -85,9 +85,9 @@ export function microsoft({clientId,tenant='consumers',store,encryption,fetcher=
    const data=await graph(owner,path+'/children?$select=id,name,folder,remoteItem&$top=100');
    return {current:{id:folder.id,name:folder.name},folders:(data.value||[]).filter(x=>x.folder&&!x.remoteItem).map(x=>({id:x.id,name:x.name})),limited:!!data['@odata.nextLink']};
   },
-  async snapshot(owner,root){
+  async snapshot(owner,root,project){
    const signal=AbortSignal.timeout(30000);const queue=[{id:root,depth:0}],items=[];let limited=false,total=0,requests=0;
-   const rootFolder=await graph(owner,'/me/drive/items/'+id(root)+'?$select=id,folder',signal);if(!rootFolder.folder)throw failure('source_denied');
+   const rootFolder=await graph(owner,'/me/drive/items/'+id(root)+'?$select=id,name,folder',signal);if(!rootFolder.folder)throw failure('source_denied');if(project&&String(rootFolder.name||'').trim().normalize('NFC')!==project.trim().normalize('NFC'))throw failure('source_denied');
    while(queue.length&&items.length<40&&requests<15){
     const folder=queue.shift();const data=await graph(owner,'/me/drive/items/'+id(folder.id)+'/children?$select=id,name,eTag,size,file,folder,remoteItem,lastModifiedDateTime&$top=40',signal);requests++;
     if(data['@odata.nextLink'])limited=true;
