@@ -7,6 +7,12 @@ export function automationStore({url,service,fetcher=fetch}) {
  }
  const query=(table,params)=>table+'?'+new URLSearchParams(params),rpc=(name,body={})=>request('rpc/'+name,'POST',body);
  const store={...base.store,
+  async monthlyGet(owner,month){const rows=await request(query('hana_monthly_drafts',{owner_id:'eq.'+owner,month:'eq.'+month,select:'*'}));return rows[0]||null;},
+  async monthlyReceipt(owner,id){const rows=await request(query('hana_automation_events',{id:'eq.'+id,owner_id:'eq.'+owner,code:'in.(monthly_saved,monthly_reviewed)',select:'details'}));return rows[0]?.details||null;},
+  monthlySave:(owner,c)=>rpc('hana_monthly_save',{p_owner:owner,p_month:c.month,p_revision:c.revision,p_request:c.request,p_policy:c.policy,p_overrides:c.overrides,p_generated:c.generated,p_changed:c.changed}),
+  monthlyReview:(owner,month,revision,decision,request)=>rpc('hana_monthly_review',{p_owner:owner,p_month:month,p_revision:revision,p_decision:decision,p_request:request}),
+  monthlyScheduled:()=>rpc('hana_monthly_scheduled'),
+  monthlyClaim:(owner,clock)=>rpc('hana_monthly_claim_day',{p_owner:owner,p_clock:clock}),
   claimRules:cap=>rpc('hana_automation_claim_rules',{p_cap:cap}),
   bookingChanges:owner=>request(query('hana_booking_changes',{owner_id:'eq.'+owner,select:'*',order:'created_at.desc',limit:'50'})),
   async bookingGet(owner,id){const rows=await request(query('hana_booking_changes',{owner_id:'eq.'+owner,id:'eq.'+id,select:'*'}));return rows[0]||null;},
@@ -29,3 +35,4 @@ export function automationStore({url,service,fetcher=fetch}) {
  };
  return {authenticate:base.authenticate,store};
 }
+

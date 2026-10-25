@@ -1,3 +1,4 @@
+import {mountMonthlyCalendar} from './monthly-calendar-app.mjs';
 import {mountReservationOrders} from './reservation-orders.mjs';
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.57.0';
 import {loginController,consumeCallback,authMessage} from './office-auth.mjs';
@@ -9,19 +10,19 @@ const host=document.getElementById('hana-office-root');
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const db=createClient('https://ihmvziqisputjnjkuhvm.supabase.co','sb_publishable_xipXAHCwziguVpbr3DEN-w_AI6Cap3f',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 let draftRequestId=crypto.randomUUID();
-let disposeMaterials=null,materialsOwner=null,disposeAutomation=null,disposeOrders=null;
+let disposeMaterials=null,materialsOwner=null,disposeAutomation=null,disposeOrders=null,disposeMonthly=null;
 let current=null,loading=false;const busy=new Set();let refreshVersion=0;
 host.innerHTML=`<section><h2>登入與雲端工作</h2><label>電子郵件<input id="office-email" type="email" autocomplete="email"></label><button id="office-login">寄送登入連結</button><button id="office-logout" hidden>登出</button><p id="office-session" role="status" aria-live="polite">正在確認登入狀態…</p></section>
 <section id="office-private" hidden><section id="office-orders"></section><section id="office-materials"></section><section id="office-automation"></section><h2>專案與任務</h2><p>內部雲端資料與原本本機工作板分開保存，不會覆蓋 HANA WORK／CHURCH WORK。本人核准不代表客戶核准或正式交付。</p><form id="office-form"><label>專案<input name="project" value="文慶雞" maxlength="100" required></label><label>角色<select name="role"><option>Project Manager</option><option>Brand Strategist</option><option>Creative Producer</option></select></label><label>標題<input name="title" maxlength="140" required></label><label>需求與來源<textarea name="brief" rows="5" maxlength="12000" required></textarea></label><label>建議期限<input name="due" type="datetime-local"></label><button id="office-add">儲存雲端任務</button></form><button id="office-refresh">重新整理</button><button id="office-bkc">載入文慶雞測試需求（不自動送出）</button><label>篩選<select id="office-filter"><option value="">全部</option><option value="review">待本人審核</option><option value="approved">本人核准・未交付</option><option value="failed">失敗</option></select></label><p id="office-notice" role="status" aria-live="polite"></p><div id="office-tasks"></div></section>
 <section><h2>Google Calendar 與課程預約</h2><p>伺服端 OAuth／正式預約同步尚未啟用。以下只用合成事件驗證 Asia/Taipei 時段計算，不讀取或更動客戶預約，不寄送通知。</p><button id="office-calendar-preview">試算範例不可預約時段</button><pre id="office-calendar-result"></pre></section>`;
 const $=id=>document.getElementById('office-'+id),message=s=>$('notice').textContent=s;
 const controller=loginController({auth:db.auth,storage:localStorage,withLock:fn=>navigator.locks?navigator.locks.request('hana-office-login',fn):fn()});
-function loggedOut(){disposeOrders?.();disposeOrders=null;disposeAutomation?.();disposeAutomation=null;disposeMaterials?.();disposeMaterials=null;materialsOwner=null;current=null;refreshVersion++;$('private').hidden=true;$('tasks').replaceChildren();$('logout').hidden=true;}
+function loggedOut(){disposeMonthly?.();disposeMonthly=null;const calendarHost=document.getElementById('hana-month-calendar');if(calendarHost)disposeMonthly=mountMonthlyCalendar(calendarHost);disposeOrders?.();disposeOrders=null;disposeAutomation?.();disposeAutomation=null;disposeMaterials?.();disposeMaterials=null;materialsOwner=null;current=null;refreshVersion++;$('private').hidden=true;$('tasks').replaceChildren();$('logout').hidden=true;}
 async function sync(){
  try{const {data:{session},error}=await db.auth.getSession();if(error)throw error;current=session;
  $('private').hidden=!session;$('logout').hidden=!session;
  $('session').textContent=session?'已登入：'+session.user.email:'未登入，請使用最新登入郵件。';
- if(session){if(materialsOwner!==session.user.id){disposeOrders?.();disposeOrders=mountReservationOrders($('orders'),{db});disposeAutomation?.();disposeAutomation=mountAutomation($('automation'),{db,owner:session.user.id});disposeMaterials?.();disposeMaterials=mountMaterials($('materials'),{db,owner:session.user.id});materialsOwner=session.user.id;}await refresh();}else loggedOut();
+ if(session){if(materialsOwner!==session.user.id){disposeMonthly?.();const calendarHost=document.getElementById('hana-month-calendar');if(calendarHost)disposeMonthly=mountMonthlyCalendar(calendarHost,{db});disposeOrders?.();disposeOrders=mountReservationOrders($('orders'),{db});disposeAutomation?.();disposeAutomation=mountAutomation($('automation'),{db,owner:session.user.id});disposeMaterials?.();disposeMaterials=mountMaterials($('materials'),{db,owner:session.user.id});materialsOwner=session.user.id;}await refresh();}else loggedOut();
  }catch{loggedOut();$('session').textContent='無法確認登入狀態，請重新登入。';}
 }
 $('login').onclick=async()=>{$('login').disabled=true;const result=await controller.send($('email').value);$('session').textContent=result.message;$('login').disabled=false;};
@@ -71,3 +72,4 @@ $('calendar-preview').onclick=()=>{const result=availableSlots([{status:'confirm
 db.auth.onAuthStateChange(()=>setTimeout(sync,0));
 const callback=await consumeCallback({auth:db.auth,href:location.href,replace:path=>history.replaceState(null,'',path)});
 await sync();if(callback.handled)$('session').textContent=callback.message;
+

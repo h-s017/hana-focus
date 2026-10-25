@@ -7,9 +7,11 @@ begin;
 \i tests/office/automation-rls.sql
 \i tests/office/booking-rls.sql
 \i tests/office/free-worker-rls.sql
+\i tests/office/monthly-calendar-rls.sql
 rollback;
 do $$ begin
  if to_regclass('public.hana_task_runs') is not null then raise exception 'test_schema_persisted'; end if;
  if (select count(*) from public.hana_tasks)<>0 then raise exception 'test_data_persisted'; end if;
 end $$;
 select 'PASS: ephemeral PostgreSQL transaction rolled back' as cleanup_result;
+

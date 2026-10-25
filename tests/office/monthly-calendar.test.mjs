@@ -84,3 +84,15 @@ test('already-booked collision is detected even on a closed-by-policy day',()=>{
  assert.equal(date(d,'07').conflicts[0].slotId,'sat-paid');
  assert.equal(date(d,'07').proposed.length,0);
 });
+
+
+test('previous-day event buffer crosses midnight and month boundary',()=>{
+ const d=build({policy:{weekdays:[0,1,2,3,4,5,6],windows:[{start:'00:00',end:'02:00'}],durationMinutes:30,stepMinutes:30,bufferAfterMinutes:30},events:[{start:{dateTime:'2026-10-31T23:00:00+08:00'},end:{dateTime:'2026-10-31T23:50:00+08:00'},status:'confirmed'}]});
+ assert.ok(!date(d,'01').proposed.some(x=>x.start===0));assert.ok(date(d,'01').proposed.some(x=>x.start===30));
+});
+test('overlapping rule windows cannot double count availability',()=>{assert.throws(()=>build({policy:{...policy,windows:[{start:'10:00',end:'12:00'},{start:'11:00',end:'13:00'}]}}),/invalid_policy/);});
+test('duplicate ids and invalid slot dates fail closed rather than dropping bookings',()=>{
+ const slot={id:'same',date:'2026-11-02',time:'10:00-11:00',booked:1,capacity:2,status:'開放'};
+ assert.throws(()=>build({slots:[slot,slot]}),/invalid_sources/);assert.throws(()=>build({slots:[{...slot,date:'2026-11-99'}]}),/invalid_date/);
+});
+test('fully booked slots block proposed openings',()=>{const d=build({slots:[{id:'full',date:'2026-11-02',time:'10:00-15:00',booked:2,capacity:2,status:'開放'}]});assert.equal(date(d,'02').existingOpen.length,0);assert.equal(date(d,'02').proposed.length,0);});
