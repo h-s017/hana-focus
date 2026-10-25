@@ -21,7 +21,7 @@ jobs:
       - name: Unit and state-machine tests (no credentials)
         run: |
           for file in tests/office/*.test.mjs; do node "$file"; done
-          for file in js/*.mjs supabase/functions/hana-agent/*.mjs; do node --check "$file"; done
+          for file in js/*.mjs supabase/functions/hana-agent/*.mjs supabase/functions/hana-automation/*.mjs; do node --check "$file"; done
       - name: Stage complete public site with no backend reports or secrets
         run: node scripts/build-office-site.mjs
       - name: Install pinned isolated browser test dependency
@@ -54,7 +54,9 @@ jobs:
         with:
           deno-version: 'v2.2.0'
       - name: Type check Edge adapter (no deploy, no environment secrets)
-        run: deno check supabase/functions/hana-agent/index.ts
+        run: |
+          deno check supabase/functions/hana-agent/index.ts
+          deno check supabase/functions/hana-automation/index.ts
   database-test:
     runs-on: ubuntu-latest
     timeout-minutes: 5
