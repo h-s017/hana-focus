@@ -60,11 +60,10 @@ export function createMonthlyDraft({month,events=[],slots=[],policy={},sources={
  const days=dates.map(({date,weekday})=>{
   const day={date,weekday,status:'unverified',existingOpen:[],proposed:[],conflicts:[],warnings:[]};
   if(!hasSources)return day;
-  if(!rules){day.status='rules_missing';return day;}
-  if(rules.closedDates.has(date)||!rules.weekdays.includes(weekday)){day.status='closed_by_policy';return day;}
+  const closedByPolicy=!!rules&&(rules.closedDates.has(date)||!rules.weekdays.includes(weekday));
   const start=date+'T00:00:00+08:00';
   const next=new Date(instant(start)+86400000).toISOString();
-  const busy=busyIntervals(events,{start,end:next}).map(([a,b])=>[a-rules.before*60000,b+rules.after*60000]);
+  const busy=busyIntervals(events,{start,end:next}).map(([a,b])=>[a-(rules?.before||0)*60000,b+(rules?.after||0)*60000]);
   const inDay=slots.filter(s=>s.date===date);
   const parsed=[];
   for(const s of inDay){
@@ -77,6 +76,8 @@ export function createMonthlyDraft({month,events=[],slots=[],policy={},sources={
    if(conflict&&s.booked>0)day.conflicts.push({slotId:s.id,time:s.start+'-'+s.end,booked:s.booked,reason:'calendar_conflict'});
    if(s.status==='開放'&&s.capacity>s.booked&&!conflict)day.existingOpen.push({slotId:s.id,course:s.course,start:s.start,end:s.end,remaining:s.capacity-s.booked});
   }
+  if(!rules){day.status=day.conflicts.length?'conflict_requires_review':'rules_missing';return day;}
+  if(closedByPolicy){day.status=day.conflicts.length?'conflict_requires_review':'closed_by_policy';return day;}
   for(const w of rules.windows)for(let t=w.start;t+rules.duration<=w.end;t+=rules.step){
    const a=localInstant(date,t),b=localInstant(date,t+rules.duration);
    if(busy.some(([x,y])=>overlap(a,b,x,y)))continue;
