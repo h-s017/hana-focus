@@ -79,5 +79,28 @@ try{
  await mkdir('test-artifacts',{recursive:true});await page.screenshot({path:'test-artifacts/office-workflow.png',fullPage:true});await page.reload();await page.locator('#office-private').waitFor({state:'visible'});
  assert.equal(await page.locator('#office-materials a').getAttribute('href'),'https://onedrive.live.com/?id=updated');
  assert.equal(await page.evaluate(()=>localStorage.getItem('hana-focus-workspace-v2-church')),'legacy-kept');await page.locator('#office-logout').click();await page.locator('#office-private').waitFor({state:'hidden'});assert.equal(await page.locator('#office-tasks article').count(),0);assert.equal(await page.locator('#office-materials a').count(),0);assert.equal(await page.locator('#office-automation button').count(),0);assert.equal(await page.locator('#office-orders').textContent(),'');assert.deepEqual(errors,[]);
+ const workspaceFixtures=await page.evaluate(()=>{
+  const task=(id,title,project)=>({id,title,project,role:'行政',status:'進行中',importance:'2',owner:'yes',due:''});
+  const work=JSON.stringify({tasks:[task('work-fixture','商務任務保留','旗袍合作')],ideas:['商務構想保留']});
+  const church=JSON.stringify({tasks:[task('church-fixture','教會任務保留','主領')],ideas:['教會構想保留']});
+  localStorage.setItem('hana-focus-workspace-v2-work',work);localStorage.setItem('hana-focus-workspace-v2-church',church);
+  for(const key of ['hana-focus-v2-migrated','hana-focus-work-items-20261020-v1','hana-focus-qipao-campaign-20261024-v1'])localStorage.setItem(key,'1');
+  localStorage.setItem('hana-focus-active-workspace','church');return {work,church};
+ });
+ await page.setViewportSize({width:390,height:844});await page.goto('https://h-s017.github.io/hana-focus/index.html');
+ assert.equal(await page.locator('[data-workspace=work]').count(),3);
+ for(const node of await page.locator('[data-workspace=work]').all())assert.equal(await node.isVisible(),false);
+ await page.locator('#all').getByText('教會任務保留',{exact:true}).waitFor();assert.equal(await page.locator('#all').getByText('商務任務保留',{exact:true}).count(),0);
+ await page.screenshot({path:'test-artifacts/workspace-church.png',fullPage:true});
+ await page.locator('#workBtn').click();for(const node of await page.locator('[data-workspace=work]').all())assert.equal(await node.isVisible(),true);
+ await page.locator('#all').getByText('商務任務保留',{exact:true}).waitFor();assert.equal(await page.locator('#all').getByText('教會任務保留',{exact:true}).count(),0);
+ await page.screenshot({path:'test-artifacts/workspace-work.png',fullPage:true});
+ await page.reload();assert.equal(await page.locator('section[data-workspace=work]').first().isVisible(),true);
+ await page.locator('#churchBtn').click();await page.reload();
+ for(const node of await page.locator('[data-workspace=work]').all())assert.equal(await node.isVisible(),false);
+ assert.deepEqual(await page.evaluate(()=>({work:localStorage.getItem('hana-focus-workspace-v2-work'),church:localStorage.getItem('hana-focus-workspace-v2-church')})),workspaceFixtures);
+ for(const width of [320,390]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'church workspace overflow '+width);}
+ assert.deepEqual(errors,[]);
+ console.log('PASS: commercial modules stay in HANA WORK; switch/reload preserve work and church tasks and ideas.');
  console.log('PASS: mocked browser login/callback/reload/logout, four-agent review handoffs, preserved legacy storage, responsive 320/390/820. No external emails, API or calendar writes.');
 }finally{await browser.close()}
