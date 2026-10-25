@@ -33,5 +33,7 @@ export function mountReservationOrders(host,{db}){
  }
  search.oninput=render;host.replaceChildren(title,notice,controls,search,status,list);status.textContent='按「讀取／重新整理預約明細」查詢。';
  // No localStorage, offline cache, URL parameters, third-party resources or automatic PII fetch.
- return ()=>{disposed=true;generation++;rows=[];next=null;cursor=null;history.length=0;search.value='';host.replaceChildren();};
+ const dispose=()=>{disposed=true;generation++;rows=[];next=null;cursor=null;history.length=0;search.value='';host.replaceChildren();};
+ dispose.showResult=data=>{if(disposed)return;generation++;rows=Array.isArray(data?.orders)?data.orders:[];cursor=null;next=data?.next_cursor||null;history.length=0;search.value='';render();prev.disabled=true;more.disabled=!next;status.textContent=data?'交辦查詢完成，本頁 '+rows.length+' 筆；未修改預約。':'尚未顯示客戶明細。';};
+ return dispose;
 }
