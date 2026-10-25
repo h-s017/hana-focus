@@ -41,7 +41,8 @@ export async function tick({store,generate,sources,enabled,cap=3,mode='ai'}) {
   return {status:'attention_required',task_id:id,error:code};
  }
 }
-export function workerHandler({tick:run,secret=undefined,enabled,verify=undefined}) {
+/** @param {{tick:()=>Promise<any>, secret?:string, enabled:()=>boolean, verify?:(token:string)=>Promise<boolean>}} options */
+export function workerHandler({tick:run,secret,enabled,verify}) {
  return async request=>{
   if(request.method!=='POST')return Response.json({error:'method_not_allowed'},{status:405});
   const token=request.headers.get('x-hana-worker-token')||'';
