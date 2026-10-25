@@ -26,22 +26,28 @@ end $$;
 
 revoke all on function public.hana_automation_claim_rules(integer) from public,anon,authenticated;
 grant execute on function public.hana_automation_claim_rules(integer) to service_role;
-create schema if not exists hana_private;
-revoke all on schema hana_private from public,anon,authenticated;
-grant usage on schema hana_private to service_role;
--- Narrow private definer is necessary to compare one Vault secret without granting
--- service_role access to decrypted secrets. Never returns the secret or digest.
-create function hana_private.worker_token_matches(p_token text) returns boolean
-language sql security definer set search_path='' as $$
- select length(p_token) between 32 and 256 and exists(
-  select 1 from vault.decrypted_secrets where name='hana_worker_token'
-  and length(decrypted_secret)>=32
-  and extensions.digest(p_token,'sha256')=extensions.digest(decrypted_secret,'sha256')
- );
-$$;
-revoke all on function hana_private.worker_token_matches(text) from public,anon,authenticated;
-grant execute on function hana_private.worker_token_matches(text) to service_role;
-create function public.hana_worker_authorized(p_token text) returns boolean
-language sql security invoker set search_path='' as $$select hana_private.worker_token_matches(p_token)$$;
-revoke all on function public.hana_worker_authorized(text) from public,anon,authenticated;
-grant execute on function public.hana_worker_authorized(text) to service_role;
+
+-- Free PM work is fully database-local: no HTTP queue, external token or model call.
+create function public.hana_run_free_pm_tick() returns jsonb
+language plpgsql security invoker set search_path='' as $$
+declare t jsonb; result text;owner uuid;task uuid;run uuid;
+begin
+ perform public.hana_automation_recover();
+ perform public.hana_automation_advance();
+ t:=public.hana_automation_claim_rules(3);
+ if t is null then return jsonb_build_object('status','idle_or_limited','mode','rules','paid_api_calls',0);end if;
+ owner:=(t->>'owner_id')::uuid;task:=(t->>'id')::uuid;run:=(t->>'run_id')::uuid;
+ result:='免費 PM 背景規則式草稿｜待本人審核，非 AI API 產稿'||E'\n專案：'||(t->>'project')||E'\n範圍：'||(t->>'scope_note')||E'\n任務：'||(t->>'title')||E'\n\n';
+ if t->>'parent_task_id' is not null then
+  result:=result||'上一角色已取得本人內部核准。本輪進行最後進度彙整，流程在此停止，不再建立策略循環。';
+ else
+  result:=result||'先核對需求、來源、素材缺件及期限；策略與創意由人工協作整理，每階段成果待本人審核。';
+ end if;
+ result:=left(result||E'\n內部核准不代表客戶核准、印刷完稿或正式交付。NT$0 模式不讀取照片送 AI，也不寄送或修改預約。\n\n需求與來源（未自行查證）：\n'||(t->>'brief'),50000);
+ perform public.hana_finish_task(owner,task,run,result,null);
+ insert into public.hana_automation_events(owner_id,project,task_id,run_id,code,details)
+ values(owner,t->>'project',task,run,'free_pm_review_ready','{"mode":"rules","paid_api_calls":0,"external_writes":false}');
+ return jsonb_build_object('status','review','task_id',task,'mode','rules','paid_api_calls',0);
+end $$;
+revoke all on function public.hana_run_free_pm_tick() from public,anon,authenticated;
+grant execute on function public.hana_run_free_pm_tick() to service_role;

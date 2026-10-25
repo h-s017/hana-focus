@@ -7,7 +7,6 @@ begin;
 \i tests/office/automation-rls.sql
 \i tests/office/booking-rls.sql
 \i tests/office/free-worker-rls.sql
-\i tests/office/network-privacy.sql
 rollback;
 do $$ begin
  if to_regclass('public.hana_task_runs') is not null then raise exception 'test_schema_persisted'; end if;
