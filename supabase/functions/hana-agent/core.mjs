@@ -39,7 +39,7 @@ export function handler({authenticate,store,generate,ready=()=>true,authorize=us
    const run=await store.claim(user.id,task.id,body.request_id);
    let result;
    try {
-    result=task.role==='Project Manager'&&!useAI?projectReport(task):await generate({instructions:instructions(task.role),input:JSON.stringify({project:task.project,title:task.title,brief:task.brief})});
+    result=task.role==='Project Manager'&&!useAI?projectReport(task):await generate({instructions:instructions(task.role,task),input:JSON.stringify({project:task.project,title:task.title,brief:task.brief})});
     if(typeof result!=='string'||!result.trim())throw Error('empty_result');
     if(useAI)result='AI 草稿｜'+task.role+'（待本人審核，非客戶核准）\n'+result;
     if(result.length>50000)throw Error('result_too_large');
