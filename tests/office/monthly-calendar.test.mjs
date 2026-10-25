@@ -77,3 +77,10 @@ test('buffer minutes are honored by availability proposals',()=>{
  const d=build({policy:{...policy,bufferBeforeMinutes:30,bufferAfterMinutes:30},events:[{start:{dateTime:'2026-11-02T11:00:00+08:00'},end:{dateTime:'2026-11-02T12:00:00+08:00'},status:'confirmed',transparency:'opaque'}]});
  assert.equal(date(d,'02').proposed.length,2);
 });
+
+test('already-booked collision is detected even on a closed-by-policy day',()=>{
+ const d=build({slots:[{id:'sat-paid',date:'2026-11-07',time:'10:00–11:00',booked:1,capacity:2,status:'開放'}],events:[{start:{dateTime:'2026-11-07T10:00:00+08:00'},end:{dateTime:'2026-11-07T11:00:00+08:00'},status:'confirmed',transparency:'opaque'}]});
+ assert.equal(date(d,'07').status,'conflict_requires_review');
+ assert.equal(date(d,'07').conflicts[0].slotId,'sat-paid');
+ assert.equal(date(d,'07').proposed.length,0);
+});
