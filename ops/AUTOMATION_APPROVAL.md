@@ -41,4 +41,14 @@ If Microsoft/AI/cron remain unauthorized, preserve disabled state and use existi
 - https://learn.microsoft.com/en-us/graph/api/driveitem-list-children
 - https://learn.microsoft.com/en-us/graph/api/shares-get
 
-Remaining scope: OCR/PDF/DOCX parsing, visual design generation, Gmail/Calendar/Notion runtime connectors, external web research and outbound notifications are not implemented by this PR. They are not required to run source-grounded text planning and approved role handoffs; do not describe them as complete.
+## Google Calendar / existing reservation preview
+
+The new calendar.mjs adapter refreshes server-side Google credentials, enforces a single configured Supabase owner, reads only calendar timeZone and event id/start/end/status/transparency, expands recurrence and follows bounded pagination. Incomplete snapshots and foreign all-day timezones fail closed. A fresh snapshot means cancelled/rescheduled events are recalculated without retaining stale busy blocks. No event titles, locations or attendees are requested.
+
+It reads only GET /api/slots from the existing production reservation worker discovered in h-s017/reservation. It understands the existing date/time/capacity/booked/status shape and proposes CLOSE only for currently open overlapping slots. Booked conflicts require coordination, unknown durations require review, and previously closed slots are never automatically reopened. WORKSPACE renders the preview with the same login. Success/failure events are recorded privately. No reservation source code, D1 data or production timeslots are changed.
+
+Runtime setup requires the existing or approved Google OAuth application's GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / GOOGLE_CALENDAR_REFRESH_TOKEN in Edge secrets, GOOGLE_CALENDAR_OWNER_ID bound to the trusted Supabase account, optional GOOGLE_CALENDAR_ID (default primary), and the connector encryption key. Request calendar.readonly only. New rotated refresh tokens are encrypted in the same server-only credential table under kind google. The ChatGPT Calendar connector does not supply credentials to this website. Configure/consent safely after approval; no token belongs in chat or GitHub.
+
+Still incomplete: applying closures to production, creating calendar events from confirmed reservations, cancellation/reschedule propagation, owner notifications and full live two-way tests. The existing reservation backend's admin authentication and business rules must be integrated under separate explicit write/notification authorization. A read-only preview is not production synchronization.
+
+Remaining scope: OCR/PDF/DOCX parsing, visual design generation, Gmail/Notion runtime connectors, external web research and outbound notifications are not implemented by this PR. Do not describe them as complete.

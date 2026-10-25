@@ -7,6 +7,7 @@ export function instant(value) {
   // Google all-day dates use calendar-local midnight; this module deliberately supports Taipei only.
   if (dateOnly.test(value)) value += 'T00:00:00+08:00';
   if (!/(Z|[+-]\d{2}:\d{2})$/.test(value)) throw Error('timezone_required');
+  if (!/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(value)) throw Error('invalid_time');
   const t = Date.parse(value); if (!Number.isFinite(t)) throw Error('invalid_date'); return t;
 }
 export function busyIntervals(events, {start,end,timeZone='Asia/Taipei'}) {

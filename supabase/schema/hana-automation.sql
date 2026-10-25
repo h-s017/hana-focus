@@ -12,7 +12,7 @@ create table public.hana_automation_settings (
  check(not source_read_allowed or source_item_id is not null)
 );
 create table public.hana_connector_credentials (
- owner_id uuid not null references auth.users(id), kind text not null check(kind in ('pending','microsoft')),
+ owner_id uuid not null references auth.users(id), kind text not null check(kind in ('pending','microsoft','google')),
  ciphertext text not null, version uuid not null default gen_random_uuid(),
  primary key(owner_id,kind)
 );
