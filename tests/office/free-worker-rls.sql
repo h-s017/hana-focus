@@ -9,7 +9,7 @@ set local role service_role;
 do $$ declare o uuid:='10000000-0000-4000-8000-000000000004';v jsonb;
 begin
  if not public.hana_worker_authorized(repeat('a',64)) or public.hana_worker_authorized(repeat('b',64)) then raise exception 'worker_token_check';end if;
- if has_table_privilege('service_role','vault.decrypted_secrets','select') then raise exception 'vault_raw_access';end if;
+ if has_table_privilege('service_role',(select c.oid from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='vault' and c.relname='decrypted_secrets'),'select') then raise exception 'vault_raw_access';end if;
  if has_function_privilege('authenticated','public.hana_worker_authorized(text)','execute') then raise exception 'token_oracle_exposed';end if;
  insert into public.hana_automation_settings(owner_id,project,enabled,scope_note) values(o,'free-fixture',true,'only wall');
  insert into public.hana_tasks(owner_id,project,role,title,brief) values(o,'free-fixture','Brand Strategist','not automatic','fixture'),(o,'free-fixture','Project Manager','free PM','fixture');
