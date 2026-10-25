@@ -1,3 +1,27 @@
 #hana-office-root{font:15px system-ui,"Noto Sans TC",sans-serif;color:#292d2a;overflow-wrap:anywhere}#hana-office-root section,#hana-office-root article{background:white;border:1px solid #ddd;border-radius:12px;padding:18px;margin:15px 0}#hana-office-root input,#hana-office-root textarea,#hana-office-root select{display:block;box-sizing:border-box;width:100%;min-width:0;margin:8px 0 14px;padding:10px;border:1px solid #bbb;border-radius:7px;font:inherit}#hana-office-root button{border:0;background:#334b40;color:white;border-radius:7px;padding:10px 14px;cursor:pointer;margin:4px;font:inherit;min-height:44px}#hana-office-root button:disabled{opacity:.5}#hana-office-root .muted{color:#666}#hana-office-root pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f5f2;padding:12px;border-radius:7px}#hana-office-root [hidden]{display:none!important}#hana-office-root h2{font-size:20px}#hana-office-root h3{font-size:17px}#hana-office-root button:focus-visible{outline:3px solid #91b1a1;outline-offset:3px}
 
 #office-focus select{max-width:100%}#office-focus a{display:inline-block;margin:6px 0;overflow-wrap:anywhere}#office-focus summary,#office-agent-archive>summary,#focus-local-archive>summary{cursor:pointer;font-weight:600;padding:12px 0}#office-focus label{display:block}html[data-focus-workspace="church"] [data-business-only]{display:none!important}#office-agent-archive{margin:18px 0}
+
+/* Daily workspace: one primary action, separate destinations, details on demand. */
+#hana-office-root .workspace-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;position:sticky;top:0;z-index:10;background:#f6f5f1;padding:10px 0;border-bottom:1px solid #d9ddd8}
+#hana-office-root .workspace-nav button{margin:0;padding:10px 2px;background:transparent;color:#5c645e;border-radius:10px;font-size:14px}
+#hana-office-root .workspace-nav button[aria-current="page"]{background:#334b40;color:#fff;font-weight:700}
+#hana-office-root .office-account{margin-top:8px}#hana-office-root.is-signed-in .office-account{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border:0;background:transparent;font-size:12px}
+#hana-office-root.is-signed-in .office-account h2,#hana-office-root.is-signed-in .office-account label,#hana-office-root.is-signed-in .login-help,#hana-office-root.is-signed-in #office-login{display:none}
+#hana-office-root #office-private,#hana-office-root #office-focus{padding:0;border:0;background:transparent}
+#hana-office-root #office-focus>h2{font-size:26px;margin:22px 0 8px;letter-spacing:-.04em}.focus-intro{color:#687369;line-height:1.7;margin:0 0 18px}
+#hana-office-root .focus-context{display:grid;grid-template-columns:1fr 2fr;gap:10px;align-items:end}#hana-office-root .focus-context>button{grid-column:1/-1;justify-self:end;background:transparent;color:#476050;padding:2px 4px;font-size:12px;min-height:32px;margin:0}
+#hana-office-root .focus-context label{font-size:12px;color:#657168}#hana-office-root .focus-context select{margin-bottom:0;background:white}
+#hana-office-root .focus-composer{background:#fff;border:1px solid #c8d6cc;border-radius:18px;padding:20px;margin:14px 0 22px;box-shadow:0 6px 25px #334b4006}
+#hana-office-root .focus-composer label{font-weight:600;font-size:13px}#hana-office-root .focus-composer>p{font-size:12px;color:#657168;line-height:1.7}
+#hana-office-root .focus-composer .focus-auto{display:flex;gap:8px;align-items:flex-start;font-size:12px;font-weight:400;line-height:1.6;margin:12px 0}#hana-office-root .focus-auto input{width:18px;min-height:18px;flex-shrink:0;margin:0;accent-color:#334b40}
+#hana-office-root .focus-primary{width:100%;margin:6px 0;font-weight:600;min-height:48px}
+#hana-office-root .focus-quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}#hana-office-root .focus-quick button{background:#e8ede6;color:#334b40;margin:0;padding:12px 5px;font-size:12px}
+#hana-office-root .focus-section{margin:16px 0;padding:18px;border-color:#e1e5de;scroll-margin-top:80px}#hana-office-root .focus-section h3{margin:0 0 14px}#hana-office-root .focus-section p{line-height:1.8}
+#hana-office-root .focus-task{padding:14px;border-color:#e8ebe5;box-shadow:none}#hana-office-root .focus-task h4{margin:0;font-size:16px}#hana-office-root .focus-task>p{font-size:12px;color:#657168;margin:6px 0}
+#hana-office-root details{min-width:0}#hana-office-root summary,.workspace-extra>summary{cursor:pointer;min-height:44px;line-height:1.7;padding:12px 0;font-size:14px}#hana-office-root .focus-section>h3{font-weight:600}
+#hana-office-root .focus-advanced{margin-top:20px;border-top:1px solid #d9ddd8}#office-calendar-demo{margin:20px 0;font-size:12px;color:#687369}#office-calendar-demo>summary{font-size:12px}
+#office-settings>h2{font-size:24px}.workspace-extra{margin:24px 0;border-top:1px solid #d9ddd8}.workspace-extra>summary{color:#687369}#focus-local-archive{margin-top:26px}#focus-local-archive>summary{font-size:13px;color:#687369}
+#hana-office-root :focus-visible{outline:3px solid #91b1a1;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media(max-width:360px){#hana-office-root .focus-composer{padding:14px}#hana-office-root .focus-context{grid-template-columns:1fr}#hana-office-root #office-focus>h2{font-size:24px}}
