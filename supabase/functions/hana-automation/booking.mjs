@@ -1,3 +1,4 @@
+import {orderSnapshot} from './reservations.mjs';
 import {instant} from '../../../js/calendar-availability.mjs';
 const fail=code=>Object.assign(Error(code),{code});
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -27,14 +28,15 @@ export function changeProposal(body,slots){
  // A public slot list cannot verify a customer's order, payment/refund or cancellation status.
  return {target:'order',target_id:id,proposal,source_snapshot:{verification:'requires_reservation_admin_read',payment_status:'unknown'},source_verified:false};
 }
-export function bookingService({store,fetcher=fetch}){
+export function bookingService({store,reservations,fetcher=fetch}){
  async function slots(){const r=await fetcher('https://hana-course-production.hana-reservation-payment.workers.dev/api/slots',{method:'GET',redirect:'error',signal:AbortSignal.timeout(15000)});if(!r.ok)throw fail('booking_source_unavailable');const text=await r.text();if(text.length>4000000)throw fail('booking_source_unavailable');const d=JSON.parse(text);if(d.ok!==true||!Array.isArray(d.slots))throw fail('booking_source_unavailable');return d.slots;}
- return async(owner,body)=>{
+ return async(owner,body,user=null)=>{
   if(body.action==='booking_list')return {changes:await store.bookingChanges(owner),external_writes:false};
   if(body.action==='booking_slots')return {slots:(await slots()).map(s=>({...slotSnapshot(s),course:s.course})),external_writes:false};
   if(body.action==='booking_save'){
    const source=body.target==='slot'||body.patch?.action==='reschedule'?await slots():[];
    const change=changeProposal(body,source);
+   if(change.target==='order'&&reservations?.configured&&reservations.permitted(user)){const original=await reservations.find(user,change.target_id);if(!original)throw fail('booking_source_unavailable');change.source_snapshot=orderSnapshot(original);change.source_verified=true;}
    return {change_id:await store.bookingSave(owner,body.request_id,change),status:'pending',source_verified:change.source_verified,external_writes:false};
   }
   if(body.action==='booking_review'){
@@ -42,6 +44,7 @@ export function bookingService({store,fetcher=fetch}){
    const change=await store.bookingGet(owner,body.change_id);if(!change)throw fail('booking_source_unavailable');
    if(body.decision==='approved'){
     if(!change.source_verified)throw fail('booking_source_unverified');
+    if(change.target==='order'){if(!reservations?.configured||!reservations.permitted(user))throw fail('booking_source_unverified');const current=await reservations.find(user,change.target_id);if(!current||Object.entries(orderSnapshot(current)).some(([k,v])=>change.source_snapshot[k]!==v))throw fail('booking_source_changed');}
     if(change.target==='slot'){const current=(await slots()).find(s=>s.id===change.target_id);if(!current||JSON.stringify(slotSnapshot(current))!==JSON.stringify(change.source_snapshot)){
       // jsonb changes key order: compare canonical field values, not serialization order.
       if(!current||Object.entries(slotSnapshot(current)).some(([k,v])=>change.source_snapshot[k]!==v))throw fail('booking_source_changed');
