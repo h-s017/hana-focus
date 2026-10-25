@@ -65,8 +65,8 @@ export function createMonthlyDraft({month,events=[],slots=[],policy={},sources={
  const start=instant(dates[0].date+'T00:00:00+08:00'),end=instant(dates.at(-1).date+'T00:00:00+08:00')+86400000;
  const busyAll=hasSources?busyIntervals(events,{start:new Date(start-(rules?.after||0)*60000).toISOString(),end:new Date(end+(rules?.before||0)*60000).toISOString()}).map(([a,b])=>[a-(rules?.before||0)*60000,b+(rules?.after||0)*60000]):[];
  const days=dates.map(({date,weekday})=>{
-  const day={date,weekday,status:'unverified',existingOpen:[],proposed:[],conflicts:[],warnings:[]};
-  if(!hasSources)return day;
+  const day={date,weekday,status:'unverified',existingOpen:[],reservationSlots:[],proposed:[],conflicts:[],warnings:[]};
+  if(sources.reservation!==true)return day;
   const closedByPolicy=!!rules&&(rules.closedDates.has(date)||!rules.weekdays.includes(weekday));
   const start=date+'T00:00:00+08:00';
   const next=new Date(instant(start)+86400000).toISOString();
@@ -78,11 +78,13 @@ export function createMonthlyDraft({month,events=[],slots=[],policy={},sources={
   }
   if(day.warnings.length){day.status='needs_review';return day;}
   for(const s of parsed){
+   day.reservationSlots.push({slotId:s.id,course:s.course,start:s.start,end:s.end,status:s.status,capacity:s.capacity,booked:s.booked,remaining:s.capacity-s.booked});
    const a=localInstant(date,s.start),b=localInstant(date,s.end);
    const conflict=busy.some(([x,y])=>overlap(a,b,x,y));
    if(conflict&&s.booked>0)day.conflicts.push({slotId:s.id,time:s.start+'-'+s.end,booked:s.booked,reason:'calendar_conflict'});
    if(s.status==='開放'&&s.capacity>s.booked&&!conflict)day.existingOpen.push({slotId:s.id,course:s.course,start:s.start,end:s.end,remaining:s.capacity-s.booked});
   }
+  if(!hasSources){day.status='calendar_unverified';return day;}
   if(!rules){day.status=day.conflicts.length?'conflict_requires_review':policy.mode==='existing_slots_only'?(day.existingOpen.length?'existing_inventory_verified':'no_existing_open_inventory'):'rules_missing';return day;}
   if(closedByPolicy){day.status=day.conflicts.length?'conflict_requires_review':'closed_by_policy';return day;}
   for(const w of rules.windows)for(let t=w.start;t+rules.duration<=w.end;t+=rules.step){
