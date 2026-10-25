@@ -131,10 +131,10 @@ begin
    end if;
    task_id:=task.id;
   else
-   select count(*) into matches from public.hana_tasks t where t.owner_id=p_owner and (t.project_id=p_project or (t.project_id is null and t.project=project.legacy_name)) and (public.hana_focus_title(t.title)=public.hana_focus_title(item->>'title') or (item->>'canonical_key' is not null and (t.canonical_key=item->>'canonical_key' or (item->>'canonical_key'='history_wall' and t.title like '%沿革牆%'))));
+   select count(*) into matches from public.hana_tasks t where t.owner_id=p_owner and t.parent_task_id is null and (t.project_id=p_project or (t.project_id is null and t.project=project.legacy_name)) and (public.hana_focus_title(t.title)=public.hana_focus_title(item->>'title') or (item->>'canonical_key' is not null and (t.canonical_key=item->>'canonical_key' or (item->>'canonical_key'='history_wall' and t.title like '%沿革牆%'))));
    if matches>0 then
     -- First-sync near matches are never silently overwritten. Human chooses a canonical task.
-    select * into task from public.hana_tasks t where t.owner_id=p_owner and (t.project_id=p_project or (t.project_id is null and t.project=project.legacy_name)) and (public.hana_focus_title(t.title)=public.hana_focus_title(item->>'title') or (item->>'canonical_key'='history_wall' and t.title like '%沿革牆%')) limit 1;
+    select * into task from public.hana_tasks t where t.owner_id=p_owner and t.parent_task_id is null and (t.project_id=p_project or (t.project_id is null and t.project=project.legacy_name)) and (public.hana_focus_title(t.title)=public.hana_focus_title(item->>'title') or (item->>'canonical_key'='history_wall' and t.title like '%沿革牆%')) limit 1;
     if matches>1 then task:=null;end if;
     insert into public.hana_sync_conflicts(owner_id,project_id,version_id,task_id,provider,external_id,source_hash,incoming,local_revision,reason) values(p_owner,p_project,p_version,task.id,p_provider,item->>'external_id',v_source_hash,item,task.record_revision,'first_import_matching_task') on conflict(owner_id,provider,external_id,source_hash) where state='pending' do nothing;
     conflicts:=conflicts+1;continue;
@@ -144,6 +144,7 @@ begin
    insert into public.hana_tasks(owner_id,project,project_id,version_id,role,title,brief,work_state,priority,assigned_role,scope_status,task_kind,canonical_key,source_system,source_url,source_edited_at,last_synced_at,record_revision,due_at,source_payload)
    values(p_owner,project.legacy_name,p_project,p_version,'Project Manager',item->>'title',coalesce(item->>'brief',''),item->>'work_state',(item->>'priority')::int,coalesce(item->>'assigned_role','HANA'),public.hana_focus_scope(item->>'title',p_version,p_owner),'tracking',item->>'canonical_key',p_provider,item->>'source_url',(item->>'source_edited_at')::timestamptz,now(),1,(item->>'due_at')::timestamptz,coalesce(item->'source_payload','{}')) returning id into task_id;added:=added+1;
   else
+   insert into public.hana_automation_events(owner_id,project,task_id,code,details) values(p_owner,project.legacy_name,task_id,'focus_source_updated',jsonb_build_object('before',to_jsonb(task),'source_hash',v_source_hash,'provider',p_provider));
    update public.hana_tasks set source_payload=coalesce(item->'source_payload','{}'),title=item->>'title',brief=coalesce(item->>'brief',''),work_state=item->>'work_state',priority=(item->>'priority')::int,scope_status=public.hana_focus_scope(item->>'title',p_version,p_owner),source_url=item->>'source_url',source_edited_at=(item->>'source_edited_at')::timestamptz,last_synced_at=now(),updated_at=now(),record_revision=record_revision+1 where owner_id=p_owner and id=task_id;changed:=changed+1;
   end if;
   insert into public.hana_external_ids(owner_id,provider,external_id,task_id,source_hash,sync_revision,source_edited_at)
@@ -184,6 +185,7 @@ begin
  select * into t from public.hana_tasks where owner_id=p_owner and id=p_task for update;
  if not found or t.record_revision<>p_revision or t.status='running' or (t.project_id is distinct from c.project_id and not(t.project_id is null and t.project=p.legacy_name)) then raise exception 'record_conflict';end if;
  if p_decision='accept_source' then
+  insert into public.hana_automation_events(owner_id,project,task_id,code,details) values(p_owner,p.legacy_name,t.id,'focus_source_adopted',jsonb_build_object('before',to_jsonb(t),'conflict_id',c.id,'source_hash',c.source_hash));
   update public.hana_tasks set project_id=c.project_id,version_id=c.version_id,title=c.incoming->>'title',brief=coalesce(c.incoming->>'brief',''),work_state=c.incoming->>'work_state',priority=(c.incoming->>'priority')::int,scope_status=public.hana_focus_scope(c.incoming->>'title',c.version_id,p_owner),canonical_key=c.incoming->>'canonical_key',source_system=c.provider,source_url=c.incoming->>'source_url',source_edited_at=(c.incoming->>'source_edited_at')::timestamptz,record_revision=record_revision+1,updated_at=now(),last_synced_at=now() where owner_id=p_owner and id=t.id returning * into t;
  end if;
  insert into public.hana_external_ids(owner_id,provider,external_id,task_id,source_hash,sync_revision,source_edited_at) values(p_owner,c.provider,c.external_id,t.id,c.source_hash,t.record_revision,(c.incoming->>'source_edited_at')::timestamptz)
@@ -387,3 +389,41 @@ begin
 end $$;
 revoke all on function public.hana_focus_sync_interval(uuid,uuid,integer,uuid) from public,anon,authenticated;
 grant execute on function public.hana_focus_sync_interval(uuid,uuid,integer,uuid) to service_role;
+create or replace function public.hana_focus_pm_report(p_owner uuid,p_task uuid) returns text language plpgsql security invoker set search_path='' as $$
+declare t public.hana_tasks%rowtype;v public.hana_project_versions%rowtype;n integer;done integer;excluded integer;top jsonb;
+begin
+ select * into t from public.hana_tasks where owner_id=p_owner and id=p_task;
+ select * into v from public.hana_project_versions where owner_id=p_owner and id=t.version_id;
+ select count(*),count(*) filter(where q.work_state='done') into n,done from public.hana_tasks q where q.owner_id=p_owner and q.project_id=t.project_id and q.version_id=t.version_id and q.scope_status='in_scope' and q.parent_task_id is null;
+ select count(*) into excluded from public.hana_tasks q where q.owner_id=p_owner and q.project_id=t.project_id and q.version_id=t.version_id and q.scope_status='out_of_scope' and q.parent_task_id is null;
+ select coalesce(jsonb_agg(to_jsonb(x)),'[]') into top from(select q.title,q.work_state,q.priority,q.due_at from public.hana_tasks q where q.owner_id=p_owner and q.project_id=t.project_id and q.version_id=t.version_id and q.scope_status='in_scope' and q.parent_task_id is null and q.work_state<>'done' order by q.priority,q.due_at nulls last,q.created_at limit 3)x;
+ return '免費 PM｜目前版本資料分析草稿（非生成式AI），待 HANA 審核。'||E'\n專案：'||t.project||E'\n版本：'||v.label||E'\n'||jsonb_build_object('scope_source_version',v.id,'in_scope_work',n,'work_done_internal',done,'preserved_out_of_scope',excluded,'top3',top,'client_approved',false,'external_writes',false,'paid_api_calls',0)::text||E'\n不以歷史自動化備註改變目前版本合約範圍。Agent交接子任務不重複計入工作量；內部核准不代表客戶交付。';
+end $$;
+revoke all on function public.hana_focus_pm_report(uuid,uuid) from public,anon,authenticated;
+grant execute on function public.hana_focus_pm_report(uuid,uuid) to service_role;
+
+create or replace function public.hana_run_free_pm_tick() returns jsonb
+language plpgsql security invoker set search_path='' as $$
+declare t jsonb; result text;owner uuid;task uuid;run uuid;
+begin
+ perform public.hana_automation_recover();
+ perform public.hana_automation_advance();
+ t:=public.hana_automation_claim_rules(3);
+ if t is null then return jsonb_build_object('status','idle_or_limited','mode','rules','paid_api_calls',0);end if;
+ owner:=(t->>'owner_id')::uuid;task:=(t->>'id')::uuid;run:=(t->>'run_id')::uuid;
+ result:='免費 PM 背景規則式草稿｜待本人審核，非 AI API 產稿'||E'\n專案：'||(t->>'project')||E'\n範圍：'||(t->>'scope_note')||E'\n任務：'||(t->>'title')||E'\n\n';
+ if t->>'parent_task_id' is not null then
+  result:=result||'上一角色已取得本人內部核准。本輪進行最後進度彙整，流程在此停止，不再建立策略循環。';
+ else
+  result:=result||'先核對需求、來源、素材缺件及期限；策略與創意由人工協作整理，每階段成果待本人審核。';
+ end if;
+ if t->>'project_id' is not null then result:=public.hana_focus_pm_report(owner,task);end if;
+ result:=left(result||E'\n內部核准不代表客戶核准、印刷完稿或正式交付。NT$0 模式不讀取照片送 AI，也不寄送或修改預約。\n\n需求與來源（未自行查證）：\n'||(t->>'brief'),50000);
+ perform public.hana_finish_task(owner,task,run,result,null);
+ insert into public.hana_automation_events(owner_id,project,task_id,run_id,code,details)
+ values(owner,t->>'project',task,run,'free_pm_review_ready','{"mode":"rules","paid_api_calls":0,"external_writes":false}');
+ return jsonb_build_object('status','review','task_id',task,'mode','rules','paid_api_calls',0);
+end $$;
+
+create index if not exists hana_focus_events_owner_time on public.hana_automation_events(owner_id,created_at desc);
+create index if not exists hana_focus_runs_owner_time on public.hana_task_runs(owner_id,created_at desc);

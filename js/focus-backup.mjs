@@ -15,4 +15,12 @@ export async function restoreBackup(storage,input){
  const write=values=>{for(const [key,value] of Object.entries(values))value===null?storage.removeItem(key):storage.setItem(key,value);};
  try{write(backup.values);}catch(error){try{write(before.backup.values);}catch{throw Error('restore_and_rollback_failed');}throw error;}return before;
 }
-export function localRows(backup){const rows=[];for(const workspace of ['work','church']){const raw=backup.values['hana-focus-workspace-v2-'+workspace];if(raw){const data=JSON.parse(raw);rows.push({workspace,...data});}}return rows;}
+export function localRows(backup){
+ const groups=new Map();for(const workspace of ['work','church']){const raw=backup.values['hana-focus-workspace-v2-'+workspace];if(raw)groups.set(workspace,{workspace,...JSON.parse(raw)});}
+ const legacy=backup.values['hana-focus-ai-office-demo-v1'];if(legacy&&backup.values['hana-focus-v2-migrated']!=='1'){
+  const original=JSON.parse(legacy),work=groups.get('work')||{workspace:'work',tasks:[],ideas:[]},ids=new Set(work.tasks.map(t=>String(t.id)));
+  work.tasks.push(...original.tasks.filter(t=>!ids.has(String(t.id))));
+  const counts=new Map();for(const idea of work.ideas){const key=JSON.stringify(idea);counts.set(key,(counts.get(key)||0)+1);}const seen=new Map();for(const idea of original.ideas){const key=JSON.stringify(idea),n=(seen.get(key)||0)+1;seen.set(key,n);if(n>(counts.get(key)||0))work.ideas.push(idea);}
+  groups.set('work',work);
+ }return [...groups.values()];
+}

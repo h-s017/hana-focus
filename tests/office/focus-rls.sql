@@ -48,6 +48,7 @@ begin
  begin perform public.hana_focus_bootstrap(o,jsonb_set(p,'{version,contract,net}','1'),gen_random_uuid());raise exception 'version_overwritten';exception when others then if SQLERRM='version_overwritten' then raise;end if;end;
  perform public.hana_focus_update(o,task,3,jsonb_build_object('dependencies',jsonb_build_array(blocked)),gen_random_uuid());
  begin perform public.hana_focus_update(o,task,4,'{"work_state":"done"}',gen_random_uuid());raise exception 'dependency_ignored';exception when others then if SQLERRM='dependency_ignored' then raise;end if;end;
+ if public.hana_focus_pm_report(o,task) not like '%"in_scope_work": 1%' or public.hana_focus_pm_report(o,task) not like '%"preserved_out_of_scope": 1%' then raise exception 'pm_report_scope_denominator';end if;
  if public.hana_focus_snapshot(o)->>'truncated'<>'false' then raise exception 'unexpected_snapshot_limit';end if;
 end $$;
 reset role;
