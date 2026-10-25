@@ -1,7 +1,7 @@
 import {createMonthlyDraft,applyMonthlyOverrides,monthlyDiff,monthBounds,validatePolicy,monthEndPlan} from '../../../js/monthly-calendar.mjs';
 const fail=code=>Object.assign(Error(code),{code});
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-export function monthlyService({store,readSources,now=Date.now}){
+export function monthlyService({store,readSources,readReservations,now=Date.now}){
  return async(owner,body)=>{
   let bounds;try{bounds=monthBounds(body.month);}catch{throw fail('invalid_monthly');}
   if(body.action==='monthly_load')return {record:await store.monthlyGet(owner,body.month),scheduleEnabled:false,externalWrites:false};
@@ -15,14 +15,15 @@ export function monthlyService({store,readSources,now=Date.now}){
    if(!['approved','rejected'].includes(body.decision)||!prior)throw fail('invalid_monthly');
    return {record:await store.monthlyReview(owner,body.month,body.revision,body.decision,body.request_id),externalWrites:false};
   }
-  let policy=body.policy??prior?.policy??{},overrides=body.overrides??prior?.overrides??{};
-  try{if(Object.keys(policy).length&&!validatePolicy(policy))throw Error();if(!policy||Array.isArray(policy))throw Error();}catch{throw fail('invalid_monthly');}
+  let policy=body.policy??prior?.policy??{};if(!Object.keys(policy).length)policy={mode:'existing_slots_only'};let overrides=body.overrides??prior?.overrides??{};
+  try{if(policy.mode!=='existing_slots_only'&&Object.keys(policy).length&&!validatePolicy(policy))throw Error();if(!policy||Array.isArray(policy))throw Error();}catch{throw fail('invalid_monthly');}
   // Validate an override even when a source is disconnected. Only blocking a day is supported.
   try{applyMonthlyOverrides(createMonthlyDraft({month:body.month}),overrides);}catch{throw fail('invalid_monthly');}
   let source,sourceStatus={calendar:'needs_connection',reservation:'not_checked'};
   if(readSources){try{const start=new Date(Date.parse(bounds.start)-(policy.bufferAfterMinutes||0)*60000).toISOString(),end=new Date(Date.parse(bounds.end)+(policy.bufferBeforeMinutes||0)*60000).toISOString();source=await readSources(owner,start,end);sourceStatus={calendar:'verified',reservation:'verified'};}catch(error){sourceStatus={calendar:error.code==='calendar_authorization_required'?'needs_connection':'unverified',reservation:'unverified'};}}
-  let generated;try{generated=applyMonthlyOverrides(createMonthlyDraft({month:body.month,policy,overrides,events:source?.events||[],slots:source?.slots||[],sources:{calendar:!!source,reservation:!!source}}),overrides);}catch{sourceStatus={calendar:'unverified',reservation:'unverified'};generated=applyMonthlyOverrides(createMonthlyDraft({month:body.month,policy,sources:{}}),overrides);}
-  generated={...generated,sourceStatus,checkedAt:new Date(now()).toISOString(),sourceCheckedAt:source?.checked_at||null,policyConfigured:!!Object.keys(policy).length};
+  let fallbackSlots=[];if(!source&&readReservations){try{fallbackSlots=await readReservations();sourceStatus.reservation='verified';}catch{sourceStatus.reservation='unverified';}}
+  let generated;try{generated=applyMonthlyOverrides(createMonthlyDraft({month:body.month,policy,overrides,events:source?.events||[],slots:source?.slots||fallbackSlots,sources:{calendar:!!source,reservation:!!source}}),overrides);}catch{sourceStatus={calendar:'unverified',reservation:'unverified'};generated=applyMonthlyOverrides(createMonthlyDraft({month:body.month,policy,sources:{}}),overrides);}
+  generated={...generated,sourceStatus,checkedAt:new Date(now()).toISOString(),sourceCheckedAt:source?.checked_at||null,policyConfigured:!!Object.keys(policy).length,ruleMode:policy.mode==='existing_slots_only'?'existing_inventory_only':'manual_policy',inventoryCount:(source?.slots||fallbackSlots).filter(s=>s.date?.startsWith(body.month+'-')).length};
   // Store only availability aggregates, never raw Google events or Reservation customer records.
   const changed=monthlyDiff(prior?.generated,generated);
   generated.changedDates=changed;

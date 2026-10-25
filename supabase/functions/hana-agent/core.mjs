@@ -29,6 +29,7 @@ export function handler({authenticate,store,generate,ready=()=>true,authorize=us
    if(body.action==='recover'||body.action==='requeue') {
     const status=await store[body.action](user.id,task.id);return json({status});
    }
+   if(body.action==='generate'&&task.project_id)return json({error:'use_focus_tools'},409);
    if(!UUID.test(body.request_id||''))return json({error:'request_id_required'},400);
    if(body.action==='handoff')return json({task_id:await store.handoff(user.id,task.id,body.request_id),status:'queued'});
    if(!task.project||task.project.length>100||!task.title||task.title.length>140||!task.brief||task.brief.length>12000)return json({error:'invalid_brief'},400);

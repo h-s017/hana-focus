@@ -1,16 +1,16 @@
 import {monthDays,monthEndPlan,createMonthlyDraft} from './monthly-calendar.mjs';
-const labels={unverified:'待驗證',rules_missing:'待規則',needs_review:'資料待核對',conflict_requires_review:'預約衝突',closed_by_policy:'非授課日',manual_closed:'本人關閉',has_availability:'有候選',fully_booked_or_unavailable:'無候選'};
+const labels={existing_inventory_verified:'原場次可訂',no_existing_open_inventory:'無既有場次',unverified:'待驗證',rules_missing:'待規則',needs_review:'資料待核對',conflict_requires_review:'預約衝突',closed_by_policy:'非授課日',manual_closed:'本人關閉',has_availability:'有候選',fully_booked_or_unavailable:'無候選'};
 export function mountMonthlyCalendar(host,{db=null,now=Date.now}={}){
  let disposed=false,busy=false,version=0,record=null,selected=null,request=crypto.randomUUID();
  const today=new Date(now()+8*3600000).toISOString().slice(0,10),plan=monthEndPlan(today),thisMonth=today.slice(0,7);let month=thisMonth,draft=createMonthlyDraft({month});
  const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);return n;};
  const button=(text,fn)=>{const n=el('button',text);n.type='button';n.onclick=fn;return n;};
- const heading=el('h2','工作月曆'),intro=el('p','私有規劃｜Asia/Taipei。候選空檔尚未發布；既有場次以原預約網站為準。'),toolbar=el('div');toolbar.className='month-toolbar';
+ const heading=el('h2','工作月曆'),intro=el('p','私有規劃｜Asia/Taipei。預設自動讀取原預約場次的時段、課程長度及剩餘名額，不增開場次。點「讀取來源並重算草稿」即可；額外緩衝及新候選另由本人確認。'),toolbar=el('div');toolbar.className='month-toolbar';
  const monthTitle=el('h3'),state=el('p');state.setAttribute('role','status');state.setAttribute('aria-live','polite');
  const thisButton=button('本月',()=>load(thisMonth)),nextButton=button('下月',()=>load(plan.targetMonth)),refresh=button('讀取來源並重算草稿',()=>generate()),approved=button('核准此版本（不發布）',()=>review('approved')),rejected=button('退回此版本',()=>review('rejected'));
  toolbar.append(thisButton,nextButton,refresh);
  const source=el('p'),grid=el('div');grid.className='month-grid';grid.setAttribute('role','group');grid.setAttribute('aria-label','月曆日期');const detail=el('section');detail.className='month-detail';
- const form=el('form'),settings=el('details');settings.append(el('summary','授課時段規則（先由本人確認）'));const fields={};
+ const form=el('form'),settings=el('details');settings.append(el('summary','選用：新增候選的授課規則（沿用原場次免填）'));const fields={};
  function field(name,text,type,value){const label=el('label',text),input=el('input');input.name=name;input.type=type;input.value=value;fields[name]=input;label.append(input);form.append(label);return input;}
  field('weekdays','授課星期，0=週日，1=週一…6=週六；以逗號分隔','text','');field('start','授課起始時間','time','');field('end','授課結束時間','time','');field('duration','每堂分鐘','number','');field('before','行程前緩衝分鐘','number','0');field('after','行程後緩衝分鐘','number','0');
  for(const key of ['duration','before','after']){fields[key].min='0';fields[key].max=key==='duration'?'720':'360';}

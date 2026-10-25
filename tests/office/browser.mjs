@@ -82,7 +82,7 @@ try{
  await materials.getByRole('button',{name:'儲存素材連結',exact:true}).click();
  await materials.getByRole('status').filter({hasText:'儲存未確認成功'}).waitFor();
  await page.evaluate(()=>localStorage.removeItem('test-materials-fail'));
- await page.locator('#office-bkc').click();await page.locator('#office-add').click();await page.locator('#office-tasks article').waitFor();
+ await page.locator('#office-form input[name=project]').fill('Fixture');await page.locator('#office-form input[name=title]').fill('Fixture handoff regression');await page.locator('#office-form textarea[name=brief]').fill('Synthetic review-only test; no client delivery.');await page.locator('#office-add').click();await page.locator('#office-tasks article').waitFor();
  for(let i=0;i<4;i++){const article=page.locator('#office-tasks article').nth(i);await article.getByRole('button',{name:i===0||i===3?'產生PM進度草稿':'執行AI草稿',exact:true}).click();await article.getByRole('button',{name:'核准內部草稿',exact:true}).waitFor();page.once('dialog',d=>d.accept());await article.getByRole('button',{name:'核准內部草稿',exact:true}).click();if(i<3)await article.getByRole('button',{name:/建立交接草稿/}).click();}
  assert.equal(await page.locator('#office-tasks article').count(),4);
  for(const width of [320,390,820]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'horizontal overflow '+width);}
