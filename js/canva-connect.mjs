@@ -55,3 +55,19 @@ export async function finishCanvaConnection({db,storage,href,now=Date.now}){
   return await invoke(db,{action:'canva_oauth_finish',state:pending.state,code,browser_proof:pending.proof});
  }finally{storage.removeItem(CANVA_PENDING);}
 }
+
+
+export function canvaSetupDiagnostic(readiness){
+ const flags=readiness?.canva_setup;
+ if(!flags||typeof flags!=='object')return {complete:false,missing:[],message:'目前無法讀取 Canva 服務端的四項安全設定狀態，請確認 Edge Function 是否為最新版。'};
+ const fields=[
+  ['client_id','CANVA_CLIENT_ID'],
+  ['client_secret','CANVA_CLIENT_SECRET'],
+  ['owner','CANVA_OWNER_ID'],
+  ['encryption','HANA_CONNECTOR_ENCRYPTION_KEY']
+ ];
+ const missing=fields.filter(([name])=>flags[name]!==true).map(([,display])=>display);
+ return {complete:missing.length===0,missing,message:missing.length===0
+  ?'四項環境設定均可讀取，但仍需進行 Canva OAuth 真正授權驗證。'
+  :'尚未通過設定檢查：'+missing.join('、')+(missing.includes('HANA_CONNECTOR_ENCRYPTION_KEY')?'。加密金鑰必須是有效的 32 bytes Base64；若已存在請勿覆寫。':'。請確認 Secret 名稱完全一致並已儲存。')};
+}
