@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+const sql=readFileSync(fileURLToPath(new URL('../../supabase/migrations/20261026093510_allow_canva_connector_credential_kind.sql',import.meta.url)),'utf8');
+const expected=["'pending'","'microsoft'","'google'","'canva'"];
+for(const x of expected)assert.ok(sql.includes(x),'credential kind missing '+x);
+assert.ok(sql.includes('ALTER TABLE public.hana_connector_credentials'));
+assert.ok(sql.includes('DROP CONSTRAINT hana_connector_credentials_kind_check'));
+assert.ok(sql.includes('ADD CONSTRAINT hana_connector_credentials_kind_check'));
+assert.ok(!/\b(DROP TABLE|TRUNCATE|DELETE FROM|UPDATE\s+public\.)\b/i.test(sql));
+console.log('PASS: Canva credential kind DB migration preserves existing three kinds without table or data mutation.');
