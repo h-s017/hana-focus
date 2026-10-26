@@ -12,6 +12,22 @@ export function automationStore({url,service,fetcher=fetch}) {
   oauthCreate:(owner,id,details)=>request('hana_automation_events','POST',{id,owner_id:owner,project:'課程預約',code:'google_oauth_pending',details}),
   async oauthGet(owner,id){const rows=await request(query('hana_automation_events',{id:'eq.'+id,owner_id:'eq.'+owner,code:'eq.google_oauth_pending',select:'details'}));return rows[0]||null;},
   async oauthClaim(owner,id,stateHash,expires){const rows=await request(query('hana_automation_events',{id:'eq.'+id,owner_id:'eq.'+owner,code:'eq.google_oauth_pending','details->>state_hash':'eq.'+stateHash,'details->>expires_at':'eq.'+expires}),'PATCH',{code:'google_oauth_claimed',details:{consumed_at:new Date().toISOString()}});return rows.length===1;},
+  async canvaImportJob(owner,date){
+   const rows=await request(query('hana_canva_import_jobs',{owner_id:'eq.'+owner,lesson_date:'eq.'+date,select:'lesson_date,status,job_id,design_id,page_count,error_code'}));
+   return rows[0]||null;
+  },
+  async canvaImportReserve(owner,date){
+   const rows=await request('hana_canva_import_jobs?on_conflict=owner_id,lesson_date','POST',
+    {owner_id:owner,lesson_date:date,status:'reserved'},'resolution=ignore-duplicates,return=representation');
+   return rows.length===1;
+  },
+  async canvaImportUpdate(owner,date,patch,onlyStatus){
+   const params={owner_id:'eq.'+owner,lesson_date:'eq.'+date,select:'lesson_date,status,job_id,design_id,page_count,error_code'};
+   if(onlyStatus)params.status='eq.'+onlyStatus;
+   const rows=await request(query('hana_canva_import_jobs',params),'PATCH',{...patch,updated_at:new Date().toISOString()});
+   if(rows.length!==1)throw Error('canva_import_storage_unavailable');
+   return rows[0];
+  },
   async canvaOauthRecentCount(owner,since){const rows=await request(query('hana_automation_events',{owner_id:'eq.'+owner,code:'in.(canva_oauth_pending,canva_oauth_claimed)',created_at:'gte.'+since,select:'id',limit:'5'}));return rows.length;},
   canvaOauthCreate:(owner,id,details)=>request('hana_automation_events','POST',{id,owner_id:owner,project:'社群微課',code:'canva_oauth_pending',details}),
   async canvaOauthGet(owner,id){const rows=await request(query('hana_automation_events',{id:'eq.'+id,owner_id:'eq.'+owner,code:'eq.canva_oauth_pending',select:'details'}));return rows[0]||null;},
