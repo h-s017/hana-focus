@@ -168,3 +168,36 @@ test('Canva error callback with mismatched state does not show attacker-supplied
  st.setItem(CANVA_PENDING,JSON.stringify({proof:'b'.repeat(43),state:'original',expires_at:clock+600000}));
  await assert.rejects(finishCanvaConnection({db:{},storage:st,href:CANVA_CALLBACK+'?state=attacker&error=invalid_scope',now:()=>clock}),{code:'canva_oauth_browser_required'});
 });
+
+
+test('browser accepts both documented case spellings of Canva PKCE S256',async()=>{
+ for(const method of ['s256','S256']){
+  const f=fixture(),st=storage(),clock=Date.parse('2026-10-26T04:00:00Z');
+  let destination='';
+  const db={functions:{invoke:async(_,{body})=>{
+   const data=await f.run('owner',body);
+   const url=new URL(data.authorization_url);
+   url.searchParams.set('code_challenge_method',method);
+   return {data:{...data,authorization_url:url.href}};
+  }}};
+  const r=await beginCanvaConnection({db,storage:st,navigate:url=>destination=url,now:()=>clock});
+  assert.equal(r.status,'redirecting');
+  assert.equal(new URL(destination).searchParams.get('code_challenge_method'),method);
+  assert.ok(st.getItem(CANVA_PENDING));
+ }
+});
+test('browser rejects a mismatched Canva PKCE method before navigating',async()=>{
+ const f=fixture(),st=storage(),clock=Date.parse('2026-10-26T04:00:00Z');
+ let traveled=false;
+ const db={functions:{invoke:async(_,{body})=>{
+  const data=await f.run('owner',body);
+  const url=new URL(data.authorization_url);url.searchParams.set('code_challenge_method','plain');
+  return {data:{...data,authorization_url:url.href}};
+ }}};
+ await assert.rejects(
+  beginCanvaConnection({db,storage:st,navigate:()=>{traveled=true;},now:()=>clock}),
+  {code:'canva_oauth_client_version_mismatch'}
+ );
+ assert.equal(traveled,false);
+ assert.equal(st.getItem(CANVA_PENDING),null);
+});
