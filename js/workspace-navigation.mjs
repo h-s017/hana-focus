@@ -1,5 +1,5 @@
 import {beginGoogleConnection,googleMessage} from './google-connect.mjs';
-import {beginCanvaConnection,canvaMessage,canvaSetupDiagnostic} from './canva-connect.mjs';
+import {beginCanvaConnection,canvaMessage,canvaSetupDiagnostic} from './canva-connect.mjs?v=canva-20261026-r2';
 // Existing icon destinations and compact navigation share one route, including refresh/back.
 export function mountWorkspaceNavigation(host,{db}={}){
  const tiles=document.querySelector('nav.tiles');
