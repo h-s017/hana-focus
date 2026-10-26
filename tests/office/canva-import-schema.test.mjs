@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+const sql=readFileSync(fileURLToPath(new URL('../../supabase/migrations/20261026175200_hana_canva_import_jobs.sql',import.meta.url)),'utf8');
+assert.ok(sql.includes('PRIMARY KEY(owner_id, lesson_date)'), 'one design job per owner per date');
+assert.ok(sql.includes('ENABLE ROW LEVEL SECURITY'));
+assert.ok(sql.includes('REVOKE ALL ON TABLE public.hana_canva_import_jobs FROM PUBLIC, anon, authenticated'));
+assert.ok(sql.includes('needs_verification'), 'unverified designs cannot report success');
+assert.ok(sql.includes('page_count'));
+assert.ok(!/\bTRUNCATE\b|\bDROP TABLE\b|\bDELETE FROM\b/i.test(sql));
+console.log('PASS: Canva daily import schema enforces one job per day and private server-only writes.');
