@@ -65,3 +65,12 @@ SELECT cron.schedule(
  ) AS request_id;
  $job$
 );
+
+-- The Canva import Edge worker is not deployed yet. Register the schedule
+-- but do NOT activate it until the worker has passed E2E verification.
+SELECT cron.alter_job(
+  (SELECT jobid FROM cron.job WHERE jobname='hana-canva-daily-import'),
+  active => false
+);
+
+GRANT SELECT, INSERT, UPDATE ON TABLE public.hana_canva_import_jobs TO service_role;
