@@ -27,6 +27,13 @@ const lesson=JSON.parse(readFileSync(path.join(dir,'content/instagram/2026-10-26
 assert.deepEqual(lesson.canvas,{width:1080,height:1350,pages:6});
 assert.equal(lesson.pages.length,6);
 assert.equal(lesson.music.recordingRights.includes('未取得'),true);
+const html=readFileSync(path.join(dir,'content/instagram/2026-10-26/canva-import.html'),'utf8');
+assert.equal((html.match(/data-document-role="page"/g)||[]).length,6);
+assert.equal((html.match(/width:1080px;height:1350px/g)||[]).length,6);
+assert.ok(html.includes('前景與背景：氣味設計的層次'));
+assert.ok(html.includes('描述一個空間：主角是一種材質，背景是一種氣氛。'));
+assert.ok(!html.includes('<script'));
+assert.equal(first.canvaImportPath,'content/instagram/2026-10-26/canva-import.html');
 const csv=readFileSync(path.join(dir,'content/instagram/2026-10-26/canva-autofill.csv'),'utf8');
 assert.equal(csv.charCodeAt(0),0xFEFF);
 assert.ok(csv.includes('PAGE_01_TITLE')&&csv.includes('PAGE_06_BODY'));
