@@ -6,7 +6,8 @@ import json
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 from pptx import Presentation
@@ -87,13 +88,14 @@ def create(lesson,output):
     return len(deck.slides)
 
 def main():
-    date=os.getenv("LESSON_DATE") or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    date=os.getenv("LESSON_DATE") or datetime.now(ZoneInfo("Asia/Taipei")).strftime("%Y-%m-%d")
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}",date):
         raise SystemExit("Invalid LESSON_DATE")
     path=ROOT / "content" / "instagram" / date / "lesson.json"
     lesson=json.loads(path.read_text(encoding="utf-8"))
     if lesson.get("status")!="editorial_ready" or lesson.get("date")!=date:
-        raise SystemExit("Editorial lesson missing or not ready: no misleading design")
+        print("SKIP: no validated editorial for "+date+"; no fake Canva design created")
+        return
     output=path.parent / "canva-import.pptx"
     count=create(lesson,output)
     check=Presentation(output)
