@@ -1,5 +1,5 @@
 import {beginGoogleConnection,googleMessage} from './google-connect.mjs';
-import {beginCanvaConnection,canvaMessage} from './canva-connect.mjs';
+import {beginCanvaConnection,canvaMessage,canvaSetupDiagnostic} from './canva-connect.mjs';
 // Existing icon destinations and compact navigation share one route, including refresh/back.
 export function mountWorkspaceNavigation(host,{db}={}){
  const tiles=document.querySelector('nav.tiles');
@@ -30,7 +30,12 @@ export function mountWorkspaceNavigation(host,{db}={}){
  canvaVerify.onclick=async()=>{if(!signedIn||!db)return;canvaVerify.disabled=true;try{
   const {data,error}=await db.functions.invoke('hana-automation',{body:{action:'canva_oauth_status'}});
   if(error||data?.error)throw Error('unavailable');
-  canvaStatus.textContent=!data.configured?'Canva 服務端仍缺少必要設定；請先確認 Supabase Edge Secrets。':data.credentials_saved?'已加密儲存 Canva 授權憑證；尚未啟用每日自動匯入，請另外測試完整流程。':'Canva OAuth 服務端設定齊備，但尚未授權；請點「連接 Canva」。';
+  if(data.configured){
+   canvaStatus.textContent=data.credentials_saved?'已加密儲存 Canva 授權憑證；尚未啟用每日自動匯入，請另外測試完整流程。':'Canva OAuth 服務端設定齊備，但尚未授權；請點「連接 Canva」。';
+  }else{
+   const checked=await db.functions.invoke('hana-automation',{body:{action:'status'}});
+   canvaStatus.textContent=checked.error||checked.data?.error?'Canva 服務端仍缺少必要設定，但目前無法核對具體項目。請確認 Supabase Edge Secrets。':canvaSetupDiagnostic(checked.data?.readiness).message;
+  }
  }catch{canvaStatus.textContent='無法確認 Canva 後端是否已部署；尚未建立授權，不要將此狀態視為成功。';}finally{canvaVerify.disabled=false;}};
  const canvaInfo=document.createElement('details');const canvaSummary=document.createElement('summary');canvaSummary.textContent='設定步驟（僅管理員）';canvaInfo.append(canvaSummary);
  const canvaSteps=document.createElement('p');canvaSteps.textContent='Canva Developer → HANA AI OFFICE → Outside Canva：請確認 Scopes 已開啟 design:content:write、design:meta:read、folder:read、folder:write，Redirect URL 為 https://h-s017.github.io/hana-focus/canva-oauth-callback.html。於 Supabase Edge Functions Secrets 設定 CANVA_CLIENT_ID、CANVA_CLIENT_SECRET、CANVA_OWNER_ID，以及既有 HANA_CONNECTOR_ENCRYPTION_KEY（不得覆寫既有加密金鑰）。請勿將 Client Secret 貼入聊天室或公開 GitHub。設定完成且後端與頁面已正式發布後，再返回按連接。';canvaInfo.append(canvaSteps,canvaLink,document.createElement('br'),canvaSecrets);
