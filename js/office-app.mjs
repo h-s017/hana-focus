@@ -1,4 +1,4 @@
-import {mountWorkspaceNavigation} from './workspace-navigation.mjs';
+import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=canva-20261026-r2';
 document.documentElement.dataset.focusWorkspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
 import {mountFocusDashboard} from './focus-dashboard.mjs';
 import {mountMonthlyCalendar} from './monthly-calendar-app.mjs';
