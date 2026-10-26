@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {canvaOAuth,CANVA_CALLBACK,CANVA_SCOPES} from '../../supabase/functions/hana-automation/canva-oauth.mjs';
 import {cipher} from '../../supabase/functions/hana-automation/microsoft.mjs';
-import {beginCanvaConnection,finishCanvaConnection,CANVA_PENDING} from '../../js/canva-connect.mjs';
+import {beginCanvaConnection,finishCanvaConnection,CANVA_PENDING,canvaSetupDiagnostic} from '../../js/canva-connect.mjs';
 const proof='b'.repeat(43),alien='c'.repeat(43);
 const sha=async s=>Buffer.from(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s))).toString('base64url');
 function fixture(opts={}){
@@ -123,4 +123,22 @@ test('browser forged state is blocked before request and OAuth status is truthfu
  assert.equal(state.external_writes,false);
  const st=storage();
  await assert.rejects(finishCanvaConnection({db:{},storage:st,href:CANVA_CALLBACK+'?state=forged&code=code'}),{code:'canva_oauth_browser_required'});
+});
+
+test('Canva readiness names exact missing secrets without revealing values',()=>{
+ const d=canvaSetupDiagnostic({canva_setup:{client_id:true,client_secret:true,owner:true,encryption:false}});
+ assert.deepEqual(d.missing,['HANA_CONNECTOR_ENCRYPTION_KEY']);
+ assert.equal(d.complete,false);
+ assert.match(d.message,/32 bytes Base64/);
+ assert.ok(!d.message.includes('private-secret-value'));
+});
+test('Canva readiness reports other missing fields and refuses unverified state',()=>{
+ const all=canvaSetupDiagnostic({canva_setup:{client_id:true,client_secret:true,owner:true,encryption:true}});
+ assert.equal(all.complete,true);
+ assert.deepEqual(all.missing,[]);
+ assert.match(all.message,/OAuth/);
+ const none=canvaSetupDiagnostic({});
+ assert.equal(none.complete,false);
+ const some=canvaSetupDiagnostic({canva_setup:{client_id:false,client_secret:true,owner:false,encryption:true}});
+ assert.deepEqual(some.missing,['CANVA_CLIENT_ID','CANVA_OWNER_ID']);
 });
