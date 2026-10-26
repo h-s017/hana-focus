@@ -1,4 +1,4 @@
-Social Editor smoke test request
-Requested: 2026-10-19
-Expected: GitHub Actions generates content/instagram/latest.json and a dated lesson/review draft.
-No Instagram publication or photo library access.
+Social Editor live editorial package generation check
+Requested: 2026-10-26 Asia/Taipei (Day 8)
+Expected: latest.json with editorial_ready plus six-page lesson.json, Canva-field CSV, caption, and visual brief.
+Safety: text-only source package; no image generation, Canva API call, customer data, or Instagram publishing.
