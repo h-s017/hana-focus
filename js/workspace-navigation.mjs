@@ -19,7 +19,7 @@ export function mountWorkspaceNavigation(host,{db}={}){
  check.onclick=()=>probe(false);verify.onclick=()=>probe(true);google.append(googleHead,googleStatus,googleHelp,connect,check,verify,instructions);settings.append(google);
  for(const id of ['office-automation','office-agent-archive']){const node=document.getElementById(id);if(node)settings.append(node);}
  document.getElementById('office-private').append(settings);
- const routes={work:['工作','office-focus'],projects:['品牌專案','office-focus'],agents:['AI Studio','office-focus'],reviews:['審核中心','office-focus'],activity:['執行紀錄','office-focus'],church:['教會工作','office-focus'],calendar:['月曆','hana-month-calendar'],orders:['預約','office-orders'],materials:['素材','office-materials'],settings:['設定','office-settings']};
+ const routes={work:['工作','office-focus'],projects:['品牌專案','office-focus'],agents:['三大 AI Agent','office-focus'],reviews:['審核中心','office-focus'],activity:['執行紀錄','office-focus'],church:['教會工作','office-focus'],calendar:['月曆','hana-month-calendar'],orders:['預約','office-orders'],materials:['素材','office-materials'],settings:['設定','office-settings']};
  const parse=()=>{if(Object.hasOwn(routes,location.hash.slice(1)))return location.hash.slice(1);try{const saved=sessionStorage.getItem('hana-focus-destination');return Object.hasOwn(routes,saved)?saved:'work';}catch{return 'work';}};
  let active=parse(),signedIn=false;
  const buttons=new Map();
@@ -44,7 +44,7 @@ export function mountWorkspaceNavigation(host,{db}={}){
   if(focus){const panel=signedIn?document.getElementById(selectedId):host.querySelector('.office-account');panel?.setAttribute('tabindex','-1');panel?.focus({preventScroll:true});panel?.scrollIntoView({block:'start',behavior:'smooth'});}
  }
  if(tiles){for(const link of tiles.querySelectorAll('[data-view]'))buttons.set(link.dataset.view,link);}
- else for(const [key,label] of [['work','工作'],['calendar','月曆'],['orders','預約'],['materials','素材'],['settings','設定']]){const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.view=key;b.setAttribute('aria-controls',routes[key][1]);buttons.set(key,b);nav.append(b);}
+ else for(const [key,label] of [['work','工作'],['agents','AI Agent'],['calendar','月曆'],['orders','預約'],['materials','素材'],['settings','設定']]){const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.view=key;b.setAttribute('aria-controls',routes[key][1]);buttons.set(key,b);nav.append(b);}
  for(const [key,b] of buttons)b.addEventListener('click',e=>{e.preventDefault();if(location.hash==='#'+key)select(key,{focus:true});else location.hash=key;});
  window.addEventListener('hashchange',()=>select(parse(),{focus:true}));
  window.addEventListener('hana-workspace-changed',()=>{if(signedIn&&document.documentElement.dataset.focusWorkspace==='church'&&['orders','materials'].includes(active)){location.hash='church';}});
