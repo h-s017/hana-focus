@@ -3,7 +3,7 @@ on:
   push:
     branches: [feature/office-auth-agent-integration]
   pull_request:
-    paths: ['ai-office.html','workspace.html','js/**','supabase/**','scripts/build-office-site.mjs','tests/office/**','.github/workflows/office-validation.yml','.github/workflows/hana-focus-preview.yml']
+    paths: ['ai-office.html','workspace.html','js/**','supabase/**','scripts/build-office-site.mjs','tests/office/**','social-editor/**','scripts/social-editor.mjs','scripts/social-canva-pptx.py','.github/workflows/social-editor.yml','.github/workflows/office-validation.yml','.github/workflows/hana-focus-preview.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -86,3 +86,40 @@ jobs:
           PGPASSWORD: ci-fixture-only
           PGDATABASE: hana_test
         run: psql -v ON_ERROR_STOP=1 -f tests/office/db-run.sql
+
+  canva-pptx-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build dated editorial fixture with no external service
+        env:
+          LESSON_DATE: '2026-10-26'
+        run: node scripts/social-editor.mjs
+      - name: Install Python builder
+        run: python -m pip install --disable-pip-version-check --no-input python-pptx==1.0.2
+      - name: Build Canva Connect compatible editable deck
+        env:
+          LESSON_DATE: '2026-10-26'
+        run: python scripts/social-canva-pptx.py
+      - name: Verify content and editable layers
+        run: |
+          python - <<'PYTEST'
+          from pptx import Presentation
+          import json
+          folder='content/instagram/2026-10-26/'
+          lesson=json.load(open(folder+'lesson.json',encoding='utf-8'))
+          prs=Presentation(folder+'canva-import.pptx')
+          assert len(prs.slides)==len(lesson['pages'])==6
+          assert prs.slide_width*5==prs.slide_height*4
+          for slide,info in zip(prs.slides,lesson['pages']):
+              text='\\n'.join(shape.text for shape in slide.shapes if shape.has_text_frame)
+              assert info['title'] in text
+              assert all(line in text for line in info['body'].split('\\n'))
+          print('PASS: editable 4:5 PowerPoint contains all six Canva-import page texts.')
+          PYTEST
