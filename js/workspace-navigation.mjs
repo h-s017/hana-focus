@@ -31,7 +31,7 @@ export function mountWorkspaceNavigation(host,{db}={}){
   const {data,error}=await db.functions.invoke('hana-automation',{body:{action:'canva_oauth_status'}});
   if(error||data?.error)throw Error('unavailable');
   if(data.configured){
-   canvaStatus.textContent=data.credentials_saved?'已加密儲存 Canva 授權憑證；尚未啟用每日自動匯入，請另外測試完整流程。':'Canva OAuth 服務端設定齊備，但尚未授權；請點「連接 Canva」。';
+   canvaStatus.textContent=data.credentials_saved?'已加密儲存 Canva 授權憑證；每日匯入是否成功請點「查看今日 Canva 自動匯入紀錄」。':'Canva OAuth 服務端設定齊備，但尚未授權；請點「連接 Canva」。';
   }else{
    const checked=await db.functions.invoke('hana-automation',{body:{action:'status'}});
    canvaStatus.textContent=checked.error||checked.data?.error?'Canva 服務端仍缺少必要設定，但目前無法核對具體項目。請確認 Supabase Edge Secrets。':canvaSetupDiagnostic(checked.data?.readiness).message;
