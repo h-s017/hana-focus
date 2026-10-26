@@ -1,26 +1,84 @@
 import fs from 'node:fs/promises';
-const now = new Date();
-const date = process.env.LESSON_DATE || new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
-if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Invalid LESSON_DATE');
-const day = Math.floor((Date.parse(date+'T00:00:00Z')-Date.parse('2026-10-19T00:00:00Z'))/86400000)+1;
-if(day<1) throw new Error('Schedule starts on 2026-10-19');
-const folder = 'content/instagram/'+date;
+import path from 'node:path';
+import {lessonForDay} from '../social-editor/editorial-library.mjs';
+
+const now=new Date();
+const date=process.env.LESSON_DATE||new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
+function checkDate(value){
+ if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(value)||new Date(value+'T00:00:00Z').toISOString().slice(0,10)!==value)throw Error('Invalid LESSON_DATE');
+ return value;
+}
+checkDate(date);
+const day=Math.floor((Date.parse(date+'T00:00:00Z')-Date.parse('2026-10-19T00:00:00Z'))/86400000)+1;
+if(day<1)throw Error('Schedule starts on 2026-10-19');
+const folder=path.join('content','instagram',date);
 await fs.mkdir(folder,{recursive:true});
-const dayOne = {
- title:'調香師究竟在做什麼？',
- pages:[
- {title:'調香師究竟在做什麼？',body:'氣味是一種想像。調香師讓抽象概念成為可以感受的氣味作品。'},
- {title:'調香不是只有精油',body:'調香可能使用天然或合成香料，並依用途與安全條件設計配方。'},
- {title:'調香師的四項能力',body:'嗅覺辨識、香材知識、配方結構，以及將故事轉譯為氣味的創意。'},
- {title:'今日觀察',body:'選一件日常物件，寫下三個聯想的氣味詞，再分辨哪些是想像、哪些是實際觀察。'},
- {title:'今日回顧',body:'調香不只是挑選喜歡的味道，而是以知識、感官與創作建構氣味。'}],
- music:{composer:'Claude Debussy',work:'Préludes, Book I: La fille aux cheveux de lin',medium:'piano',reason:'以音樂的細緻層次對照氣味創作中的意象與結構',recordingRights:'Recording availability and licensing not verified'}
-};
-const lesson={date,day,title:day===1?dayOne.title:null,status:day===1?'draft':'needs-lesson',pages:day===1?dayOne.pages:[],music:day===1?dayOne.music:null,notes:day===1?'Human review required':'A validated curriculum for this day is not connected; do not fabricate educational content.'};
-await fs.writeFile(folder+'/lesson.json',JSON.stringify(lesson,null,2)+'\n');
-const review={date,day,status:'pending-founder-review',imagesGenerated:false,canvaCreated:false,published:false,checks:['subject accuracy','image provenance','traditional Chinese','1080x1350','5-8 independent pages','music recording rights','brand consistency']};
-await fs.writeFile(folder+'/review.json',JSON.stringify(review,null,2)+'\n');
-await fs.mkdir('content/instagram',{recursive:true});
-const manifest={lastRunAt:now.toISOString(),date,day,status:lesson.status,topic:lesson.title,imagesGenerated:false,slideCount:0,canvaDesignId:day===1?'DAHYYj6Kajs':null,canvaEditUrl:day===1?'https://www.canva.com/d/jnO7TQ8Dj85zFHU':null,music:lesson.music,reviewStatus:review.status,published:false,notes:lesson.notes||'Draft created. No automatic image generation or publication.'};
-await fs.writeFile('content/instagram/latest.json',JSON.stringify(manifest,null,2)+'\n');
-console.log('Social Editor generated '+date+' '+lesson.status+'; no PNGs or publication.');
+const readJSON=async file=>{try{return JSON.parse(await fs.readFile(file,'utf8'));}catch{return null;}};
+const previous=await readJSON(path.join('content','instagram','latest.json'));
+const lesson=lessonForDay(day);
+function fields(pages){
+ const data={SERIES:'HANA 嗅覺微課',DAY:String(day).padStart(3,'0'),DATE:date};
+ pages.forEach((p,index)=>{
+  const prefix='PAGE_'+String(index+1).padStart(2,'0');
+  data[prefix+'_TITLE']=p.title;
+  data[prefix+'_BODY']=p.body;
+ });
+ return data;
+}
+function csvEscape(value){
+ let s=String(value??'');
+ // Spreadsheet formula injection protection for exports later opened in Excel/Sheets.
+ if(/^[\\s\\r\\n]*[=+@]/.test(s)||/^[\\s\\r\\n]*-(?![0-9])/.test(s))s="'"+s;
+ return '"'+s.replaceAll('"','""')+'"';
+}
+const site='https://github.com/h-s017/hana-focus/tree/hana-focus-preview';
+let manifest;
+if(lesson){
+ const slides=lesson.pages;
+ if(slides.length!==6||slides.some(s=>!s.title||!s.body||s.title.length>60||s.body.length>180))throw Error('Micro-lesson QA failed');
+ const data=fields(slides);
+ const csv='\\uFEFF'+Object.keys(data).map(csvEscape).join(',')+'\\r\\n'+Object.values(data).map(csvEscape).join(',')+'\\r\\n';
+ const caption=[
+  lesson.title,'',
+  'HANA 嗅覺微課｜Day '+String(day).padStart(3,'0'), '',
+  ...slides.slice(1,5).map((p,i)=>String(i+1)+'. '+p.title+'：'+p.body),
+  '', '今日練習：'+slides[5].body,
+  '', '音樂聆賞：'+lesson.music.composer+' — '+lesson.music.work,
+  '主題連結：'+lesson.music.reason,
+  '（此處僅推薦曲目，不包含可使用的錄音授權。）',
+  '', '#HanaScentArtist #嗅覺藝術 #氣味設計 #香氛微課'
+ ].join('\\n');
+ const visualBrief=[
+  '# HANA 嗅覺微課｜'+date,
+  '## 唯一視覺風格','每日風格：'+lesson.style+'。同日六頁維持單一風格、色彩與排版邏輯。',
+  '## 指定版面','Instagram 輪播 1080 × 1350 px（4:5），六頁各自獨立。',
+  '## 文字與圖像分層','Canva 的中文標題、內文、頁碼都必須是可編輯文字。圖像素材不得含任何 AI 生成的中文字。',
+  '## 禁用','不得出現人物、身體器官、人體圖示、柑橘、過量樹葉光影、反覆香水瓶、來源不明的照片或未授權使用的作品。',
+  '## 圖像狀態','本排程只生成創作指示與文字。尚未產生圖片、尚未建立 Canva 設計。',
+  '## 建議構圖',...slides.map((p,i)=>String(i+1)+'. '+p.title+'：運用紙張、建築、布料、雕塑、樂器或抽象材質，保持構圖差異。')
+ ].join('\\n\\n');
+ const dataFile='canva-autofill.csv';
+ await Promise.all([
+  fs.writeFile(path.join(folder,'lesson.json'),JSON.stringify({date,day,title:lesson.title,status:'editorial_ready',pages:slides,canvas:{width:1080,height:1350,pages:6},fields:data,music:lesson.music,claimStatus:lesson.citationStatus},null,2)+'\\n'),
+  fs.writeFile(path.join(folder,dataFile),csv),
+  fs.writeFile(path.join(folder,'caption.md'),caption+'\\n'),
+  fs.writeFile(path.join(folder,'visual-brief.md'),visualBrief+'\\n'),
+  fs.writeFile(path.join(folder,'review.json'),JSON.stringify({date,day,status:'internal_automated_checks_passed',humanApprovalRequiredForInternalCopy:false,imagesGenerated:false,canvaCreated:false,published:false,checks:['6 editable copy pages','4:5 dimensions specified','no imported copyrighted assets','composition specification','music recording unlicensed'],sourceNote:'Original conceptual editorial; factual claims not independently externally reviewed'},null,2)+'\\n')
+ ]);
+ const priorSameDay=previous?.date===date&&previous.canvaCreated===true&&/^https:\\/\\/(www\\.)?canva\\.com\\//.test(previous.canvaEditUrl||'')&&previous.canvaDesignId;
+ const design=priorSameDay?{canvaCreated:true,canvaDesignId:previous.canvaDesignId,canvaEditUrl:previous.canvaEditUrl,slideCount:previous.slideCount}: {canvaCreated:false,canvaDesignId:null,canvaEditUrl:null,slideCount:0};
+ manifest={
+  lastRunAt:now.toISOString(),date,day,status:design.canvaCreated?'canva_logged':'editorial_ready',topic:lesson.title,
+  ...design,plannedSlideCount:slides.length,imagesGenerated:false,reviewStatus:'internal_automated_checks_passed',published:false,
+  captionPath:folder+'/caption.md',canvaCsvPath:folder+'/'+dataFile,lessonPath:folder+'/lesson.json',
+  notes:design.canvaCreated?'Preserved separately confirmed Canva result; Instagram not published.':'Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.',
+  manualCanvaUploadHelp:site+'/'+folder+'/'+dataFile
+ };
+}else{
+ await fs.writeFile(path.join(folder,'lesson.json'),JSON.stringify({date,day,title:null,status:'needs-lesson',pages:[],notes:'Outside curated editorial library; AI writer not connected. Nothing generated.'},null,2)+'\\n');
+ await fs.writeFile(path.join(folder,'review.json'),JSON.stringify({date,day,status:'missing_editorial',imagesGenerated:false,canvaCreated:false,published:false},null,2)+'\\n');
+ manifest={lastRunAt:now.toISOString(),date,day,status:'needs-lesson',topic:null,imagesGenerated:false,slideCount:0,canvaCreated:false,canvaDesignId:null,canvaEditUrl:null,published:false,reviewStatus:'missing_editorial',notes:'Curriculum ends at Day 14; AI writer and Canva backend have not been connected.'};
+}
+await fs.mkdir(path.join('content','instagram'),{recursive:true});
+await fs.writeFile(path.join('content','instagram','latest.json'),JSON.stringify(manifest,null,2)+'\\n');
+console.log('HANA Social Editor '+date+': '+manifest.status+'; canvaCreated='+manifest.canvaCreated+' published=false');
