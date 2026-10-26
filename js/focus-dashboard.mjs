@@ -1,5 +1,6 @@
 import {focusSummary,AGENT_ROLES} from './focus-domain.mjs';
 import {makeBackup,restoreBackup} from './focus-backup.mjs';
+import {createInternalCanvaPackage,CANVA_FORMATS} from './project-canva-export.mjs';
 import {mountThreeAgentConsole} from './three-agent-console.mjs';
 const stateNames={todo:'未開始',in_progress:'進行中',waiting:'等待中',done:'工作已完成（非客戶交付核准）'};
 export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
@@ -27,7 +28,7 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
  const advanced=el('details');advanced.className='focus-advanced';advanced.append(el('summary','資料管理與進階設定'),projectForm,migration,sourceBundle,settings);const threeAgents=el('div');threeAgents.id='hana-three-agents';threeAgents.hidden=view!=='agents';
  host.replaceChildren(head,help,controls,status,taskForm,threeAgents,content,advanced);
  const agentController=mountThreeAgentConsole(threeAgents,{db});
- function download(text,name){const url=URL.createObjectURL(new Blob([text],{type:'application/json'})),a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+ function download(text,name,mime='application/json;charset=utf-8'){const url=URL.createObjectURL(new Blob([text],{type:mime})),a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  async function invoke(body){const {data:value,error}=await db.functions.invoke('hana-automation',{body:{...body,request_id:crypto.randomUUID()}});if(error||value?.error){let code=value?.error;try{if(!code)code=(await error.context?.json())?.error;}catch{}throw Object.assign(Error(code||'request_unconfirmed'),{code});}return value;}
  function currentTasks(){return (data?.tasks||[]).filter(t=>data.projects.some(p=>p.id===t.project_id&&p.workspace===workspace&&(!projectId||p.id===projectId)));}
  function render(){
@@ -41,6 +42,15 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
   if(data.truncated)overview.append(el('p','僅載入最近1000筆任務，以上是已載入範圍；完整進度需縮小查詢。'));
   if(version){const contract=version.contract||{};overview.append(el('p','方案：'+(contract.scheme||'未指定')+'｜客戶核准：'+(contract.client_approved?'已記錄核准':'待核准')),el('p','版本 '+version.label+'｜內部工作基準，不代表客戶核准。'));const contractDetails=el('details');contractDetails.append(el('summary','查看合約原始欄位'),el('pre',JSON.stringify(contract,null,2)));overview.append(contractDetails);
    const versions=el('details');versions.append(el('summary','版本紀錄與切換'));for(const v of data.versions.filter(v=>v.project_id===project.id)){versions.append(el('p',v.label+'｜'+v.state));if(v.id!==project.active_version_id)versions.append(button('HANA 確認採用 '+v.label,()=>operate(async()=>{if(!confirm('採用此內部版本？舊版本與資料保留，不代表客戶核准。'))return;await invoke({action:'focus_activate_version',project_id:project.id,version_id:v.id});await reload();})));}overview.append(versions);
+  }
+  if(project&&version&&workspace==='work'){
+   const internal=el('details');internal.append(el('summary','產生指定版型的 Canva 內部交付資料'));
+   internal.append(el('p','直接依目前版本與已歸類的工作產生六頁文字、CSV 及完整來源核對文件。原始資料不變；這不會在 Canva 自動建立設計，也不會交付客戶。'));
+   const format=el('select');format.setAttribute('aria-label','Canva 內部交付版型');for(const name of CANVA_FORMATS){const option=el('option',name);option.value=name;format.append(option);}
+   const make=()=>createInternalCanvaPackage({project,version,tasks:active,documents:data.documents,format:format.value});
+   internal.append(format,button('下載 Canva 六頁 CSV',()=>{try{const result=make();download(result.csv,result.filenameBase+'.csv','text/csv;charset=utf-8');status.textContent='已在本機產出六頁 CSV；未在 Canva 建立設計，也未傳送客戶。';}catch{status.textContent='匯出失敗，請核對專案版本與範圍。';}}));
+   internal.append(button('下載完整內部核對文件',()=>{try{const result=make();download(result.markdown,result.filenameBase+'.md','text/markdown;charset=utf-8');status.textContent='內部文件已在本機產生；客戶核准與正式交付並未改變。';}catch{status.textContent='內部文件未產出，請重新載入專案版本。';}}));
+   overview.append(internal);
   }
   const documents=section('文件與來源',{fold:true});for(const d of data.documents.filter(d=>d.project_id===projectId)){const link=el('a',d.source_system+'｜'+(d.external_id||d.id));try{const url=new URL(d.source_url);if(!['https:'].includes(url.protocol))continue;link.href=url.href;}catch{continue;}link.target='_blank';link.rel='noopener noreferrer';documents.append(link,el('p','來源版本：'+d.content_hash));}
   const review=section('等待 HANA 核准與 Agent 最新結果');for(const t of active.filter(t=>t.status==='review')){review.append(el('h4',t.title),el('pre',t.result||'尚無結果'));for(const decision of ['approved','rejected'])review.append(button(decision==='approved'?'核准內部分析草稿':'退回分析草稿',()=>operate(async()=>{if(!confirm('記錄本人審核？不代表客戶核准或對外交付。'))return;const {error}=await db.functions.invoke('hana-agent',{body:{action:'review',task_id:t.id,decision,request_id:crypto.randomUUID()}});if(error)throw Error('review_failed');await reload();})));}
