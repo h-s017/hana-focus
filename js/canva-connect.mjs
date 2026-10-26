@@ -10,6 +10,12 @@ export const canvaMessage=code=>({
  canva_oauth_expired:'Canva 授權已過期或使用過；請重新開始。',
  canva_oauth_rate_limited:'連線次數過多，請稍後再試。',
  canva_oauth_invalid:'授權資料不完整，請重新開始。',
+ canva_oauth_provider_invalid_request:'Canva 拒絕授權請求的參數。已修正 PKCE 格式；請從 HANA FOCUS 重新連線。',
+ canva_oauth_provider_invalid_scope:'Canva 拒絕所請求的權限。請檢查 Canva Developer → Outside Canva → Scopes 是否開放四項所需權限。',
+ canva_oauth_provider_access_denied:'Canva 授權未獲同意，請從 HANA FOCUS 重新連線並在 Canva 官方畫面核准。',
+ canva_oauth_provider_unauthorized_client:'Canva 應用程式尚不允許目前的 OAuth 授權方式。請檢查 Outside Canva 應用程式設定。',
+ canva_oauth_provider_invalid_client:'Canva 無法辨識目前的 Client ID。請檢查 Supabase Secret 與 Canva Developer 應用程式是否一致。',
+ canva_oauth_provider_unavailable:'Canva 暫時無法完成授權，請稍後從工作台重新連線。',
  canva_oauth_upstream_failed:'Canva 未完成驗證，請檢查 Client Secret 和 Redirect URL。',
  canva_oauth_scope_required:'Canva 尚未授予建立設計及管理檔案的必要權限，請檢查 Scopes。',
  canva_oauth_refresh_required:'Canva 沒有提供持續授權所需的更新權杖，請重新授權。',
@@ -33,7 +39,7 @@ export async function beginCanvaConnection({db,storage,navigate,now=Date.now}){
    ||url.searchParams.get('state')!==data.state
    ||url.searchParams.get('redirect_uri')!==CANVA_CALLBACK
    ||url.searchParams.get('scope')!==CANVA_SCOPES
-   ||url.searchParams.get('code_challenge_method')!=='S256'
+   ||url.searchParams.get('code_challenge_method')!=='s256'
    ||url.searchParams.get('response_type')!=='code'
    ||!Number.isFinite(expiry)||expiry<=now())throw invalid('canva_oauth_invalid');
   storage.setItem(CANVA_PENDING,JSON.stringify({proof:browserProof,state:data.state,expires_at:expiry}));
@@ -47,7 +53,21 @@ export async function finishCanvaConnection({db,storage,href,now=Date.now}){
  if(!pending?.proof||!pending.state||pending.state!==url.searchParams.get('state')
   ||!Number.isFinite(pending.expires_at)||pending.expires_at<=now())throw invalid('canva_oauth_browser_required');
  try{
-  if(url.searchParams.has('error'))throw invalid('canva_oauth_invalid');
+  if(url.searchParams.has('error')){
+   // The OAuth error value comes from an external URL. Never echo error_description or
+   // arbitrary values into the UI; map only known, safe error identifiers.
+   const kind=url.searchParams.get('error');
+   const codes={
+    invalid_request:'canva_oauth_provider_invalid_request',
+    invalid_scope:'canva_oauth_provider_invalid_scope',
+    access_denied:'canva_oauth_provider_access_denied',
+    unauthorized_client:'canva_oauth_provider_unauthorized_client',
+    invalid_client:'canva_oauth_provider_invalid_client',
+    temporarily_unavailable:'canva_oauth_provider_unavailable',
+    server_error:'canva_oauth_provider_unavailable'
+   };
+   throw invalid(codes[kind]||'canva_oauth_invalid');
+  }
   const {data:{session},error}=await db.auth.getSession();
   if(error||!session)throw invalid('login_required');
   const code=url.searchParams.get('code');

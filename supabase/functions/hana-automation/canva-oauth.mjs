@@ -44,7 +44,7 @@ export function canvaOAuth({clientId,clientSecret,ownerId,store,encryption,fetch
    await store.canvaOauthCreate(owner,id,{state_hash:await hash(state),expires_at,payload});
    const url=new URL('https://www.canva.com/api/oauth/authorize');
    url.search=new URLSearchParams({
-    code_challenge:await hash(verifier),code_challenge_method:'S256',scope:CANVA_SCOPES,
+    code_challenge:await hash(verifier),code_challenge_method:'s256',scope:CANVA_SCOPES,
     response_type:'code',client_id:clientId,state,redirect_uri:CANVA_CALLBACK
    }).toString();
    return {authorization_url:url.href,state,expires_at,scope:CANVA_SCOPES};
