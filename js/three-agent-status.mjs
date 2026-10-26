@@ -18,11 +18,11 @@ export function socialStatus(manifest,day=taipeiDate()){
 }
 export function secretaryStatus(status){
  if(!status||typeof status!=='object')return {state:'unverified',detail:'後端狀態無法驗證；預約未作任何更動。'};
- if(status.readiness?.calendar===true)return {state:'read_only',detail:'Google 日曆服務端設定已具備；預約雙向同步、封鎖及通知仍未驗證啟用。'};
- return {state:'needs_connection',detail:'尚未確認 Google Calendar 持續授權；自動改寫預約與通知並未啟用。'};
+ if(status.readiness?.calendar===true)return {state:'read_only',detail:'日曆連線資料已設定，還要實際讀取才能確認。查看下方撞期檢查結果；不會修改預約或發通知。'};
+ return {state:'needs_connection',detail:'先到「日曆設定」連接 Google，才能檢查撞期。尚未修改任何預約。'};
 }
 export function pmStatus(snapshot){
  if(!snapshot||!Array.isArray(snapshot.projects)||!Array.isArray(snapshot.tasks))return {state:'unverified',detail:'無法讀取雲端專案清單，未確認有任何交付。'};
  const workProjects=snapshot.projects.filter(p=>p.workspace==='work');
- return {state:'planning',detail:'已載入 '+workProjects.length+' 個工作專案；免費規則分析不等於 Canva 自動交付。'};
+ return {state:'planning',detail:'已讀取 '+workProjects.length+' 個工作專案。你可以交辦工作、查看進度；有專案資料不代表工具正在執行。'};
 }
