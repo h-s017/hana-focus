@@ -44,6 +44,8 @@ try{
  const agents=page.locator('#hana-three-agents');
  await agents.getByRole('heading',{name:'社群小編',exact:true}).waitFor();
  assert.equal(await agents.locator('.hana-agent-card').count(),3);
+ await agents.getByRole('button',{name:'檢查未來 7 天行程衝突（唯讀）',exact:true}).click();
+ await agents.getByText('無法確認日曆與預約來源',{exact:false}).waitFor();
  for(const role of ['社群小編','AI 秘書','專案經理'])assert.equal(await agents.getByRole('heading',{name:role,exact:true}).count(),1);
  await agents.getByRole('button',{name:'重新確認三個 Agent 的執行狀態',exact:true}).click();
  await agents.locator('.hana-agent-card').first().getByRole('status').filter({hasText:/尚未確認|尚未交付|已建立|缺少|未驗證|已產生六頁文案/}).waitFor();
