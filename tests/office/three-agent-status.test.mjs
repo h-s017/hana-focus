@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {THREE_AGENTS,taipeiDate,socialStatus,secretaryStatus,pmStatus} from '../../js/three-agent-status.mjs';
+assert.deepEqual(THREE_AGENTS.map(a=>a.id),['social','secretary','pm']);
+assert.equal(taipeiDate(new Date('2026-10-25T20:10:00Z')),'2026-10-26');
+assert.equal(socialStatus(null,'2026-10-26').state,'unverified');
+assert.equal(socialStatus({date:'2026-10-25',canvaCreated:true,slideCount:6,canvaEditUrl:'https://www.canva.com/d/abc'},'2026-10-26').state,'stale');
+assert.equal(socialStatus({date:'2026-10-26',status:'needs-lesson',slideCount:0},'2026-10-26').state,'blocked');
+assert.equal(socialStatus({date:'2026-10-26',status:'draft',canvaCreated:true,slideCount:6,canvaEditUrl:'https://evil.com/abc'},'2026-10-26').state,'incomplete');
+assert.equal(socialStatus({date:'2026-10-26',canvaCreated:true,slideCount:6,canvaEditUrl:'https://www.canva.com/d/abc'},'2026-10-26').state,'delivered_internal');
+assert.equal(socialStatus({date:'2026-10-26',canvaCreated:true,slideCount:4,canvaEditUrl:'https://www.canva.com/d/abc'},'2026-10-26').state,'incomplete');
+assert.equal(secretaryStatus(null).state,'unverified');
+assert.equal(secretaryStatus({readiness:{calendar:false}}).state,'needs_connection');
+assert.equal(secretaryStatus({readiness:{calendar:true}}).state,'read_only');
+assert.equal(pmStatus({projects:[{workspace:'work'},{workspace:'church'}],tasks:[]}).state,'planning');
+assert.equal(pmStatus({projects:[],tasks:null}).state,'unverified');
+console.log('PASS: HANA V3 status is evidence-based; no false Canva delivery, calendar write, or PM handoff.');
