@@ -39,3 +39,7 @@
 #hana-office-root .hana-agent-actions{display:flex;flex-direction:column;gap:8px}
 #hana-office-root .hana-agent-actions a{font-size:12px;color:#334b40;text-decoration:underline;line-height:1.6;overflow-wrap:anywhere}
 @media(max-width:670px){#hana-office-root .hana-agents-grid{grid-template-columns:1fr}#hana-office-root .hana-agent-detail{min-height:0}}
+
+#hana-office-root .hana-secretary-results{margin-top:14px;border-top:1px solid #e5e9e4;padding-top:10px}
+#hana-office-root .hana-secretary-results p{font-size:12px;line-height:1.7;margin:7px 0;color:#566259}
+#hana-office-root .hana-agent-actions button{font-size:12px;min-height:44px;margin:0;padding:9px 12px}
