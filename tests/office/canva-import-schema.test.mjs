@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
-const sql=readFileSync(fileURLToPath(new URL('../../supabase/migrations/20261026175200_hana_canva_import_jobs.sql',import.meta.url)),'utf8');
+const sql=readFileSync(fileURLToPath(new URL('../../supabase/migrations/20261026152406_hana_canva_import_jobs_and_paused_schedule.sql',import.meta.url)),'utf8');
 assert.ok(sql.includes('PRIMARY KEY(owner_id, lesson_date)'), 'one design job per owner per date');
 assert.ok(sql.includes('ENABLE ROW LEVEL SECURITY'));
 assert.ok(sql.includes('REVOKE ALL ON TABLE public.hana_canva_import_jobs FROM PUBLIC, anon, authenticated'));
