@@ -7,6 +7,11 @@ export function automationStore({url,service,fetcher=fetch}) {
  }
  const query=(table,params)=>table+'?'+new URLSearchParams(params),rpc=(name,body={})=>request('rpc/'+name,'POST',body);
  const store={...base.store,
+  googleOwnerAllowed:owner=>rpc('hana_focus_allowed',{p_owner:owner}),
+  async oauthRecentCount(owner,since){const rows=await request(query('hana_automation_events',{owner_id:'eq.'+owner,code:'in.(google_oauth_pending,google_oauth_claimed)',created_at:'gte.'+since,select:'id',limit:'5'}));return rows.length;},
+  oauthCreate:(owner,id,details)=>request('hana_automation_events','POST',{id,owner_id:owner,project:'課程預約',code:'google_oauth_pending',details}),
+  async oauthGet(owner,id){const rows=await request(query('hana_automation_events',{id:'eq.'+id,owner_id:'eq.'+owner,code:'eq.google_oauth_pending',select:'details'}));return rows[0]||null;},
+  async oauthClaim(owner,id,stateHash,expires){const rows=await request(query('hana_automation_events',{id:'eq.'+id,owner_id:'eq.'+owner,code:'eq.google_oauth_pending','details->>state_hash':'eq.'+stateHash,'details->>expires_at':'eq.'+expires}),'PATCH',{code:'google_oauth_claimed',details:{consumed_at:new Date().toISOString()}});return rows.length===1;},
   async monthlyGet(owner,month){const rows=await request(query('hana_monthly_drafts',{owner_id:'eq.'+owner,month:'eq.'+month,select:'*'}));return rows[0]||null;},
   async monthlyReceipt(owner,id){const rows=await request(query('hana_automation_events',{id:'eq.'+id,owner_id:'eq.'+owner,code:'in.(monthly_saved,monthly_reviewed)',select:'details'}));return rows[0]?.details||null;},
   monthlySave:(owner,c)=>rpc('hana_monthly_save',{p_owner:owner,p_month:c.month,p_revision:c.revision,p_request:c.request,p_policy:c.policy,p_overrides:c.overrides,p_generated:c.generated,p_changed:c.changed}),

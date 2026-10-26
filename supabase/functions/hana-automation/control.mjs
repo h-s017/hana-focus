@@ -1,7 +1,7 @@
 import {configuration,priorities} from './runtime.mjs';
 const headers={'Access-Control-Allow-Origin':'https://h-s017.github.io','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Cache-Control':'no-store','Vary':'Origin'};
 const response=(body,status=200)=>Response.json(body,{status,headers});
-export function control({authenticate,store,connector,readiness,calendarPreview,booking,reservations,monthly,focus}) {
+export function control({authenticate,store,connector,readiness,calendarPreview,booking,reservations,monthly,focus,googleOAuth}) {
  return async req=>{
   if(req.headers.get('origin')&&req.headers.get('origin')!=='https://h-s017.github.io')return response({error:'origin_not_allowed'},403);
   if(req.method==='OPTIONS')return new Response(null,{headers});
@@ -15,6 +15,7 @@ export function control({authenticate,store,connector,readiness,calendarPreview,
    if(body.action?.startsWith('focus_')){if(!focus)return response({error:'focus_unavailable'},409);return response(await focus(owner,body));}
    if(text.length>6000)return response({error:'invalid_body'},400);
    const ready=readiness();
+   if(['google_oauth_start','google_oauth_finish'].includes(body.action)){if(!googleOAuth)return response({error:'google_oauth_setup_required'},409);return response(await googleOAuth(owner,body));}
    if(['monthly_load','monthly_generate','monthly_review'].includes(body.action)){if(!monthly)return response({error:'monthly_unavailable'},409);return response(await monthly(owner,body));}
    if(body.action==='reservation_details'){if(!reservations)return response({error:'reservation_connection_required'},409);return response(await reservations.list(user,body.cursor||null));}
    if(['booking_list','booking_slots','booking_save','booking_review'].includes(body.action)){if(!booking)return response({error:'booking_source_unavailable'},409);return response(await booking(owner,body,user));}
@@ -38,7 +39,7 @@ export function control({authenticate,store,connector,readiness,calendarPreview,
    if(body.action==='folders')return response(await connector.folders(owner,body.item_id||null));
    return response({error:'invalid_action'},400);
   }catch(error){
-   const safe=['invalid_focus_request','invalid_focus_bundle','scope_or_version_required','project_required','backup_checksum_mismatch','invalid_backup','local_batch_too_large','notion_authorization_required','notion_source_required','notion_rate_limited','notion_incomplete','notion_scope_mismatch','notion_unavailable','focus_tool_failed','invalid_monthly','monthly_conflict','monthly_unavailable','invalid_settings','invalid_folder','scope_required','folder_required','source_unavailable','source_expired','source_limit','source_denied','calendar_authorization_required','calendar_unavailable','calendar_incomplete','calendar_timezone_required','reservation_unavailable','invalid_window','folder_project_mismatch','invalid_booking_change','capacity_below_booked','booking_source_unavailable','booking_source_unverified','booking_source_changed','reservation_read_access_required','reservation_connection_required','reservation_read_unavailable','reservation_read_incomplete','invalid_reservation_cursor'];
+   const safe=['google_oauth_setup_required','google_oauth_owner_required','google_oauth_browser_required','google_oauth_rate_limited','google_oauth_invalid','google_oauth_expired','google_oauth_upstream_failed','google_oauth_scope_required','google_oauth_refresh_required','invalid_focus_request','invalid_focus_bundle','scope_or_version_required','project_required','backup_checksum_mismatch','invalid_backup','local_batch_too_large','notion_authorization_required','notion_source_required','notion_rate_limited','notion_incomplete','notion_scope_mismatch','notion_unavailable','focus_tool_failed','invalid_monthly','monthly_conflict','monthly_unavailable','invalid_settings','invalid_folder','scope_required','folder_required','source_unavailable','source_expired','source_limit','source_denied','calendar_authorization_required','calendar_unavailable','calendar_incomplete','calendar_timezone_required','reservation_unavailable','invalid_window','folder_project_mismatch','invalid_booking_change','capacity_below_booked','booking_source_unavailable','booking_source_unverified','booking_source_changed','reservation_read_access_required','reservation_connection_required','reservation_read_unavailable','reservation_read_incomplete','invalid_reservation_cursor'];
    return response({error:safe.includes(error.code)?error.code:'operation_unavailable'},error.code==='reservation_read_access_required'?403:409);
   }
  };

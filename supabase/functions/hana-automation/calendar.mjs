@@ -20,8 +20,8 @@ export function compareReservations(events,slots,{start,end}) {
 export function calendarSources({clientId,clientSecret,seedRefreshToken,ownerId,calendarId='primary',store,encryption,fetcher=fetch,now=Date.now,maxWindowDays=31}) {
  async function json(url,opts={}){const r=await fetcher(url,{...opts,redirect:'error',signal:AbortSignal.timeout(15000)});if(!r.ok)throw fail(r.status===401||r.status===403?'calendar_authorization_required':'calendar_unavailable');const text=await r.text();if(text.length>2000000)throw fail('calendar_incomplete');return JSON.parse(text);}
  async function token(owner){
-  if(owner!==ownerId||!clientId||!clientSecret||!seedRefreshToken||!encryption)throw fail('calendar_authorization_required');
-  const old=await store.credential(owner,'google');const previous=old?await encryption.open(owner,old.ciphertext):{refresh_token:seedRefreshToken};
+  if(owner!==ownerId||!clientId||!clientSecret||!encryption)throw fail('calendar_authorization_required');
+  const old=await store.credential(owner,'google');const previous=old?await encryption.open(owner,old.ciphertext):{refresh_token:seedRefreshToken};if(!previous.refresh_token)throw fail('calendar_authorization_required');
   if(previous.expires_at>now()+60000)return previous.access_token;
   const data=await json('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:clientId,client_secret:clientSecret,refresh_token:previous.refresh_token,grant_type:'refresh_token',scope:'https://www.googleapis.com/auth/calendar.readonly'})});
   if(!data.access_token||!String(data.scope||'').split(' ').includes('https://www.googleapis.com/auth/calendar.readonly'))throw fail('calendar_authorization_required');
@@ -42,7 +42,7 @@ export function calendarSources({clientId,clientSecret,seedRefreshToken,ownerId,
    pageToken=data.nextPageToken;if(!pageToken)break;if(seen.has(pageToken))throw fail('calendar_incomplete');seen.add(pageToken);
   }
   if(pageToken)throw fail('calendar_incomplete');
-  const data=await json(API+'/api/slots',{method:'GET'});if(data.ok!==true)throw fail('reservation_unavailable');
+  const data=await json(API+'/api/slots',{method:'GET',headers:{'User-Agent':'HANA-FOCUS-readonly/1.0'}});if(data.ok!==true)throw fail('reservation_unavailable');
   return {events,slots:data.slots,checked_at:new Date(now()).toISOString()};
  };
 }

@@ -3,7 +3,7 @@ document.documentElement.dataset.focusWorkspace=localStorage.getItem('hana-focus
 import {mountFocusDashboard} from './focus-dashboard.mjs';
 import {mountMonthlyCalendar} from './monthly-calendar-app.mjs';
 import {mountReservationOrders} from './reservation-orders.mjs';
-import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.57.0';
+import {db} from './office-client.mjs';
 import {loginController,consumeCallback,authMessage} from './office-auth.mjs';
 import {STATES,NEXT_ROLE} from './office-workflow.mjs';
 import {mountAutomation} from './automation-app.mjs';
@@ -11,7 +11,6 @@ import {mountMaterials} from './project-materials.mjs';
 import {availableSlots} from './calendar-availability.mjs';
 const host=document.getElementById('hana-office-root');
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const db=createClient('https://ihmvziqisputjnjkuhvm.supabase.co','sb_publishable_xipXAHCwziguVpbr3DEN-w_AI6Cap3f',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 let draftRequestId=crypto.randomUUID();
 let disposeMaterials=null,materialsOwner=null,disposeAutomation=null,disposeOrders=null,disposeMonthly=null,disposeFocus=null;
 let current=null,loading=false;const busy=new Set();let refreshVersion=0;
