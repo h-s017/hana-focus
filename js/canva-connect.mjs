@@ -10,6 +10,7 @@ export const canvaMessage=code=>({
  canva_oauth_expired:'Canva 授權已過期或使用過；請重新開始。',
  canva_oauth_rate_limited:'連線次數過多，請稍後再試。',
  canva_oauth_invalid:'授權資料不完整，請重新開始。',
+ canva_oauth_client_version_mismatch:'前端與後端的 Canva 授權參數版本不一致。請先強制重新整理 HANA FOCUS，再從工作台重新連接。',
  canva_oauth_provider_invalid_request:'Canva 拒絕授權請求的參數。已修正 PKCE 格式；請從 HANA FOCUS 重新連線。',
  canva_oauth_provider_invalid_scope:'Canva 拒絕所請求的權限。請檢查 Canva Developer → Outside Canva → Scopes 是否開放四項所需權限。',
  canva_oauth_provider_access_denied:'Canva 授權未獲同意，請從 HANA FOCUS 重新連線並在 Canva 官方畫面核准。',
@@ -35,13 +36,16 @@ export async function beginCanvaConnection({db,storage,navigate,now=Date.now}){
  try{
   const data=await invoke(db,{action:'canva_oauth_start',browser_proof:browserProof});
   const url=new URL(data.authorization_url),expiry=Number(data.expires_at);
+  // Canva's OAuth docs show both S256 and s256 spellings. Normalize only
+  // this one parameter while strictly checking the redirect, origin and state.
   if(url.origin!=='https://www.canva.com'||url.pathname!=='/api/oauth/authorize'
    ||url.searchParams.get('state')!==data.state
    ||url.searchParams.get('redirect_uri')!==CANVA_CALLBACK
    ||url.searchParams.get('scope')!==CANVA_SCOPES
-   ||url.searchParams.get('code_challenge_method')!=='s256'
    ||url.searchParams.get('response_type')!=='code'
    ||!Number.isFinite(expiry)||expiry<=now())throw invalid('canva_oauth_invalid');
+  if(String(url.searchParams.get('code_challenge_method')||'').toLowerCase()!=='s256')
+   throw invalid('canva_oauth_client_version_mismatch');
   storage.setItem(CANVA_PENDING,JSON.stringify({proof:browserProof,state:data.state,expires_at:expiry}));
   navigate(url.href);return {status:'redirecting'};
  }catch(error){storage.removeItem(CANVA_PENDING);throw error;}
