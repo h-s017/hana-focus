@@ -1,5 +1,5 @@
 import {THREE_AGENTS,taipeiDate,socialStatus,secretaryStatus,pmStatus} from './three-agent-status.mjs';
-const STATE_LABELS={unverified:'未驗證',stale:'尚未確認今日執行',blocked:'缺少生成內容',incomplete:'尚未交付 Canva',delivered_internal:'已建立 Canva 內部稿',needs_connection:'需完成日曆授權',read_only:'僅具唯讀基礎',planning:'有現有專案資料'};
+const STATE_LABELS={copy_ready:'已產生六頁文案',unverified:'未驗證',stale:'尚未確認今日執行',blocked:'缺少生成內容',incomplete:'尚未交付 Canva',delivered_internal:'已建立 Canva 內部稿',needs_connection:'需完成日曆授權',read_only:'僅具唯讀基礎',planning:'有現有專案資料'};
 const element=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=String(text);return node;};
 const link=(title,url)=>{const a=element('a',title);a.href=url;if(url.startsWith('https://')){a.target='_blank';a.rel='noopener noreferrer';}return a;};
 export function mountThreeAgentConsole(host,{db,request=fetch,now=()=>new Date()}={}){
@@ -34,6 +34,9 @@ export function mountThreeAgentConsole(host,{db,request=fetch,now=()=>new Date()
   const existing=c.actions.querySelector('[data-canva-result]');
   if(existing)existing.remove();
   if(id==='social'&&value.editUrl){const result=link('編輯今日 Canva 成果',value.editUrl);result.dataset.canvaResult='';c.actions.prepend(result);}
+  if(id==='social'&&value.state==='copy_ready'){
+   const today=taipeiDate(now());const result=link('查看今日 Canva 匯入資料','https://github.com/h-s017/hana-focus/blob/hana-focus-preview/content/instagram/'+today+'/canva-autofill.csv');result.dataset.canvaResult='';c.actions.prepend(result);
+  }
  }
  async function load(){
   if(disposed)return;const v=++revision;refresh.disabled=true;notice.textContent='正在核對 GitHub、Google 設定與雲端專案資料…';

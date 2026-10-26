@@ -5,6 +5,7 @@ assert.equal(taipeiDate(new Date('2026-10-25T20:10:00Z')),'2026-10-26');
 assert.equal(socialStatus(null,'2026-10-26').state,'unverified');
 assert.equal(socialStatus({date:'2026-10-25',canvaCreated:true,slideCount:6,canvaEditUrl:'https://www.canva.com/d/abc'},'2026-10-26').state,'stale');
 assert.equal(socialStatus({date:'2026-10-26',status:'needs-lesson',slideCount:0},'2026-10-26').state,'blocked');
+assert.equal(socialStatus({date:'2026-10-26',status:'editorial_ready',plannedSlideCount:6,canvaCreated:false},'2026-10-26').state,'copy_ready');
 assert.equal(socialStatus({date:'2026-10-26',status:'draft',canvaCreated:true,slideCount:6,canvaEditUrl:'https://evil.com/abc'},'2026-10-26').state,'incomplete');
 assert.equal(socialStatus({date:'2026-10-26',canvaCreated:true,slideCount:6,canvaEditUrl:'https://www.canva.com/d/abc'},'2026-10-26').state,'delivered_internal');
 assert.equal(socialStatus({date:'2026-10-26',canvaCreated:true,slideCount:4,canvaEditUrl:'https://www.canva.com/d/abc'},'2026-10-26').state,'incomplete');
