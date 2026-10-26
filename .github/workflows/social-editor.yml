@@ -1,27 +1,42 @@
-name: Social Editor daily draft and dashboard status
+name: Social Editor — daily editorial and Canva source package
 on:
   schedule:
     - cron: '10 0 * * *'
   workflow_dispatch:
+    inputs:
+      lesson_date:
+        description: Optional Asia/Taipei date YYYY-MM-DD for a safe backfill
+        required: false
+        type: string
   push:
     branches: [hana-focus-preview]
     paths:
       - 'ops/social-editor-trigger.txt'
 permissions:
   contents: write
+concurrency:
+  group: hana-social-editor-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   prepare:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Prepare daily draft, music and live dashboard status
+      - name: Test editorial content package (no account credentials)
+        run: |
+          node tests/office/social-daily.test.mjs
+          node tests/office/three-agent-status.test.mjs
+      - name: Generate 6-page editable-copy source and IG caption
+        env:
+          LESSON_DATE: ${{ inputs.lesson_date }}
         run: node scripts/social-editor.mjs
-      - name: Commit draft
+      - name: Commit daily source package (NOT Canva or Instagram publication)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add content/instagram
-          git diff --cached --quiet || (git commit -m "Prepare social editor daily draft" && git push)
+          git diff --cached --quiet || (git commit -m "Prepare HANA micro-lesson daily Canva copy package" && git push)
