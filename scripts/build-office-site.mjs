@@ -1,5 +1,5 @@
 import {mkdir,copyFile,cp,rm,stat} from 'node:fs/promises';import path from 'node:path';
-export const pages=['index.html','workspace.html','ai-office.html','agent-center.html','social-editor.html','visual-library.html','manifest.webmanifest','sw.js'];
+export const pages=['google-calendar-callback.html','index.html','workspace.html','ai-office.html','agent-center.html','social-editor.html','visual-library.html','manifest.webmanifest','sw.js'];
 export async function buildSite(root,dest){
  const source=path.resolve(root),target=path.resolve(dest);
  if(target===source||!target.startsWith(source+path.sep))throw Error('output_must_be_inside_project');
