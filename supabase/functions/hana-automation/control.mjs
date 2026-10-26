@@ -1,4 +1,5 @@
 import {configuration,priorities} from './runtime.mjs';
+import {publicImportState,lessonDate} from './canva-import.mjs';
 const headers={'Access-Control-Allow-Origin':'https://h-s017.github.io','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Cache-Control':'no-store','Vary':'Origin'};
 const response=(body,status=200)=>Response.json(body,{status,headers});
 export function control({authenticate,store,connector,readiness,calendarPreview,booking,reservations,monthly,focus,googleOAuth,canvaOAuth}) {
@@ -21,6 +22,11 @@ export function control({authenticate,store,connector,readiness,calendarPreview,
    if(body.action==='reservation_details'){if(!reservations)return response({error:'reservation_connection_required'},409);return response(await reservations.list(user,body.cursor||null));}
    if(['booking_list','booking_slots','booking_save','booking_review'].includes(body.action)){if(!booking)return response({error:'booking_source_unavailable'},409);return response(await booking(owner,body,user));}
    if(body.action==='status')return response({readiness:ready,settings:await store.settings(owner),priorities:priorities(await store.tasks(owner)),events:await store.events(owner)});
+   if(body.action==='canva_import_status'){
+    const date=typeof body.lesson_date==='string'&&/^20\d\d-\d\d-\d\d$/.test(body.lesson_date)?body.lesson_date:lessonDate();
+    const row=await store.canvaImportJob(owner,date);
+    return response({...publicImportState(row),date,published:false});
+   }
    if(body.action==='calendar_preview'){if(!ready.calendar||!calendarPreview)return response({error:'calendar_authorization_required'},409);try{return response(await calendarPreview(owner,body.start,body.end));}catch(error){try{await store.event(owner,'課程預約',null,null,'calendar_preview_failed',{external_writes:false});}catch{}throw error;}}
    if(body.action==='configure'){
     const settings=configuration(body);
