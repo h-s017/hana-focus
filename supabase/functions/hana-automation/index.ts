@@ -1,5 +1,7 @@
 import {googleOAuth} from './google-oauth.mjs';
 import {canvaOAuth} from './canva-oauth.mjs';
+import {canvaApiClient} from './canva-import-api.mjs';
+import {canvaImportRunner} from './canva-import-runner.mjs';
 import {focusService} from './focus.mjs';
 import {notionSource} from './notion-source.mjs';
 import {reservationInventory} from './reservation-inventory.mjs';
@@ -30,5 +32,23 @@ const controls=control({canvaOAuth:canva,googleOAuth:google,store,authenticate,c
 // This function performs its own per-request Auth validation; the NT$0 cron runs SQL locally.
 // every user action validates the bearer with Supabase Auth and trusted app_metadata.
 // Existing hana-agent retains verify_jwt=true and its paid-call switch remains off.
-Deno.serve((req:Request)=>new URL(req.url).pathname.endsWith('/monthly-worker')?worker(req):controls(req));
+const canvaRunner=canvaImportRunner({
+ ownerId:env('CANVA_OWNER_ID'),store,
+ api:canvaApiClient({store,encryption,clientId:env('CANVA_CLIENT_ID'),clientSecret:env('CANVA_CLIENT_SECRET')})
+});
+async function canvaScheduledRequest(req:Request){
+ const respond=(body:unknown,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store'}});
+ if(req.method!=='POST')return respond({error:'method_not_allowed'},405);
+ let allowed=false;
+ try{allowed=await store.canvaWorkerAuthorized(req.headers.get('x-hana-canva-worker')||'');}catch{}
+ if(!allowed)return respond({error:'unauthorized'},401);
+ try{return respond(await canvaRunner());}
+ catch(error){return respond({error:'canva_worker_unavailable'},503);}
+}
+Deno.serve((req:Request)=>{
+ const route=new URL(req.url).pathname;
+ if(route.endsWith('/monthly-worker'))return worker(req);
+ if(route.endsWith('/canva-worker'))return canvaScheduledRequest(req);
+ return controls(req);
+});
 

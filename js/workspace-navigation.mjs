@@ -31,15 +31,42 @@ export function mountWorkspaceNavigation(host,{db}={}){
   const {data,error}=await db.functions.invoke('hana-automation',{body:{action:'canva_oauth_status'}});
   if(error||data?.error)throw Error('unavailable');
   if(data.configured){
-   canvaStatus.textContent=data.credentials_saved?'已加密儲存 Canva 授權憑證；尚未啟用每日自動匯入，請另外測試完整流程。':'Canva OAuth 服務端設定齊備，但尚未授權；請點「連接 Canva」。';
+   canvaStatus.textContent=data.credentials_saved?'已加密儲存 Canva 授權憑證；每日匯入是否成功請點「查看今日 Canva 自動匯入紀錄」。':'Canva OAuth 服務端設定齊備，但尚未授權；請點「連接 Canva」。';
   }else{
    const checked=await db.functions.invoke('hana-automation',{body:{action:'status'}});
    canvaStatus.textContent=checked.error||checked.data?.error?'Canva 服務端仍缺少必要設定，但目前無法核對具體項目。請確認 Supabase Edge Secrets。':canvaSetupDiagnostic(checked.data?.readiness).message;
   }
  }catch{canvaStatus.textContent='無法確認 Canva 後端是否已部署；尚未建立授權，不要將此狀態視為成功。';}finally{canvaVerify.disabled=false;}};
+ const canvaDailyCheck=document.createElement('button');canvaDailyCheck.type='button';canvaDailyCheck.textContent='查看今日 Canva 自動匯入紀錄';
+ const canvaDailyStatus=document.createElement('p');canvaDailyStatus.setAttribute('role','status');canvaDailyStatus.textContent='尚未讀取今日匯入結果。';
+ const canvaDailyLink=document.createElement('a');canvaDailyLink.hidden=true;canvaDailyLink.target='_blank';canvaDailyLink.rel='noopener noreferrer';canvaDailyLink.textContent='在 Canva 編輯今日六頁微課';
+ canvaDailyCheck.onclick=async()=>{
+  if(!signedIn||!db)return;
+  canvaDailyCheck.disabled=true;
+  try{
+   const {data,error}=await db.functions.invoke('hana-automation',{body:{action:'canva_import_status'}});
+   if(error||data?.error)throw Error('unavailable');
+   const messages={
+    not_started:'今日尚未建立 Canva 自動匯入工作。',
+    source_not_ready:'今日教材尚未完成，不會建立空白設計。',
+    reserved:'今日匯入已保留，尚未送出。',
+    submitting:'已開始送出；為避免重複，系統不會再次提交。',
+    in_progress:'Canva 正在匯入今日教材，等待下次排程驗證。',
+    failed:'今日匯入失敗，請查看後端紀錄；不會自動重複建立。',
+    needs_verification:'需要人工確認設計與六頁完整性，不會自動重新匯入。',
+    success:'今日六頁 Canva 設計已驗證，尚未發布 IG／FB。'
+   };
+   canvaDailyStatus.textContent=(data.date||'今日')+'｜'+(messages[data.status]||'目前狀態尚未確認。');
+   canvaDailyLink.hidden=true;
+   if(data.status==='success'&&/^https:\/\/www\.canva\.com\/design\/[A-Za-z0-9_-]+\/edit$/.test(data.edit_url||'')){
+    canvaDailyLink.href=data.edit_url;canvaDailyLink.hidden=false;
+   }
+  }catch{canvaDailyStatus.textContent='尚無法查詢今日 Canva 自動匯入資料；請檢查後端是否已發布。';canvaDailyLink.hidden=true;}
+  finally{canvaDailyCheck.disabled=false;}
+ };
  const canvaInfo=document.createElement('details');const canvaSummary=document.createElement('summary');canvaSummary.textContent='設定步驟（僅管理員）';canvaInfo.append(canvaSummary);
  const canvaSteps=document.createElement('p');canvaSteps.textContent='Canva Developer → HANA AI OFFICE → Outside Canva：請確認 Scopes 已開啟 design:content:write、design:meta:read、folder:read、folder:write，Redirect URL 為 https://h-s017.github.io/hana-focus/canva-oauth-callback.html。於 Supabase Edge Functions Secrets 設定 CANVA_CLIENT_ID、CANVA_CLIENT_SECRET、CANVA_OWNER_ID，以及既有 HANA_CONNECTOR_ENCRYPTION_KEY（不得覆寫既有加密金鑰）。請勿將 Client Secret 貼入聊天室或公開 GitHub。設定完成且後端與頁面已正式發布後，再返回按連接。';canvaInfo.append(canvaSteps,canvaLink,document.createElement('br'),canvaSecrets);
- canva.append(canvaTitle,canvaStatus,canvaHelp,canvaVerify,canvaConnect,canvaInfo);settings.append(canva);
+ canva.append(canvaTitle,canvaStatus,canvaHelp,canvaVerify,canvaConnect,canvaDailyCheck,canvaDailyStatus,canvaDailyLink,canvaInfo);settings.append(canva);
  for(const id of ['office-automation','office-agent-archive']){const node=document.getElementById(id);if(node)settings.append(node);}
  document.getElementById('office-private').append(settings);
  const routes={work:['工作','office-focus'],projects:['品牌專案','office-focus'],agents:['三大 AI Agent','office-focus'],reviews:['審核中心','office-focus'],activity:['執行紀錄','office-focus'],church:['教會工作','office-focus'],calendar:['月曆','hana-month-calendar'],orders:['預約','office-orders'],materials:['素材','office-materials'],settings:['設定','office-settings']};
