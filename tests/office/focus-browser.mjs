@@ -41,6 +41,12 @@ try{
 
  // Existing illustrated entries resolve to distinct content, including deep link/reload.
  await page.goto('https://h-s017.github.io/hana-focus/workspace.html#agents');await root.getByRole('heading',{name:'AI Studio｜Agent 工作',exact:true}).waitFor();
+ const agents=page.locator('#hana-three-agents');
+ await agents.getByRole('heading',{name:'社群小編',exact:true}).waitFor();
+ assert.equal(await agents.locator('.hana-agent-card').count(),3);
+ for(const role of ['社群小編','AI 秘書','專案經理'])assert.equal(await agents.getByRole('heading',{name:role,exact:true}).count(),1);
+ await agents.getByRole('button',{name:'重新確認三個 Agent 的執行狀態',exact:true}).click();
+ await agents.locator('.hana-agent-card').first().getByRole('status').filter({hasText:/尚未確認|尚未交付|已建立|缺少|未驗證/}).waitFor();
  assert.equal(await root.locator('.focus-composer').isVisible(),false);assert.equal(await root.getByRole('heading',{name:'本版本工作與 Agent 操作',exact:true}).isVisible(),true);
  const icons=page.locator('nav.tiles');assert.equal(await icons.locator('a').count(),11);
  for(const [key,heading] of [['projects','品牌專案'],['reviews','審核中心'],['activity','執行紀錄']]){await icons.locator('[data-view="'+key+'"]').click();await root.getByRole('heading',{name:heading,exact:true}).waitFor();assert.equal(await root.locator('.focus-composer').isVisible(),false);}

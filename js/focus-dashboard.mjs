@@ -1,5 +1,6 @@
 import {focusSummary,AGENT_ROLES} from './focus-domain.mjs';
 import {makeBackup,restoreBackup} from './focus-backup.mjs';
+import {mountThreeAgentConsole} from './three-agent-console.mjs';
 const stateNames={todo:'未開始',in_progress:'進行中',waiting:'等待中',done:'工作已完成（非客戶交付核准）'};
 export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
  let disposed=false,busy=false,generation=0,data=null,projectId='',workspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
@@ -23,7 +24,9 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
  taskForm.onsubmit=e=>{e.preventDefault();void operate(async()=>{if(!projectId)throw Error('project_required');await invoke({action:'focus_create_task',project_id:projectId,title:title.value,brief:brief.value,priority:Number(priority.value),auto_run:auto.checked});title.value=brief.value='';await reload();});};
  const settings=el('details');settings.append(el('summary','Agent 服務設定與模擬模式'));settings.append(el('p','付費 API 維持關閉，預算 NT$0。下方三角色可執行既有資料分析與規格核對，並非生成式 AI。秘密憑證僅在 Supabase Dashboard 的 Edge Functions Secrets 設定，不能輸入任務內容。'));
  const settingsLink=el('a','開啟 Supabase 安全服務端設定');settingsLink.href='https://supabase.com/dashboard/project/ihmvziqisputjnjkuhvm/functions';settingsLink.target='_blank';settingsLink.rel='noopener noreferrer';settings.append(settingsLink);
- const advanced=el('details');advanced.className='focus-advanced';advanced.append(el('summary','資料管理與進階設定'),projectForm,migration,sourceBundle,settings);host.replaceChildren(head,help,controls,status,taskForm,content,advanced);
+ const advanced=el('details');advanced.className='focus-advanced';advanced.append(el('summary','資料管理與進階設定'),projectForm,migration,sourceBundle,settings);const threeAgents=el('div');threeAgents.id='hana-three-agents';threeAgents.hidden=view!=='agents';
+ host.replaceChildren(head,help,controls,status,taskForm,threeAgents,content,advanced);
+ const agentController=mountThreeAgentConsole(threeAgents,{db});
  function download(text,name){const url=URL.createObjectURL(new Blob([text],{type:'application/json'})),a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  async function invoke(body){const {data:value,error}=await db.functions.invoke('hana-automation',{body:{...body,request_id:crypto.randomUUID()}});if(error||value?.error){let code=value?.error;try{if(!code)code=(await error.context?.json())?.error;}catch{}throw Object.assign(Error(code||'request_unconfirmed'),{code});}return value;}
  function currentTasks(){return (data?.tasks||[]).filter(t=>data.projects.some(p=>p.id===t.project_id&&p.workspace===workspace&&(!projectId||p.id===projectId)));}
@@ -60,16 +63,17 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
   const views={projects:['正在執行的專案','本版本工作與 Agent 操作','文件與來源','同步狀態'],agents:['本版本工作與 Agent 操作'],reviews:['等待 HANA 核准與 Agent 最新結果','需要注意的任務衝突'],activity:['執行與操作紀錄']};
   const names=views[view];
   head.textContent=({projects:'品牌專案',agents:'AI Studio｜Agent 工作',reviews:'審核中心',activity:'執行紀錄',church:'教會工作'})[view]||'今天想完成什麼？';
-  help.textContent=({projects:'查看目前專案的範圍、版本、任務與文件。',agents:'展開工作需求，選擇角色並執行免費分析；成果仍須本人審核。',reviews:'檢查 Agent 成果及來源衝突；核准不會自動交付客戶。',activity:'查看目前專案已記錄的操作；沒有紀錄不代表已完成工作。',church:'這裡只顯示教會專案，與商務工作分開保存。'})[view]||'選擇專案、寫下需求，讓 Agent 協助整理；成果由你審核。';
-  taskForm.hidden=Boolean(names);advanced.hidden=Boolean(names);const quick=content.querySelector('[data-focus-quick]');if(quick)quick.hidden=Boolean(names);
+  help.textContent=({projects:'查看目前專案的範圍、版本、任務與文件。',agents:'三個自主 Agent 的即時狀態、缺少的授權及成果入口。內部交付無須逐項審核；對外正式發布及客戶交付仍不自動執行。',reviews:'檢查 Agent 成果及來源衝突；核准不會自動交付客戶。',activity:'查看目前專案已記錄的操作；沒有紀錄不代表已完成工作。',church:'這裡只顯示教會專案，與商務工作分開保存。'})[view]||'選擇專案、寫下需求，讓 Agent 協助整理；成果由你審核。';
+  threeAgents.hidden=view!=='agents';taskForm.hidden=Boolean(names);advanced.hidden=Boolean(names);const quick=content.querySelector('[data-focus-quick]');if(quick)quick.hidden=Boolean(names);
   for(const section of content.querySelectorAll('[data-focus-section]')){section.hidden=names?!names.includes(section.dataset.focusSection):false;if(names&&section.tagName==='DETAILS'&&!section.hidden)section.open=true;}
  }
- const viewChange=e=>{view=e.detail;applyView();};window.addEventListener('hana-focus-view',viewChange);
+ const viewChange=e=>{view=e.detail;applyView();if(view==='agents')void agentController.load();};window.addEventListener('hana-focus-view',viewChange);
  async function reload(){const value=await invoke({action:'focus_snapshot'});if(disposed)return;data=value;render();onRefresh();}
  async function load(){await operate(async()=>{await reload();status.textContent='已更新雲端資料。';});}
  async function operate(fn){if(disposed||busy)return;busy=true;const v=++generation;for(const b of host.querySelectorAll('button'))b.disabled=true;try{await fn();}catch(error){if(!disposed&&v===generation){const messages={notion_authorization_required:'網站 Notion 唯讀連線尚未授權。請只在安全後台設定，不要貼金鑰。',backup_not_saved:'備份無法保存，已停止移轉，原資料保留。',backup_checksum_mismatch:'備份驗證失敗，未進行回復或匯入。',scope_or_version_required:'工作不在目前已確認範圍，已停止 Agent。'};status.textContent=messages[error.code]||'操作未確認成功。請先更新雲端資料並檢查同步／衝突紀錄後再重試；未清除原資料。';}}finally{busy=false;if(!disposed)for(const b of host.querySelectorAll('button'))b.disabled=false;createTask.disabled=!projectId;}}
  projectSelect.onchange=()=>{projectId=projectSelect.value;if(data)render();};workspaceSelect.onchange=()=>{workspace=workspaceSelect.value;localStorage.setItem('hana-focus-active-workspace',workspace);document.documentElement.dataset.focusWorkspace=workspace;window.dispatchEvent(new CustomEvent('hana-workspace-request',{detail:workspace}));projectId='';if(data)render();};
  const change=event=>{workspace=event.detail;workspaceSelect.value=workspace;projectId='';if(data)render();};window.addEventListener('hana-workspace-changed',change);
+ if(view==='agents')void agentController.load();
  const timer=setInterval(()=>{if(document.visibilityState==='visible'&&!busy)void load();},30000);void load();
- return ()=>{disposed=true;generation++;clearInterval(timer);window.removeEventListener('hana-workspace-changed',change);window.removeEventListener('hana-focus-view',viewChange);data=null;host.replaceChildren();};
+ return ()=>{disposed=true;generation++;clearInterval(timer);window.removeEventListener('hana-workspace-changed',change);window.removeEventListener('hana-focus-view',viewChange);data=null;agentController.dispose();host.replaceChildren();};
 }
