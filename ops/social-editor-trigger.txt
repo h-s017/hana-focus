@@ -1,4 +1,5 @@
-Social Editor live editorial package generation check
-Requested: 2026-10-26 Asia/Taipei (Day 8)
-Expected: latest.json with editorial_ready plus six-page lesson.json, Canva-field CSV, caption, and visual brief.
-Safety: text-only source package; no image generation, Canva API call, customer data, or Instagram publishing.
+Canva Connect compatible daily source smoke test
+Requested: 2026-10-26 Asia/Taipei
+Expected: original six-page lesson + 4:5 editable HTML + Canva REST-importable PowerPoint (canva-import.pptx)
+Validated Canva design already recorded for Day8: DAHZE3YnNfA
+Safety: this run creates files in GitHub only; no duplicate Canva design or public Instagram posting.
