@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-26",
+  "day": 8,
+  "series": "調香師從 0 養成",
+  "topic": "氣味很強，就一定好聞嗎？——分清強度、喜好與熟悉度",
+  "previous_day": "2026-10-25 Day 07 嗅覺日記",
+  "style": "白底低飽和色鉛筆水彩／藝術書籍",
+  "slides": 6,
+  "format": "1080x1350 PNG",
+  "generation": "One original 3x2 illustration image was cropped and editorially typeset into six independent PNG slides; six separate background PNGs also exported.",
+  "music": {
+    "composer": "Claude Debussy",
+    "work": "Des pas sur la neige",
+    "collection": "Préludes, Livre I, no.6",
+    "recording": "not selected",
+    "commercial_audio_rights": "not cleared"
+  },
+  "content_version": "v1.0",
+  "founder_approval": "pending",
+  "published": false,
+  "canva_created": false,
+  "photo_library_accessed": false,
+  "assets": "HANA_Social_Editor_Day08_2026-10-26.zip (conversation deliverable, not uploaded to GitHub)",
+  "qa": {
+    "images_generated": true,
+    "dimensions_checked": true,
+    "source_review": "completed",
+    "music_license": "not cleared",
+    "founder_review": "pending"
+  },
+  "sources": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC4977894/",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC5981304/",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC3989720/",
+    "https://www.pianolibrary.org/composers/debussy/preludes-1/",
+    "https://enc.piano.or.jp/musics/22369",
+    "https://www.facebook.com/help/instagram/402084904469945"
+  ]
+}
