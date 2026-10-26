@@ -41,7 +41,7 @@ test('start has Canva origin, strict PKCE, fixed redirect and no secret in resul
  const f=fixture(),s=await f.start(),url=new URL(s.authorization_url);
  assert.equal(url.origin,'https://www.canva.com');
  assert.equal(url.pathname,'/api/oauth/authorize');
- assert.equal(url.searchParams.get('code_challenge_method'),'S256');
+ assert.equal(url.searchParams.get('code_challenge_method'),'s256');
  assert.equal(url.searchParams.get('redirect_uri'),CANVA_CALLBACK);
  assert.equal(url.searchParams.get('scope'),CANVA_SCOPES);
  assert.equal(url.searchParams.get('response_type'),'code');
@@ -141,4 +141,30 @@ test('Canva readiness reports other missing fields and refuses unverified state'
  assert.equal(none.complete,false);
  const some=canvaSetupDiagnostic({canva_setup:{client_id:false,client_secret:true,owner:false,encryption:true}});
  assert.deepEqual(some.missing,['CANVA_CLIENT_ID','CANVA_OWNER_ID']);
+});
+
+test('Canva authorization errors are classified without leaking external descriptions',async()=>{
+ const f=fixture(),clock=Date.parse('2026-10-26T04:00:00Z'),started=await f.start();
+ const state=started.state,proofValue='b'.repeat(43);
+ for(const [external,expected] of [
+  ['invalid_request','canva_oauth_provider_invalid_request'],
+  ['invalid_scope','canva_oauth_provider_invalid_scope'],
+  ['access_denied','canva_oauth_provider_access_denied'],
+  ['unauthorized_client','canva_oauth_provider_unauthorized_client'],
+  ['invalid_client','canva_oauth_provider_invalid_client'],
+  ['temporarily_unavailable','canva_oauth_provider_unavailable'],
+  ['unexpected_value','canva_oauth_invalid']
+ ]){
+  const mem=storage();mem.setItem(CANVA_PENDING,JSON.stringify({proof:proofValue,state,expires_at:clock+600000}));
+  const db={auth:{getSession:async()=>{throw Error('provider rejection must not exchange code');}},
+   functions:{invoke:async()=>{throw Error('provider rejection must not request backend');}}};
+  const href=CANVA_CALLBACK+'?state='+encodeURIComponent(state)+'&error='+external+'&error_description='+encodeURIComponent('PRIVATE ERROR DETAIL');
+  await assert.rejects(finishCanvaConnection({db,storage:mem,href,now:()=>clock}),e=>e.code===expected&&!e.message.includes('PRIVATE'));
+  assert.equal(mem.getItem(CANVA_PENDING),null);
+ }
+});
+test('Canva error callback with mismatched state does not show attacker-supplied error code',async()=>{
+ const st=storage(),clock=Date.parse('2026-10-26T04:00:00Z');
+ st.setItem(CANVA_PENDING,JSON.stringify({proof:'b'.repeat(43),state:'original',expires_at:clock+600000}));
+ await assert.rejects(finishCanvaConnection({db:{},storage:st,href:CANVA_CALLBACK+'?state=attacker&error=invalid_scope',now:()=>clock}),{code:'canva_oauth_browser_required'});
 });
