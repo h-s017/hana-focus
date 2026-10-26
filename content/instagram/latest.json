@@ -1,15 +1,20 @@
 {
-  "lastRunAt": "2026-10-25T19:38:53.786Z",
+  "lastRunAt": "2026-10-26T03:20:13.765Z",
   "date": "2026-10-26",
   "day": 8,
-  "status": "needs-lesson",
-  "topic": null,
-  "imagesGenerated": false,
-  "slideCount": 0,
+  "status": "editorial_ready",
+  "topic": "前景與背景：氣味設計的層次",
+  "canvaCreated": false,
   "canvaDesignId": null,
   "canvaEditUrl": null,
-  "music": null,
-  "reviewStatus": "pending-founder-review",
+  "slideCount": 0,
+  "plannedSlideCount": 6,
+  "imagesGenerated": false,
+  "reviewStatus": "internal_automated_checks_passed",
   "published": false,
-  "notes": "A validated curriculum for this day is not connected; do not fabricate educational content."
+  "captionPath": "content/instagram/2026-10-26/caption.md",
+  "canvaCsvPath": "content/instagram/2026-10-26/canva-autofill.csv",
+  "lessonPath": "content/instagram/2026-10-26/lesson.json",
+  "notes": "Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.",
+  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-10-26/canva-autofill.csv"
 }

@@ -1,9 +1,61 @@
 {
   "date": "2026-10-26",
   "day": 8,
-  "title": null,
-  "status": "needs-lesson",
-  "pages": [],
-  "music": null,
-  "notes": "A validated curriculum for this day is not connected; do not fabricate educational content."
+  "title": "前景與背景：氣味設計的層次",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "前景與背景：氣味設計的層次",
+      "body": "HANA 嗅覺微課 · Day 008\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "不是所有線索都要突出",
+      "body": "一份作品中可以有主要印象，也能有較安靜的陪襯。"
+    },
+    {
+      "title": "前景引導注意力",
+      "body": "觀眾最先察覺的特質，往往影響對整體作品的判斷。"
+    },
+    {
+      "title": "背景建立連續感",
+      "body": "若輔助元素太搶眼，原本想表達的重點可能被淹沒。"
+    },
+    {
+      "title": "回到整體目的",
+      "body": "層次安排需服從主題，不是越複雜越有價值。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "描述一個空間：主角是一種材質，背景是一種氣氛。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "008",
+    "DATE": "2026-10-26",
+    "PAGE_01_TITLE": "前景與背景：氣味設計的層次",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 008\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "不是所有線索都要突出",
+    "PAGE_02_BODY": "一份作品中可以有主要印象，也能有較安靜的陪襯。",
+    "PAGE_03_TITLE": "前景引導注意力",
+    "PAGE_03_BODY": "觀眾最先察覺的特質，往往影響對整體作品的判斷。",
+    "PAGE_04_TITLE": "背景建立連續感",
+    "PAGE_04_BODY": "若輔助元素太搶眼，原本想表達的重點可能被淹沒。",
+    "PAGE_05_TITLE": "回到整體目的",
+    "PAGE_05_BODY": "層次安排需服從主題，不是越複雜越有價值。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "描述一個空間：主角是一種材質，背景是一種氣氛。"
+  },
+  "music": {
+    "composer": "Frédéric Chopin",
+    "work": "Nocturne in E-flat major, Op. 9 No. 2",
+    "reason": "觀察前景與背景的平衡",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
 }
