@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {lessonForDay} from '../social-editor/editorial-library.mjs';
+import {canvaImportHtml} from '../social-editor/canva-html.mjs';
 
 const now=new Date();
 const date=process.env.LESSON_DATE||new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
@@ -59,6 +60,7 @@ if(lesson){
  ].join('\n\n');
  const dataFile='canva-autofill.csv';
  await Promise.all([
+  fs.writeFile(path.join(folder,'canva-import.html'),canvaImportHtml({title:lesson.title,pages:slides,day,date})),
   fs.writeFile(path.join(folder,'lesson.json'),JSON.stringify({date,day,title:lesson.title,status:'editorial_ready',pages:slides,canvas:{width:1080,height:1350,pages:6},fields:data,music:lesson.music,claimStatus:lesson.citationStatus},null,2)+'\n'),
   fs.writeFile(path.join(folder,dataFile),csv),
   fs.writeFile(path.join(folder,'caption.md'),caption+'\n'),
@@ -70,7 +72,7 @@ if(lesson){
  manifest={
   lastRunAt:now.toISOString(),date,day,status:design.canvaCreated?'canva_logged':'editorial_ready',topic:lesson.title,
   ...design,plannedSlideCount:slides.length,imagesGenerated:false,reviewStatus:'internal_automated_checks_passed',published:false,
-  captionPath:folder+'/caption.md',canvaCsvPath:folder+'/'+dataFile,lessonPath:folder+'/lesson.json',
+  captionPath:folder+'/caption.md',canvaCsvPath:folder+'/'+dataFile,canvaImportPath:folder+'/canva-import.html',lessonPath:folder+'/lesson.json',
   notes:design.canvaCreated?'Preserved separately confirmed Canva result; Instagram not published.':'Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.',
   manualCanvaUploadHelp:site+'/'+folder+'/'+dataFile
  };
