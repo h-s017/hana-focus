@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+const sql=readFileSync(fileURLToPath(new URL('../../supabase/migrations/20261026160351_enable_verified_hana_canva_daily_cron.sql',import.meta.url)),'utf8');
+assert.ok(sql.includes("hana-canva-daily-import"));
+assert.ok(sql.includes("active => true"));
+assert.ok(sql.includes("hana_canva_daily_worker_secret"));
+assert.ok(sql.includes("hana_canva_import_jobs"));
+assert.ok(sql.includes("schedule='45 0-15 * * *'"));
+assert.ok(!sql.includes('create_secret('));
+assert.ok(!/DROP TABLE|TRUNCATE|DELETE FROM/i.test(sql));
+console.log('PASS: scheduled Canva import only enabled after private worker preflight.');
