@@ -1,3 +1,4 @@
+import {nextLessons} from './editorial-next.mjs';
 // Original HANA editorial micro-lessons. Written text only; no source photos or music recordings.
 // A day is a coherent 6-page Canva source, not an automatically generated design.
 const works=[
@@ -32,9 +33,10 @@ const topics=[
  ['視覺能替氣味建立期待嗎？','抽象光影畫作',['觀看建立預期','圖像的色彩與材質可能改變人們對作品氣氛的想像。'],['預期不等於事實','看到花朵不代表實際呈現的作品一定有花香。'],['讓媒材保持誠實','圖像與文案應清楚區分暗示、比喻與作品實際內容。'],['設計留有驚喜','適當對比能讓作品的感官層次更值得探索。'],['選兩種顏色，為同一個抽象主題寫出兩種氣味聯想。']],
  ['如何規劃一份嗅覺創作簡報？','當代藝術展覽型錄',['先說明目標','作品希望傳達什麼，以及準備在哪種場域使用？'],['整理使用情境','受眾、空間、時間與體驗流程都應列入說明。'],['定義交付範圍','概念稿、視覺提案與實際製作文件不可混為一談。'],['列出未確認事項','素材規格、授權與法規事項應由相關專業人員核實。'],['用五行寫下主題、目的、受眾、形式與待確認事項。']]
 ];
+topics.push(...nextLessons);
 export const microLessons=Object.freeze(topics.map((r,i)=>{
  const [title,style,...sections]=r;
- const [composer,work,reason]=works[i];
+ const [composer,work,reason]=works[i%works.length];
  const pages=[
   {title,body:'HANA 嗅覺微課 · Day '+String(i+1).padStart(3,'0')+'\n用一個概念，重新閱讀氣味。'},
   ...sections.slice(0,4).map(([title,body])=>({title,body})),
