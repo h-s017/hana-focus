@@ -34,6 +34,32 @@ jobs:
         env:
           LESSON_DATE: ${{ inputs.lesson_date }}
         run: node scripts/social-editor.mjs
+      - name: Install pinned editable PowerPoint builder
+        run: python -m pip install --disable-pip-version-check --no-input python-pptx==1.0.2
+      - name: Build Canva Connect-compatible PowerPoint source
+        env:
+          LESSON_DATE: ${{ inputs.lesson_date }}
+        run: python scripts/social-canva-pptx.py
+      - name: Verify six fully editable pages
+        env:
+          LESSON_DATE: ${{ inputs.lesson_date }}
+        run: |
+          python - <<'PYTEST'
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          import os, pathlib
+          from pptx import Presentation
+          date=os.environ.get('LESSON_DATE') or datetime.now(ZoneInfo('Asia/Taipei')).strftime('%Y-%m-%d')
+          file=pathlib.Path('content/instagram')/date/'canva-import.pptx'
+          if not file.exists():
+              print('SKIP: no validated content, so no PowerPoint generated')
+          else:
+              prs=Presentation(file)
+              assert len(prs.slides)==6
+              assert prs.slide_width*5==prs.slide_height*4
+              assert all(len([sh for sh in page.shapes if sh.has_text_frame and sh.text.strip()])>=4 for page in prs.slides)
+              print('PASS: 6 editable Canva source slides at 4:5')
+          PYTEST
       - name: Commit daily source package (NOT Canva or Instagram publication)
         run: |
           git config user.name "github-actions[bot]"
