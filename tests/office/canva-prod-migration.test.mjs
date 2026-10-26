@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+const path=new URL('../../supabase/migrations/20261026152406_hana_canva_import_jobs_and_paused_schedule.sql',import.meta.url);
+const source=readFileSync(fileURLToPath(path),'utf8');
+assert.ok(source.includes("PRIMARY KEY(owner_id, lesson_date)"));
+assert.ok(source.includes("ENABLE ROW LEVEL SECURITY"));
+assert.ok(source.includes("REVOKE ALL ON TABLE public.hana_canva_import_jobs FROM PUBLIC, anon, authenticated"));
+assert.ok(source.includes("SELECT cron.alter_job("));
+assert.ok(source.includes("active => false"));
+assert.ok(source.includes("hana-canva-daily-import"));
+assert.ok(source.includes("GRANT EXECUTE ON FUNCTION public.hana_canva_worker_verify(text) TO service_role"));
+assert.ok(!/DROP TABLE|TRUNCATE TABLE|DELETE FROM/i.test(source));
+console.log('PASS: production schema is restricted and Canva Cron begins paused.');
