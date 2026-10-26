@@ -1,5 +1,5 @@
 {
-  "lastRunAt": "2026-10-26T03:20:13.765Z",
+  "lastRunAt": "2026-10-26T03:46:54.995Z",
   "date": "2026-10-26",
   "day": 8,
   "status": "canva_logged",
@@ -14,9 +14,8 @@
   "published": false,
   "captionPath": "content/instagram/2026-10-26/caption.md",
   "canvaCsvPath": "content/instagram/2026-10-26/canva-autofill.csv",
+  "canvaImportPath": "content/instagram/2026-10-26/canva-import.html",
   "lessonPath": "content/instagram/2026-10-26/lesson.json",
-  "notes": "Six-page editable Canva design created in Canva connector and moved to HANA AI OFFICE social folder; today's GitHub daily scheduler did not create this design; Instagram not published.",
-  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-10-26/canva-autofill.csv",
-  "canvaVerifiedAt": "2026-10-26",
-  "deliveryMethod": "interactive_canva_import_this_conversation"
+  "notes": "Preserved separately confirmed Canva result; Instagram not published.",
+  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-10-26/canva-autofill.csv"
 }
