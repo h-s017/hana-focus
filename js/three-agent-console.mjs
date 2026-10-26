@@ -1,34 +1,39 @@
 import {THREE_AGENTS,taipeiDate,socialStatus,secretaryStatus,pmStatus} from './three-agent-status.mjs';
 import {sevenDayWindow,secretaryConflictSummary} from './secretary-conflict.mjs';
-const STATE_LABELS={copy_ready:'已產生六頁文案',unverified:'未驗證',stale:'尚未確認今日執行',blocked:'缺少生成內容',incomplete:'尚未交付 Canva',delivered_internal:'已建立 Canva 內部稿',needs_connection:'需完成日曆授權',read_only:'僅具唯讀基礎',planning:'有現有專案資料'};
+const STATE_LABELS={copy_ready:'今天的文案已備妥',unverified:'目前無法取得狀態',stale:'還沒確認今天的成果',blocked:'需要補充課程內容',incomplete:'還沒有可用的設計成果',delivered_internal:'已有 Canva 草稿可查看',needs_connection:'需要先連接日曆',read_only:'可嘗試讀取行程',planning:'可查看專案進度'};
+const CAPABILITIES={social:'準備每日微課文案，供你查看及編排。',secretary:'查看行程和課程是否撞期；預約修改由你決定。',pm:'整理工作進度與待確認事項；研究和設計仍需另外執行。'};
 const element=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=String(text);return node;};
 const link=(title,url)=>{const a=element('a',title);a.href=url;if(url.startsWith('https://')){a.target='_blank';a.rel='noopener noreferrer';}return a;};
 export function mountThreeAgentConsole(host,{db,request=fetch,now=()=>new Date()}={}){
  let disposed=false,revision=0;
  host.className='hana-agent-console';
- const intro=element('p','這是同一套 HANA FOCUS 的三個角色。內部工作無須逐項核准，但尚未接通的功能不會顯示成成功。');
+ const intro=element('p','先看每個幫手現在能做什麼，再查看成果或交辦工作。這裡顯示可用功能，不代表正在執行任務。');
  intro.className='hana-agent-intro';
  const grid=element('div');grid.className='hana-agents-grid';
  const cards=new Map();
  for(const agent of THREE_AGENTS){
   const article=element('article');article.className='hana-agent-card';
-  article.append(element('h3',agent.name),element('p',agent.english));
+  article.append(element('h3',agent.name),element('p',CAPABILITIES[agent.id]));
   const state=element('p','正在讀取…');state.className='hana-agent-state';state.setAttribute('role','status');
   const detail=element('p','尚未確認服務狀態。');detail.className='hana-agent-detail';
   const actions=element('div');actions.className='hana-agent-actions';
+  const more=element('details');more.append(element('summary','連線與紀錄'));
   let secretaryPanel=null,secretaryButton=null;
   if(agent.id==='social'){
-   actions.append(link('開啟 Canva 微課資料夾',agent.folder),link('查看 GitHub 每日排程','https://github.com/h-s017/hana-focus/actions/workflows/social-editor.yml'));
+   actions.append(link('查看社群工作','./social-editor.html'));
+   more.append(link('開啟 Canva 微課資料夾',agent.folder),link('查看 GitHub 每日排程','https://github.com/h-s017/hana-focus/actions/workflows/social-editor.yml'));
   }else if(agent.id==='secretary'){
-   secretaryButton=element('button','檢查未來 7 天行程衝突（唯讀）');secretaryButton.type='button';
+   secretaryButton=element('button','檢查未來 7 天是否撞期');secretaryButton.type='button';
    secretaryPanel=element('div');secretaryPanel.className='hana-secretary-results';secretaryPanel.setAttribute('aria-live','polite');
-   actions.append(secretaryButton,link('日曆設定','#settings'),link('課程月曆','#calendar'),link('預約明細','#orders'));
+   actions.append(secretaryButton);
+   more.append(link('日曆設定','#settings'),link('課程月曆','#calendar'),link('預約明細','#orders'));
   }else{
-   actions.append(link('管理品牌專案','#projects'),link('Canva 內部交付資料夾',agent.folder));
+   actions.append(link('交辦一件事','#work'));
+   more.append(link('管理品牌專案','#projects'),link('Canva 內部交付資料夾',agent.folder));
   }
-  article.append(state,detail,actions);if(secretaryPanel)article.append(secretaryPanel);grid.append(article);cards.set(agent.id,{state,detail,actions,secretaryPanel,secretaryButton,checking:false});
+  article.append(state,detail,actions);if(secretaryPanel)article.append(secretaryPanel);article.append(more);grid.append(article);cards.set(agent.id,{state,detail,actions,secretaryPanel,secretaryButton,checking:false});
  }
- const refresh=element('button','重新確認三個 Agent 的執行狀態');refresh.type='button';
+ const refresh=element('button','更新幫手狀態');refresh.type='button';
  const notice=element('p');notice.className='hana-agent-intro';notice.setAttribute('aria-live','polite');
  host.replaceChildren(intro,grid,refresh,notice);
  function render(id,value){
@@ -37,10 +42,11 @@ export function mountThreeAgentConsole(host,{db,request=fetch,now=()=>new Date()
   c.detail.textContent=value.detail;
   const existing=c.actions.querySelector('[data-canva-result]');
   if(existing)existing.remove();
-  if(id==='social'&&value.editUrl){const result=link('編輯今日 Canva 成果',value.editUrl);result.dataset.canvaResult='';c.actions.prepend(result);}
+  if(id==='social'&&value.editUrl){const result=link('查看 Canva 草稿',value.editUrl);result.dataset.canvaResult='';c.actions.replaceChildren(result);}
   if(id==='social'&&value.state==='copy_ready'){
-   const today=taipeiDate(now());const result=link('查看今日 Canva 匯入資料','https://github.com/h-s017/hana-focus/blob/hana-focus-preview/content/instagram/'+today+'/canva-autofill.csv');result.dataset.canvaResult='';c.actions.prepend(result);
+   const result=link('查看今天的社群文案','./social-editor.html');result.dataset.canvaResult='';c.actions.replaceChildren(result);
   }
+  if(id==='social'&&!value.editUrl&&value.state!=='copy_ready')c.actions.replaceChildren(link('查看社群工作','./social-editor.html'));
  }
  async function checkSecretary(v){
   const c=cards.get('secretary');if(disposed||!c?.secretaryPanel||c.checking)return;

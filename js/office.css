@@ -3,7 +3,7 @@
 #office-focus select{max-width:100%}#office-focus a{display:inline-block;margin:6px 0;overflow-wrap:anywhere}#office-focus summary,#office-agent-archive>summary,#focus-local-archive>summary{cursor:pointer;font-weight:600;padding:12px 0}#office-focus label{display:block}html[data-focus-workspace="church"] [data-business-only]{display:none!important}#office-agent-archive{margin:18px 0}
 
 /* Daily workspace: one primary action, separate destinations, details on demand. */
-#hana-office-root .workspace-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;position:sticky;top:0;z-index:10;background:#f6f5f1;padding:10px 0;border-bottom:1px solid #d9ddd8}
+#hana-office-root .workspace-nav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;position:sticky;top:0;z-index:10;background:#f6f5f1;padding:10px 0;border-bottom:1px solid #d9ddd8}
 #hana-office-root .workspace-nav button{margin:0;padding:10px 2px;background:transparent;color:#5c645e;border-radius:10px;font-size:14px}
 #hana-office-root .workspace-nav button[aria-current="page"]{background:#334b40;color:#fff;font-weight:700}
 #hana-office-root .office-account{margin-top:8px}#hana-office-root.is-signed-in .office-account{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border:0;background:transparent;font-size:12px}
@@ -27,13 +27,13 @@
 @media(max-width:360px){#hana-office-root .focus-composer{padding:14px}#hana-office-root .focus-context{grid-template-columns:1fr}#hana-office-root #office-focus>h2{font-size:24px}}
 #office-google-connection a{display:inline-block;min-height:44px;line-height:1.8;color:#334b40}#office-google-connection p{line-height:1.8}nav.tiles [aria-current="page"]{background:#e7ede6;box-shadow:inset 0 0 0 1px #b5c6b7}nav.tiles{margin-bottom:26px}#hana-month-calendar[hidden]{display:none!important}#office-focus [hidden]{display:none!important}
 
-/* Single HANA FOCUS V3: actual state of three autonomous agents. */
+/* Three helpers: available capabilities are separate from running tasks. */
 #hana-three-agents{padding:0;border:0;background:transparent}
 #hana-office-root .hana-agent-intro{color:#646c67;font-size:13px;line-height:1.7}
 #hana-office-root .hana-agents-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 #hana-office-root .hana-agent-card{margin:0;padding:18px;background:#fff;border:1px solid #d8ddd8;border-radius:13px;min-width:0}
 #hana-office-root .hana-agent-card h3{margin:0 0 2px;font-size:16px}
-#hana-office-root .hana-agent-card>p:nth-child(2){font-size:11px;color:#707670;margin-top:0}
+#hana-office-root .hana-agent-card>p:nth-child(2){font-size:13px;color:#5c625d;margin-top:6px;line-height:1.7}
 #hana-office-root .hana-agent-state{font-weight:600;margin:18px 0 7px}
 #hana-office-root .hana-agent-detail{font-size:13px;color:#5c625d;line-height:1.7;min-height:70px}
 #hana-office-root .hana-agent-actions{display:flex;flex-direction:column;gap:8px}
@@ -43,3 +43,9 @@
 #hana-office-root .hana-secretary-results{margin-top:14px;border-top:1px solid #e5e9e4;padding-top:10px}
 #hana-office-root .hana-secretary-results p{font-size:12px;line-height:1.7;margin:7px 0;color:#566259}
 #hana-office-root .hana-agent-actions button{font-size:12px;min-height:44px;margin:0;padding:9px 12px}
+#hana-office-root .focus-work-line{border-top:1px solid #e5e9e4;padding:16px 0 8px}
+#hana-office-root .focus-work-line strong{font-size:16px;line-height:1.6}
+#hana-office-root .focus-work-line p{font-size:14px;color:#566259;margin:7px 0}
+#hana-office-root .focus-work-line button{background:#edf1eb;color:#334b40;margin-left:0}
+#hana-office-root .hana-agent-card>details{margin-top:14px;border-top:1px solid #e5e9e4}
+#hana-office-root .hana-agent-card>details a{display:block;margin:10px 0;font-size:13px;min-height:44px;line-height:1.7}
