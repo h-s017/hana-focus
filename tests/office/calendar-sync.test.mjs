@@ -27,7 +27,8 @@ test('changed enrolment or Google event after review forces new review without s
 });
 test('rejection, unknown outcomes, parallel runs and activation guard never auto-write',async()=>{
  const f=fixture();await f.run({action:'calendar_sync_run',month:'2099-12'});await f.run({action:'calendar_sync_review',link_id:'row',review_id:f.row.pending.id,decision:'rejected'});await f.run({action:'calendar_sync_run',month:'2099-12'});assert.deepEqual(f.writes,[]);
- f.row.status='unknown';await f.run({action:'calendar_sync_run',month:'2099-12'});assert.deepEqual(f.writes,[]);f.lock();await assert.rejects(f.run({action:'calendar_sync_run',month:'2099-12'}),{code:'calendar_sync_busy'});
+ await assert.rejects(f.run({action:'calendar_sync_review',link_id:'row',review_id:f.row.pending.id,decision:'approved',direction:'import'}),{code:'calendar_sync_conflict'});
+ f.row.status='unknown';await assert.rejects(f.run({action:'calendar_sync_review',link_id:'row',review_id:f.row.pending.id,decision:'approved',direction:'import'}),{code:'calendar_sync_conflict'});await f.run({action:'calendar_sync_run',month:'2099-12'});assert.deepEqual(f.writes,[]);f.lock();await assert.rejects(f.run({action:'calendar_sync_run',month:'2099-12'}),{code:'calendar_sync_busy'});
  await assert.rejects(fixture({enabled:false}).run({action:'calendar_sync_run',month:'2099-12'}),{code:'calendar_sync_activation_required'});
 });
 test('unbooked imports update source; unrelated or all-day Google events cannot overwrite courses',async()=>{

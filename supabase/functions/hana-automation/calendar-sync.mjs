@@ -73,7 +73,7 @@ export function calendarSyncService({store,google,reservations,ownerId,enabled=f
     return {status:'scheduled',synced:false};
    }
    if(body.action==='calendar_sync_review'){
-    const row=await store.calendarLink(owner,body.link_id);if(!row?.pending||row.pending.id!==body.review_id||!['approved','rejected'].includes(body.decision))throw fail('calendar_sync_conflict');
+    const row=await store.calendarLink(owner,body.link_id);if(!row?.pending||!['pending','conflict'].includes(row.status)||row.pending.id!==body.review_id||!['approved','rejected'].includes(body.decision))throw fail('calendar_sync_conflict');
     if(body.decision==='rejected'){await save(owner,row,{status:'rejected'});return {status:'rejected',external_writes:false};}
     if(!['import','export'].includes(body.direction))throw fail('calendar_sync_invalid');
     // Both snapshots, including enrolled count and Google etag, must still match the reviewed warning.

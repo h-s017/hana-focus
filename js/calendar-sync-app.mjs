@@ -17,11 +17,11 @@ export function mountCalendarSyncPanel(host,{db}){
   for(const r of d.links.filter(r=>r.status!=='ready')){
    const card=el('article'),p=r.pending;card.append(el('h4',p?.source?.course||p?.source?.title||r.source_id));
    const enrolled=r.kind==='slot'&&(p?.source?.booked||0)>0;
-   const warning=el('p',enrolled?'警告：已有 '+p.source.booked+' 單位報名。Google 的改期／刪除尚未更新原課程系統，須本人審核。':'同步狀態：'+r.status+'；兩邊資料需本人核對。');if(enrolled){warning.setAttribute('role','alert');warning.className='calendar-sync-warning';}card.append(warning);
+   const warning=el('p',enrolled?(r.status==='unknown'?'警告：已有報名，更新結果尚未確認。請重新查核兩邊資料後再決定。':'警告：已有 '+p.source.booked+' 單位報名。Google 的改期／刪除尚未更新原課程系統，須本人審核。'):'同步狀態：'+r.status+'；兩邊資料需本人核對。');if(enrolled){warning.setAttribute('role','alert');warning.className='calendar-sync-warning';}card.append(warning);
    if(p){card.append(el('p','原課程／任務：'+(p.source.date? p.source.date+' '+p.source.time : taipeiInput(p.source.schedule_start_at)+' ～ '+taipeiInput(p.source.schedule_end_at))));card.append(el('p','Google：'+(p.google?.status==='cancelled'||!p.google?'已刪除':taipeiInput(p.google.start?.dateTime)+' ～ '+taipeiInput(p.google.end?.dateTime))));
     card.append(el('p','日曆刪除核准後只停止該場次收新報名；既有訂單及付款保留，不自動退款或通知客戶。'));
-    if(r.status!=='unknown')for(const [direction,label] of [['import','核准 Google 變更並更新原系統'],['export','採原系統資料更新 Google']])card.append(button(label,async()=>{if(!confirm(label+'？請核對警告及新舊時間。'))return;await call({action:'calendar_sync_review',link_id:r.id,review_id:p.id,decision:'approved',direction});await load();}));
-    if(r.status!=='unknown')card.append(button('退回變更（保留兩邊資料）',async()=>{await call({action:'calendar_sync_review',link_id:r.id,review_id:p.id,decision:'rejected'});await load();}));
+    if(['pending','conflict'].includes(r.status))for(const [direction,label] of [['import','核准 Google 變更並更新原系統'],['export','採原系統資料更新 Google']])card.append(button(label,async()=>{if(!confirm(label+'？請核對警告及新舊時間。'))return;await call({action:'calendar_sync_review',link_id:r.id,review_id:p.id,decision:'approved',direction});await load();}));
+    if(['pending','conflict'].includes(r.status))card.append(button('退回變更（保留兩邊資料）',async()=>{await call({action:'calendar_sync_review',link_id:r.id,review_id:p.id,decision:'rejected'});await load();}));
    }
    card.append(button('重新查核兩邊資料',async()=>{await call({action:'calendar_sync_reconcile',link_id:r.id});await load();}));list.append(card);
   }
