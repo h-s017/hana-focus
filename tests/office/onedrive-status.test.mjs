@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {control} from '../../supabase/functions/hana-automation/control.mjs';
 const credential={ciphertext:'confidential-marker',version:'nonpublic'};
 const makeService=stored=>control({
- authenticate:async token=>token==='good-session'?{id:'only-owner',app_metadata:{hana_office_access:true}}:null,
+ authenticate:async token=>{if(token!=='good-session')throw Error('invalid-token');return {id:'only-owner',app_metadata:{hana_office_access:true}};},
  store:{credential:async(owner,kind)=>{assert.equal(owner,'only-owner');assert.equal(kind,'microsoft');return stored?credential:null;}},
  readiness:()=>({microsoft:true})
 });
