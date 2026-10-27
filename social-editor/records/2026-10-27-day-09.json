@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-27",
+  "day": 9,
+  "series": "調香師從 0 養成",
+  "topic": "為什麼聞久了，氣味就變淡？——嗅覺適應與習慣化",
+  "previous_days_checked": [
+    "2026-10-25 Day 07",
+    "2026-10-26 Day 08"
+  ],
+  "style": "白底、低飽和色鉛筆水彩、藝術書籍；無已確認今日檔期",
+  "slides": 6,
+  "format": "1080x1350 PNG",
+  "generation": "Original six-panel illustration created during this run, split and typeset into six standalone PNG slides. Six backgrounds also exported; not six separate image-generation calls.",
+  "music": {
+    "composer": "Johann Sebastian Bach",
+    "work": "Prelude in C major BWV 846, The Well-Tempered Clavier Book I",
+    "recording": "not selected",
+    "commercial_audio_rights": "not cleared"
+  },
+  "content_version": "v1.0",
+  "founder_approval": "pending",
+  "published": false,
+  "canva_created": false,
+  "photo_library_accessed": false,
+  "assets": "HANA_Social_Editor_Day09_2026-10-27.zip (conversation deliverable; not uploaded to GitHub)",
+  "qa": {
+    "images_generated": true,
+    "dimensions_checked": true,
+    "source_review": "completed",
+    "music_license": "not cleared",
+    "founder_review": "pending"
+  },
+  "sources": [
+    "https://pubmed.ncbi.nlm.nih.gov/28408237/",
+    "https://pubmed.ncbi.nlm.nih.gov/10944515/",
+    "https://imslp.org/wiki/Well-Tempered_Clavier%2C_Book_1_Nos.1-12%2C_BWV_846-857_%28Bach%2C_Johann_Sebastian%29",
+    "https://www.facebook.com/help/instagram/402084904469945"
+  ]
+}
