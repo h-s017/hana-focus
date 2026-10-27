@@ -1,3 +1,4 @@
+import {renderWorkResult} from './work-result.mjs';
 import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=canva-20261027-r3';
 document.documentElement.dataset.focusWorkspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
 import {mountFocusDashboard} from './focus-dashboard.mjs';
@@ -61,7 +62,7 @@ async function refresh(){if(!current)return;const v=++refreshVersion,owner=curre
  $('tasks').replaceChildren();
  if(runError||reviewError)message('部分執行或審核紀錄無法載入，請確認後端版本與權限；未代表沒有紀錄。');
  for(const t of data||[]){if($('filter').value&&$('filter').value!==t.status)continue;
- const el=document.createElement('article');el.innerHTML='<h3>'+escape(t.title)+'</h3><p>'+escape(t.project)+'｜'+escape(t.role)+'｜'+escape(STATES[t.status]||'未知狀態')+'</p><small>'+escape(new Date(t.created_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}))+'</small>'+(t.due_at?'<p>期限：'+escape(new Date(t.due_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}))+'</p>':'')+'<p>'+escape(t.brief)+'</p>'+(t.result?'<pre>'+escape(t.result)+'</pre>':'');
+ const el=document.createElement('article');el.innerHTML='<h3>'+escape(t.title)+'</h3><p>'+escape(t.project)+'｜'+escape(t.role)+'｜'+escape(STATES[t.status]||'未知狀態')+'</p><small>'+escape(new Date(t.created_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}))+'</small>'+(t.due_at?'<p>期限：'+escape(new Date(t.due_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}))+'</p>':'')+'<p>'+escape(t.brief)+'</p>';if(t.result)el.append(renderWorkResult(t.result));
  const button=(label,fn)=>{const b=document.createElement('button');b.textContent=label;b.disabled=busy.has(t.id);b.onclick=fn;el.append(b);};
  if(['queued','failed'].includes(t.status)&&!t.project_id)button(t.role==='Project Manager'?'產生PM進度草稿':'執行AI草稿',()=>action(t,'generate'));
  if(t.status==='review')for(const [text,d] of [['核准內部草稿','approved'],['退回修改','rejected']])button(text,()=>{if(confirm(text+'？此操作不代表客戶核准、不會對外發布。'))action(t,'review',d);});

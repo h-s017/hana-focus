@@ -1,3 +1,4 @@
+import {pmIntakePlan} from './work-intake.mjs';
 export const WORK_STATES=['todo','in_progress','waiting','done'];
 export const AGENT_ROLES=['Project Manager','Brand Strategist','Creative Producer'];
 const notional={'未開始':'todo','進行中':'in_progress','等待中':'waiting','完成':'done'};
@@ -25,11 +26,11 @@ export function focusSummary(tasks,now=Date.now()){
  const due=t=>Date.parse(t.due_at)||Infinity;
  return {total:active.length,done:active.filter(t=>t.work_state==='done').length,excluded:tasks.filter(t=>t.scope_status==='out_of_scope').length,needsScopeReview:tasks.filter(t=>t.scope_status==='needs_review').length,top3:active.filter(t=>t.work_state!=='done').sort((a,b)=>(a.priority||2)-(b.priority||2)||due(a)-due(b)).slice(0,3),overdue:active.filter(t=>t.work_state!=='done'&&due(t)<now).map(t=>t.id),dependencyConflicts:active.filter(t=>(t.dependencies||[]).some(id=>!active.some(p=>p.id===id&&p.work_state==='done'))).map(t=>t.id)};
 }
-export function roleTool(role,{project,version,tasks,documents,priorVersions=[]}){
+export function roleTool(role,{project,version,tasks,documents,priorVersions=[],task}){
  if(!AGENT_ROLES.includes(role))throw Error('invalid_role');const summary=focusSummary(tasks),cite=documents.map(d=>({id:d.id||d.external_id,url:d.source_url,version:d.content_hash}));
  const header='免費工具分析草稿（非生成式AI）｜'+role+'\n待 HANA 內部審核；不代表客戶核准、正式完稿或交付。\n';
  let result;
- if(role==='Project Manager')result={action:'verified_task_analysis',project:project.name,version:version.label,summary};
+ if(role==='Project Manager')result={...(task?pmIntakePlan(task):{action:'verified_task_analysis'}),project:project.name,version:version.label,summary:{...summary,top3:summary.top3.map(t=>({id:t.id,title:t.title,work_state:t.work_state,priority:t.priority,due_at:t.due_at||null}))}};
  if(role==='Brand Strategist'){
   const source=documents.map(d=>d.content||'').join('\n');result={action:'source_and_version_comparison',sourceCount:documents.length,versionChanges:priorVersions.map(v=>({from:v.label,to:version.label,scopeChanged:JSON.stringify({contract:v.contract,included:v.included_terms,excluded:v.excluded_terms})!==JSON.stringify({contract:version.contract,included:version.included_terms,excluded:version.excluded_terms})})),historyDraft:documents.flatMap(d=>(d.content||'').split('\n').filter(line=>/1979|2002|2026|雞婆|第二代/.test(line)).slice(0,8).map(line=>({quote:line.slice(0,600),source:d.source_url,verification:'needs_verification'}))).slice(0,12),historyChecks:{background1979Present:source.includes('1979'),founding2002Present:source.includes('2002'),requiresHumanVerification:['文東記合作形式','雞婆雞飯時期年份','舊Logo及歷史圖片授權']},note:'只核對已連結來源與版本差異，未執行外部史料研究；來源提及不等於史實已考證。'};
  }

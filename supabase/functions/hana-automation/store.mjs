@@ -7,6 +7,14 @@ export function automationStore({url,service,fetcher=fetch}) {
  }
  const query=(table,params)=>table+'?'+new URLSearchParams(params),rpc=(name,body={})=>request('rpc/'+name,'POST',body);
  const store={...base.store,
+  async intakeReady(){
+   const response=await fetcher(url+'/storage/v1/bucket/hana-work-intake',{headers:{apikey:service,Authorization:'Bearer '+service},signal:AbortSignal.timeout(15000)});
+   if(!response.ok)return false;const bucket=await response.json();return bucket.id==='hana-work-intake'&&bucket.public===false;
+  },
+  async intakeFiles(owner,project,id){
+   const response=await fetcher(url+'/storage/v1/object/list/hana-work-intake',{method:'POST',headers:{apikey:service,Authorization:'Bearer '+service,'Content-Type':'application/json'},body:JSON.stringify({prefix:owner+'/'+project+'/'+id,limit:100,offset:0,sortBy:{column:'name',order:'asc'}}),signal:AbortSignal.timeout(15000)});
+   if(!response.ok)throw Object.assign(Error('intake_storage_unavailable'),{code:'intake_storage_unavailable'});const rows=await response.json();if(!Array.isArray(rows))throw Error('intake_storage_unavailable');return rows;
+  },
   googleOwnerAllowed:owner=>rpc('hana_focus_allowed',{p_owner:owner}),
   async oauthRecentCount(owner,since){const rows=await request(query('hana_automation_events',{owner_id:'eq.'+owner,code:'in.(google_oauth_pending,google_oauth_claimed)',created_at:'gte.'+since,select:'id',limit:'5'}));return rows.length;},
   oauthCreate:(owner,id,details)=>request('hana_automation_events','POST',{id,owner_id:owner,project:'課程預約',code:'google_oauth_pending',details}),

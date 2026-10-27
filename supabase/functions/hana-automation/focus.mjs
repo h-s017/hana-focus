@@ -1,11 +1,13 @@
 import {busyIntervals} from '../../../js/calendar-availability.mjs';
 import {focusSummary,roleTool,localTask} from '../../../js/focus-domain.mjs';
 import {digest,verifyBackup,localRows} from '../../../js/focus-backup.mjs';
+import {validateIntake} from '../../../js/work-intake.mjs';
 const fail=code=>Object.assign(Error(code),{code});const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export function focusService({store,notion,readCalendar,now=Date.now}){
  async function snapshot(owner){const value=await store.focusSnapshot(owner);value.tasks=value.tasks.map(t=>({...t,is_current:value.projects.some(p=>p.id===t.project_id&&p.active_version_id===t.version_id)}));value.summary=focusSummary(value.tasks,now());return value;}
  return async function service(owner,body){
   if(body.action==='focus_snapshot')return snapshot(owner);
+  if(body.action==='focus_intake_status')return {version:1,private_files_ready:await store.intakeReady()};
   if(body.action==='focus_week'){if(!readCalendar)return {status:'needs_connection',busy:[]};const date=new Date(now()+8*3600000).toISOString().slice(0,10),start=date+'T00:00:00+08:00',end=new Date(Date.parse(start)+7*86400000).toISOString();const value=await readCalendar(owner,start,end);return {status:'verified',busy:busyIntervals(value.events,{start,end}),timeZone:'Asia/Taipei',external_writes:false};}
   if(!UUID.test(body.request_id||''))throw fail('invalid_focus_request');
   if(body.action==='focus_project'){validateProject(body.project);const result=await store.focusBootstrap(owner,body.project,body.request_id);return {result,snapshot:await snapshot(owner)};}
@@ -36,7 +38,9 @@ export function focusService({store,notion,readCalendar,now=Date.now}){
   }
   if(body.action==='focus_create_task'){
    const context=await snapshot(owner),project=context.projects.find(p=>p.id===body.project_id);if(!project?.active_version_id||typeof body.title!=='string'||!body.title.trim()||body.title.length>140)throw fail('invalid_focus_request');
-   await store.focusImport(owner,project.id,project.active_version_id,[{external_id:'manual:'+body.request_id,title:body.title.trim(),brief:String(body.brief||'').slice(0,12000),work_state:'todo',priority:[1,2,3].includes(body.priority)?body.priority:2,assigned_role:'HANA',due_at:body.due_at||null}], 'manual',body.request_id,null);if(body.auto_run===true){const mapped=await store.focusExternalTask(owner,'manual','manual:'+body.request_id);if(mapped){const current=await snapshot(owner),created=current.tasks.find(t=>t.id===mapped.task_id);if(created?.scope_status==='in_scope'&&created.is_current)return service(owner,{action:'focus_agent',task_id:created.id,role:'Project Manager',request_id:await derivedRequest(body.request_id,'auto-pm')});}}return snapshot(owner);
+   const intake=validateIntake(body.materials,{owner,project:project.id,request:body.request_id});
+   await verifyFiles(intake,owner,project.id,body.request_id);
+   await store.focusImport(owner,project.id,project.active_version_id,[{external_id:'manual:'+body.request_id,title:body.title.trim(),brief:String(body.brief||'').slice(0,12000),work_state:'todo',priority:[1,2,3].includes(body.priority)?body.priority:2,assigned_role:'HANA',due_at:body.due_at||null,source_payload:{work_intake:{format:'hana-work-intake-v1',request_id:body.request_id,...intake}}}], 'manual',body.request_id,null);if(body.auto_run===true){const mapped=await store.focusExternalTask(owner,'manual','manual:'+body.request_id);if(mapped){const current=await snapshot(owner),created=current.tasks.find(t=>t.id===mapped.task_id);if(created?.scope_status==='in_scope'&&created.is_current)return service(owner,{action:'focus_agent',task_id:created.id,role:'Project Manager',request_id:await derivedRequest(body.request_id,'auto-pm')});}}return snapshot(owner);
   }
   if(body.action==='focus_update'){if(!UUID.test(body.task_id||'')||!Number.isInteger(body.revision))throw fail('invalid_focus_request');await store.focusUpdate(owner,body.task_id,body.revision,body.patch,body.request_id);return snapshot(owner);}
   if(body.action==='focus_resolve'){if(!UUID.test(body.conflict_id||'')||!UUID.test(body.task_id||'')||!Number.isInteger(body.revision))throw fail('invalid_focus_request');await store.focusResolve(owner,body,body.request_id);return snapshot(owner);}
@@ -57,13 +61,20 @@ export function focusService({store,notion,readCalendar,now=Date.now}){
    if(!UUID.test(body.task_id||''))throw fail('invalid_focus_request');
    const context=await snapshot(owner),task=context.tasks.find(t=>t.id===body.task_id),project=context.projects.find(p=>p.id===task?.project_id),version=context.versions.find(v=>v.id===task?.version_id);
    if(!task||!task.is_current||task.scope_status!=='in_scope'||project?.workspace!=='work')throw fail('scope_or_version_required');
+   const intake=task.source_payload?.work_intake;
+   if(intake){const checked=validateIntake(intake,{owner,project:project.id,request:intake.request_id});await verifyFiles(checked,owner,project.id,intake.request_id);}
    if(body.simulate===true){return {mode:'simulation',persisted:false,result:'模擬預覽，未執行或保存為真實工作。\n'+roleTool(body.role,{project,version,tasks:context.tasks.filter(t=>t.project_id===project.id&&t.version_id===version.id),documents:context.documents.filter(d=>d.version_id===version.id)}),external_writes:false};}
    const run=await store.focusRunStart(owner,task.id,body.role,body.request_id);if(!run.fresh)return {duplicate:true,status:run.status,snapshot:await snapshot(owner)};
-   try{const result=roleTool(body.role,{project,version,tasks:context.tasks.filter(t=>t.project_id===project.id&&t.version_id===version.id),documents:context.documents.filter(d=>d.version_id===version.id),priorVersions:context.versions.filter(v=>v.project_id===project.id&&v.id!==version.id)});await store.finish(owner,task.id,run.run_id,result,null);return {mode:'free_tools',status:'review',paidApiCalls:0,snapshot:await snapshot(owner)};
+   try{const result=roleTool(body.role,{project,version,task,tasks:context.tasks.filter(t=>t.project_id===project.id&&t.version_id===version.id),documents:context.documents.filter(d=>d.version_id===version.id),priorVersions:context.versions.filter(v=>v.project_id===project.id&&v.id!==version.id)});await store.finish(owner,task.id,run.run_id,result,null);return {mode:'free_tools',status:'review',paidApiCalls:0,snapshot:await snapshot(owner)};
    }catch{try{await store.finish(owner,task.id,run.run_id,null,'provider_failed');}catch{}throw fail('focus_tool_failed');}
   }
   throw fail('invalid_focus_action');
  };
+ async function verifyFiles(intake,owner,project,request){
+  if(!intake.files.length)return;
+  const saved=await store.intakeFiles(owner,project,request);
+  for(const f of intake.files){const row=saved.find(r=>r.name===f.path.split('/').pop());if(!row||Number(row.metadata?.size)!==f.size||row.metadata?.mimetype!==f.mime)throw fail('intake_file_unconfirmed');}
+ }
 }
 async function derivedRequest(parent,suffix){const hex=await digest(parent+':'+suffix);return hex.slice(0,8)+'-'+hex.slice(8,12)+'-4'+hex.slice(13,16)+'-8'+hex.slice(17,20)+'-'+hex.slice(20,32);}
 
