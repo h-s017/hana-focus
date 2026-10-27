@@ -10,6 +10,7 @@ begin;
 \i tests/office/monthly-calendar-rls.sql
 \i tests/office/focus-rls.sql
 \i tests/office/google-oauth-rls.sql
+\i tests/office/work-intake-rls.sql
 \i tests/office/calendar-sync-rls.sql
 rollback;
 do $$ begin
