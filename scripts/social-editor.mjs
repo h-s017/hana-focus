@@ -61,7 +61,7 @@ if(lesson){
  const dataFile='canva-autofill.csv';
  await Promise.all([
   fs.writeFile(path.join(folder,'canva-import.html'),canvaImportHtml({title:lesson.title,pages:slides,day,date})),
-  fs.writeFile(path.join(folder,'lesson.json'),JSON.stringify({date,day,title:lesson.title,status:'editorial_ready',pages:slides,canvas:{width:1080,height:1350,pages:6},fields:data,music:lesson.music,claimStatus:lesson.citationStatus},null,2)+'\n'),
+  fs.writeFile(path.join(folder,'lesson.json'),JSON.stringify({date,day,title:lesson.title,status:'editorial_ready',pages:slides,canvas:{width:1080,height:1350,pages:6},visuals:{style:lesson.style,artwork_ready:false,image_count:0,human_review:'not_started'},fields:data,music:lesson.music,claimStatus:lesson.citationStatus},null,2)+'\n'),
   fs.writeFile(path.join(folder,dataFile),csv),
   fs.writeFile(path.join(folder,'caption.md'),caption+'\n'),
   fs.writeFile(path.join(folder,'visual-brief.md'),visualBrief+'\n'),

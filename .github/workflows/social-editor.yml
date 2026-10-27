@@ -40,7 +40,7 @@ jobs:
         env:
           LESSON_DATE: ${{ inputs.lesson_date }}
         run: python scripts/social-canva-pptx.py
-      - name: Verify six fully editable pages
+      - name: Verify image layers and editable text (not aesthetic approval)
         env:
           LESSON_DATE: ${{ inputs.lesson_date }}
         run: |
@@ -51,14 +51,17 @@ jobs:
           from pptx import Presentation
           date=os.environ.get('LESSON_DATE') or datetime.now(ZoneInfo('Asia/Taipei')).strftime('%Y-%m-%d')
           file=pathlib.Path('content/instagram')/date/'canva-import.pptx'
-          if not file.exists():
-              print('SKIP: no validated content, so no PowerPoint generated')
+          import json
+          lesson=json.loads((file.parent/'lesson.json').read_text())
+          if not file.exists() or lesson.get('visuals',{}).get('artwork_ready') is not True or lesson.get('visuals',{}).get('fixture') is True:
+              print('BLOCKED: original artwork not ready; copy retained, no placeholder design accepted')
           else:
               prs=Presentation(file)
               assert len(prs.slides)==6
+              assert all(len([s for s in page.shapes if s.shape_type==13])==1 for page in prs.slides)
               assert prs.slide_width*5==prs.slide_height*4
               assert all(len([sh for sh in page.shapes if sh.has_text_frame and sh.text.strip()])>=4 for page in prs.slides)
-              print('PASS: 6 editable Canva source slides at 4:5')
+              print('PASS: 6 individual image layers and editable text; founder visual review remains pending')
           PYTEST
       - name: Commit daily source package (NOT Canva or Instagram publication)
         run: |

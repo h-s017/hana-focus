@@ -103,8 +103,13 @@ jobs:
         run: node scripts/social-editor.mjs
       - name: Install Python builder
         run: python -m pip install --disable-pip-version-check --no-input python-pptx==1.0.2
+      - name: Test missing, mismatched and repeated artwork protection
+        run: python tests/office/social_visual_test.py
+      - name: Prepare isolated image fixtures (never production artwork)
+        run: python tests/office/social_visual_test.py --fixture content/instagram/2026-10-26
       - name: Build Canva Connect compatible editable deck
         env:
+          HANA_ALLOW_TEST_ARTWORK: '1'
           LESSON_DATE: '2026-10-26'
         run: python scripts/social-canva-pptx.py
       - name: Verify content and editable layers
@@ -117,9 +122,11 @@ jobs:
           prs=Presentation(folder+'canva-import.pptx')
           assert len(prs.slides)==len(lesson['pages'])==6
           assert prs.slide_width*5==prs.slide_height*4
+          assert lesson['visuals']['fixture'] is True
           for slide,info in zip(prs.slides,lesson['pages']):
+              assert len([s for s in slide.shapes if s.shape_type==13])==1
               text='\\n'.join(shape.text for shape in slide.shapes if shape.has_text_frame)
               assert info['title'] in text
               assert all(line in text for line in info['body'].split('\\n'))
-          print('PASS: editable 4:5 PowerPoint contains all six Canva-import page texts.')
+          print('PASS: six distinct image layers and editable text; technical fixture only, not visual approval.')
           PYTEST

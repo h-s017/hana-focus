@@ -5,6 +5,9 @@ import {canvaApiClient} from '../../supabase/functions/hana-automation/canva-imp
 const clock=new Date('2026-10-27T01:00:00Z'); // 09:00 in Taipei
 const date='2026-10-27';
 const owner='test-owner';
+const pptxBytes=new TextEncoder().encode('isolated PPTX fixture');
+const pptxHash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',pptxBytes))].map(x=>x.toString(16).padStart(2,'0')).join('');
+const visuals={artwork_ready:true,fixture:false,image_count:6,style:'fixture',asset_hashes:Array.from({length:6},(_,i)=>String(i+1).repeat(64)),pptx_sha256:pptxHash};
 function fixture({pages=6,submissionFails=false,noMetadata=false}={}){
  let row=null;const calls=[],events=[];
  const store={
@@ -15,8 +18,8 @@ function fixture({pages=6,submissionFails=false,noMetadata=false}={}){
  };
  const fetcher=async(url,options={})=>{
   calls.push('source:'+url+':'+(options.method||'GET'));
-  if(url.endsWith('lesson.json'))return Response.json({date,status:'editorial_ready',pages:Array.from({length:6},(_,i)=>({title:'P'+i,body:'Text'}))});
-  if(url.endsWith('canva-import.pptx')&&options.method==='HEAD')return new Response(null,{status:200});
+  if(url.endsWith('lesson.json'))return Response.json({date,status:'editorial_ready',visuals,pages:Array.from({length:6},(_,i)=>({title:'P'+i,body:'Text'}))});
+  if(url.endsWith('canva-import.pptx'))return new Response(pptxBytes,{status:200});
   throw Error('unrecognized source URL');
  };
  const api=async(o,path,method,body)=>{
@@ -61,6 +64,20 @@ const disabled=canvaImportRunner({ownerId:owner,store:f.runner,api:async()=>{thr
 assert.equal((await disabled()).status,'already_managed');
 assert.equal((await checkPublicSource('2026-10-27',async()=>new Response(null,{status:404}))).ready,false);
 assert.equal(publicImportState(null).published,false);
+const placeholder=await checkPublicSource(date,async()=>Response.json({date,status:'editorial_ready',pages:Array(6).fill({title:'copy'}),visuals:{artwork_ready:false}}));
+assert.equal(placeholder.ready,false);assert.equal(placeholder.reason,'original_artwork_required');
+const mismatch=await checkPublicSource(date,async url=>url.endsWith('lesson.json')?Response.json({date,status:'editorial_ready',pages:Array(6).fill({title:'copy'}),visuals}):new Response('changed after visual QA'));
+assert.equal(mismatch.ready,false);assert.equal(mismatch.reason,'powerpoint_revision_mismatch');
+for(const invalid of [{...visuals,fixture:true},{...visuals,fixture:undefined},{...visuals,asset_hashes:Array(6).fill('a'.repeat(64))},{...visuals,style:''}]){
+ const result=await checkPublicSource(date,async()=>Response.json({date,status:'editorial_ready',pages:Array(6).fill({title:'copy'}),visuals:invalid}));
+ assert.equal(result.reason,'original_artwork_required');
+}
+for(const streamed of [false,true]){
+ let canceled=false;
+ const tooLarge=await checkPublicSource(date,async url=>url.endsWith('lesson.json')?Response.json({date,status:'editorial_ready',pages:Array(6).fill({title:'copy'}),visuals}):new Response(new ReadableStream({start(controller){if(streamed)controller.enqueue(new Uint8Array(20*1024*1024+1));},cancel(){canceled=true;}}),{headers:streamed?{}:{'content-length':String(20*1024*1024+1)}}));
+ assert.equal(tooLarge.reason,'powerpoint_too_large');assert.equal(canceled,true);
+}
+assert.equal(publicImportState({status:'success',lesson_date:date}).visual_review,'pending_hana');
 
 {
  let writes=0;

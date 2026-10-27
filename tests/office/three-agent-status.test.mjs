@@ -8,6 +8,7 @@ assert.equal(socialStatus({date:'2026-10-26',status:'needs-lesson',slideCount:0}
 assert.equal(socialStatus({date:'2026-10-26',status:'editorial_ready',plannedSlideCount:6,canvaCreated:false},'2026-10-26').state,'copy_ready');
 assert.equal(socialStatus({date:'2026-10-26',status:'draft',canvaCreated:true,slideCount:6,canvaEditUrl:'https://evil.com/abc'},'2026-10-26').state,'incomplete');
 assert.equal(socialStatus({date:'2026-10-26',canvaCreated:true,slideCount:6,canvaEditUrl:'https://www.canva.com/d/abc'},'2026-10-26').state,'delivered_internal');
+assert.match(socialStatus({date:'2026-10-26',canvaCreated:true,slideCount:6,canvaEditUrl:'https://www.canva.com/d/abc'},'2026-10-26').detail,/視覺仍待 HANA 審核/);
 assert.equal(socialStatus({date:'2026-10-26',canvaCreated:true,slideCount:4,canvaEditUrl:'https://www.canva.com/d/abc'},'2026-10-26').state,'incomplete');
 assert.equal(secretaryStatus(null).state,'unverified');
 assert.equal(secretaryStatus({readiness:{calendar:false}}).state,'needs_connection');
