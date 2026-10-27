@@ -10,6 +10,7 @@ begin;
 \i tests/office/monthly-calendar-rls.sql
 \i tests/office/focus-rls.sql
 \i tests/office/google-oauth-rls.sql
+\i tests/office/calendar-sync-rls.sql
 rollback;
 do $$ begin
  if to_regclass('public.hana_task_runs') is not null then raise exception 'test_schema_persisted'; end if;

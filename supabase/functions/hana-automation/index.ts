@@ -9,6 +9,8 @@ import {monthlyService,monthlyWorker} from './monthly.mjs';
 import {automationStore} from './store.mjs';
 import {microsoft,cipher} from './microsoft.mjs';
 import {calendarPreview,calendarSources} from './calendar.mjs';
+import {calendarSyncService} from './calendar-sync.mjs';
+import {googleSyncApi,reservationSyncApi} from './calendar-sync-api.mjs';
 import {reservationReader} from './reservations.mjs';
 import {bookingService} from './booking.mjs';
 import {control} from './control.mjs';
@@ -28,7 +30,10 @@ const worker=monthlyWorker({store,run:monthly,enabled:()=>env('HANA_MONTHLY_SCHE
 const focus=focusService({store,readCalendar:readiness().calendar?calendarSources(monthlyOptions):null,notion:notionSource({token:env('NOTION_TOKEN'),ownerId:env('HANA_NOTION_OWNER_ID')})});
 const google=googleOAuth({clientId:env('GOOGLE_CLIENT_ID'),clientSecret:env('GOOGLE_CLIENT_SECRET'),ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),store,encryption});
 const canva=canvaOAuth({clientId:env('CANVA_CLIENT_ID'),clientSecret:env('CANVA_CLIENT_SECRET'),ownerId:env('CANVA_OWNER_ID'),store,encryption});
-const controls=control({canvaOAuth:canva,googleOAuth:google,store,authenticate,connector,readiness,calendarPreview:calendar,booking:bookingService({store,reservations}),reservations,monthly,focus});
+const syncEnabled=env('HANA_CALENDAR_SYNC_ENABLED')==='true';
+const googleSync=syncEnabled?googleOAuth({...monthlyOptions,sync:true}):null;
+const calendarSync=calendarSyncService({ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),store,enabled:syncEnabled,google:googleSyncApi(monthlyOptions),reservations:reservationSyncApi({token:env('RESERVATION_SYNC_TOKEN')})});
+const controls=control({googleSyncOAuth:googleSync,calendarSync,canvaOAuth:canva,googleOAuth:google,store,authenticate,connector,readiness,calendarPreview:calendar,booking:bookingService({store,reservations}),reservations,monthly,focus});
 // This function performs its own per-request Auth validation; the NT$0 cron runs SQL locally.
 // every user action validates the bearer with Supabase Auth and trusted app_metadata.
 // Existing hana-agent retains verify_jwt=true and its paid-call switch remains off.
