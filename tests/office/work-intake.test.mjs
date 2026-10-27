@@ -7,7 +7,7 @@ test('photo intake hashes immutable private paths, text extraction is bounded, a
  const files=await prepareIntake([new File(['photo'],'店面.png',{type:'image/png'}),new File(['2002 年資料'],'說明.md',{type:'text/markdown'})],context);
  const materials=validateIntake({files:files.map(x=>x.record),links:['https://www.canva.com/design/example/edit']},context);
  assert.match(materials.files[0].path,new RegExp('^'+owner+'/'+project+'/'+request+'/[a-f0-9]{64}\\.png$'));assert.equal(materials.files[1].excerpt,'2002 年資料');
- const task={title:'沿革牆',brief:'整理照片並排版',source_payload:{work_intake:materials}};const plan=pmIntakePlan(task);assert.equal(plan.materials[0].category,'店面照片');assert.match(plan.materials[0].reading,/尚未判讀/);assert.match(plan.links[0].status,/未自動讀取/);assert.match(plan.limits,/尚未執行照片辨識/);assert.equal(plan.paidApiCalls,0);assert.equal(plan.externalWrites,false);
+ const task={title:'沿革牆',brief:'整理照片並排版',source_payload:{work_intake:materials}};const plan=pmIntakePlan(task);assert.equal(plan.materials[0].category,'店面照片');assert.match(plan.materials[0].reading,/尚未判讀/);assert.match(plan.links[0].status,/未自動讀取/);assert.match(plan.limits,/尚未執行照片辨識/);assert.equal(plan.sourcePoints[0].quote,'2002 年資料');assert.equal(plan.sourcePoints[0].source,'說明.md');assert.equal(plan.paidApiCalls,0);assert.equal(plan.externalWrites,false);
 });
 test('foreign project, owner and missing object hashes, oversized files and executable formats are rejected',async()=>{
  const [prepared]=await prepareIntake([new File(['x'],'test.png',{type:'image/png'})],context),file=prepared.record;

@@ -63,6 +63,7 @@ export function pmIntakePlan(task){
  return {action:'work_intake_plan_v1',request:String(task?.brief||task?.title||'').slice(0,12000),title:task?.title||'工作整理',
   materials:files.slice(0,10).map(f=>({name:f.name,category:fileCategory(f),size:f.size,mime:f.mime,path:f.path,reading:f.mime?.startsWith('text/')?'已擷取文字片段':'已登記檔案，尚未判讀圖片或 PDF 內文'})),
   links:links.slice(0,10).map(url=>({url,status:'已登記連結，未自動讀取外部檔案'})),
+  sourcePoints:files.filter(f=>f.mime?.startsWith('text/')&&f.excerpt).flatMap(f=>f.excerpt.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).slice(0,4).map(quote=>({source:f.name,quote:quote.slice(0,300)}))).slice(0,8),
   completed:['已保存交辦需求',...(files.length?['已核對上傳檔案並依檔名分類']:[]),'已整理下一步與待確認事項'],
   steps:wall?['檢視並挑選歷史照片，保留原檔','核對照片年代與使用權；1979 背景與 2002 創立分開','整理沿革牆精簡文案','依既有長向立面圖排照片與文字，不改牆面及桌椅高度','將設計初稿送交 HANA 查看']:['核對這次需求與素材','整理工作範圍、缺件與前置事項','準備可查看的工作初稿','由 HANA 確認需要決定的部分'],
   questions:[...(!files.length&&!links.length?['尚未附素材，請補上檔案或素材連結']:[]),...(wall?['需核對照片年代、史料及圖像使用權','實際牆面尺寸及原立面圖需到齊']:[])],

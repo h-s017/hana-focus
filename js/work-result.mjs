@@ -20,6 +20,7 @@ export function renderWorkResult(raw,{openFile}={}){
  section('已整理',d.completed);
  if(d.materials?.length){out.append(el('h4','收到的素材'));for(const file of d.materials){const row=el('div');row.className='work-material';row.append(el('strong',file.name),el('p',file.category+'｜'+file.reading));if(openFile&&file.path){const button=el('button','查看原檔');button.type='button';button.onclick=()=>openFile(file);row.append(button);}out.append(row);}}
  if(d.links?.length){out.append(el('h4','素材連結'));for(const item of d.links){let u;try{u=new URL(item.url);}catch{continue;}if(u.protocol!=='https:'||u.username||u.password)continue;const a=el('a',u.hostname+'｜'+item.status);a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';a.referrerPolicy='no-referrer';out.append(a);}}
+  section('文件中的重點（原文片段，待確認）',(d.sourcePoints||[]).map(p=>p.quote+'（'+p.source+'）'));
  section('接下來的工作',d.steps);section('需要你確認或補充',d.questions);
  if(d.limits)out.append(el('p',d.limits));
  return out;
