@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-27",
+  "day": 9,
+  "title": "氣味設計為何需要節奏？",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "氣味設計為何需要節奏？",
+      "body": "HANA 嗅覺微課 · Day 009\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "感受會隨時間改變",
+      "body": "從進入空間到離開，注意力與感知都可能發生變化。"
+    },
+    {
+      "title": "節奏不只是快慢",
+      "body": "重複、停頓與對比都能影響作品的敘事方式。"
+    },
+    {
+      "title": "不要安排過度",
+      "body": "不是每個瞬間都需要新的刺激或強烈變化。"
+    },
+    {
+      "title": "用時間軸檢查",
+      "body": "分辨開場、發展和結尾各自要留下什麼印象。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "用三句話描述一段一分鐘的氣味展演：開始、轉折、結尾。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "009",
+    "DATE": "2026-10-27",
+    "PAGE_01_TITLE": "氣味設計為何需要節奏？",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 009\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "感受會隨時間改變",
+    "PAGE_02_BODY": "從進入空間到離開，注意力與感知都可能發生變化。",
+    "PAGE_03_TITLE": "節奏不只是快慢",
+    "PAGE_03_BODY": "重複、停頓與對比都能影響作品的敘事方式。",
+    "PAGE_04_TITLE": "不要安排過度",
+    "PAGE_04_BODY": "不是每個瞬間都需要新的刺激或強烈變化。",
+    "PAGE_05_TITLE": "用時間軸檢查",
+    "PAGE_05_BODY": "分辨開場、發展和結尾各自要留下什麼印象。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "用三句話描述一段一分鐘的氣味展演：開始、轉折、結尾。"
+  },
+  "music": {
+    "composer": "Ludwig van Beethoven",
+    "work": "Piano Sonata No. 14, Op. 27 No. 2: I. Adagio sostenuto",
+    "reason": "理解緩慢展開的設計節奏",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
