@@ -1,6 +1,7 @@
 import {busyIntervals} from '../../../js/calendar-availability.mjs';
 import {focusSummary,roleTool,localTask} from '../../../js/focus-domain.mjs';
 import {digest,verifyBackup,localRows} from '../../../js/focus-backup.mjs';
+import {schedule} from './calendar-sync.mjs';
 const fail=code=>Object.assign(Error(code),{code});const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export function focusService({store,notion,readCalendar,now=Date.now}){
  async function snapshot(owner){const value=await store.focusSnapshot(owner);value.tasks=value.tasks.map(t=>({...t,is_current:value.projects.some(p=>p.id===t.project_id&&p.active_version_id===t.version_id)}));value.summary=focusSummary(value.tasks,now());return value;}
@@ -35,8 +36,13 @@ export function focusService({store,notion,readCalendar,now=Date.now}){
    return {results,originalLocalDataRetained:true,snapshot:await snapshot(owner)};
   }
   if(body.action==='focus_create_task'){
+   const window=body.schedule?schedule(body.schedule.schedule_start_at,body.schedule.schedule_end_at):null;
    const context=await snapshot(owner),project=context.projects.find(p=>p.id===body.project_id);if(!project?.active_version_id||typeof body.title!=='string'||!body.title.trim()||body.title.length>140)throw fail('invalid_focus_request');
-   await store.focusImport(owner,project.id,project.active_version_id,[{external_id:'manual:'+body.request_id,title:body.title.trim(),brief:String(body.brief||'').slice(0,12000),work_state:'todo',priority:[1,2,3].includes(body.priority)?body.priority:2,assigned_role:'HANA',due_at:body.due_at||null}], 'manual',body.request_id,null);if(body.auto_run===true){const mapped=await store.focusExternalTask(owner,'manual','manual:'+body.request_id);if(mapped){const current=await snapshot(owner),created=current.tasks.find(t=>t.id===mapped.task_id);if(created?.scope_status==='in_scope'&&created.is_current)return service(owner,{action:'focus_agent',task_id:created.id,role:'Project Manager',request_id:await derivedRequest(body.request_id,'auto-pm')});}}return snapshot(owner);
+   await store.focusImport(owner,project.id,project.active_version_id,[{external_id:'manual:'+body.request_id,title:body.title.trim(),brief:String(body.brief||'').slice(0,12000),work_state:'todo',priority:[1,2,3].includes(body.priority)?body.priority:2,assigned_role:'HANA',due_at:window?.schedule_end_at||body.due_at||null}], 'manual',body.request_id,null);
+   const mapped=(window||body.auto_run===true)?await store.focusExternalTask(owner,'manual','manual:'+body.request_id):null;
+   if(window&&mapped){const t=await store.calendarTask(owner,mapped.task_id);if(!t.schedule_start_at)await store.calendarTaskSchedule(owner,t.id,t.record_revision,window);}
+   const result=value=>window?{...value,scheduled_task_id:mapped?.task_id}:value;
+   if(body.auto_run===true&&mapped){const current=await snapshot(owner),created=current.tasks.find(t=>t.id===mapped.task_id);if(created?.scope_status==='in_scope'&&created.is_current)return result(await service(owner,{action:'focus_agent',task_id:created.id,role:'Project Manager',request_id:await derivedRequest(body.request_id,'auto-pm')}));}return result(await snapshot(owner));
   }
   if(body.action==='focus_update'){if(!UUID.test(body.task_id||'')||!Number.isInteger(body.revision))throw fail('invalid_focus_request');await store.focusUpdate(owner,body.task_id,body.revision,body.patch,body.request_id);return snapshot(owner);}
   if(body.action==='focus_resolve'){if(!UUID.test(body.conflict_id||'')||!UUID.test(body.task_id||'')||!Number.isInteger(body.revision))throw fail('invalid_focus_request');await store.focusResolve(owner,body,body.request_id);return snapshot(owner);}

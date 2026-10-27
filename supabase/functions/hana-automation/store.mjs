@@ -7,6 +7,15 @@ export function automationStore({url,service,fetcher=fetch}) {
  }
  const query=(table,params)=>table+'?'+new URLSearchParams(params),rpc=(name,body={})=>request('rpc/'+name,'POST',body);
  const store={...base.store,
+  calendarLock:(owner,token)=>rpc('hana_calendar_sync_lock',{p_owner:owner,p_token:token}),
+  calendarUnlock:(owner,token)=>request(query('hana_calendar_sync_locks',{owner_id:'eq.'+owner,token:'eq.'+token}),'DELETE'),
+  calendarLinks:owner=>request(query('hana_calendar_links',{owner_id:'eq.'+owner,select:'*',order:'updated_at.desc',limit:'5001'})).then(rows=>{if(rows.length>5000)throw Error('calendar_sync_incomplete');return rows;}),
+  async calendarLink(owner,id){return (await request(query('hana_calendar_links',{owner_id:'eq.'+owner,id:'eq.'+id,select:'*'})))[0]||null;},
+  async calendarLinkCreate(owner,payload){return (await request('hana_calendar_links','POST',{owner_id:owner,...payload}))[0];},
+  async calendarLinkSave(owner,id,revision,patch){const rows=await request(query('hana_calendar_links',{owner_id:'eq.'+owner,id:'eq.'+id,revision:'eq.'+revision}),'PATCH',patch);if(rows.length!==1)throw Object.assign(Error('calendar_sync_conflict'),{code:'calendar_sync_conflict'});return rows[0];},
+  calendarTasks:owner=>request(query('hana_tasks',{owner_id:'eq.'+owner,parent_task_id:'is.null',select:'id,title,work_state,record_revision,schedule_start_at,schedule_end_at',limit:'5001'})).then(rows=>{if(rows.length>5000)throw Error('calendar_sync_incomplete');return rows;}),
+  async calendarTask(owner,id){return (await request(query('hana_tasks',{owner_id:'eq.'+owner,id:'eq.'+id,parent_task_id:'is.null',select:'id,title,work_state,record_revision,schedule_start_at,schedule_end_at'})))[0]||null;},
+  async calendarTaskSchedule(owner,id,revision,window){const rows=await request(query('hana_tasks',{owner_id:'eq.'+owner,id:'eq.'+id,parent_task_id:'is.null',record_revision:'eq.'+revision,select:'id,title,work_state,record_revision,schedule_start_at,schedule_end_at'}),'PATCH',{...window,due_at:window.schedule_end_at,record_revision:revision+1,updated_at:new Date().toISOString()});if(rows.length!==1)throw Object.assign(Error('calendar_sync_conflict'),{code:'calendar_sync_conflict'});return rows[0];},
   googleOwnerAllowed:owner=>rpc('hana_focus_allowed',{p_owner:owner}),
   async oauthRecentCount(owner,since){const rows=await request(query('hana_automation_events',{owner_id:'eq.'+owner,code:'in.(google_oauth_pending,google_oauth_claimed)',created_at:'gte.'+since,select:'id',limit:'5'}));return rows.length;},
   oauthCreate:(owner,id,details)=>request('hana_automation_events','POST',{id,owner_id:owner,project:'課程預約',code:'google_oauth_pending',details}),
