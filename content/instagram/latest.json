@@ -1,9 +1,9 @@
 {
-  "lastRunAt": "2026-10-27T04:57:34.952Z",
-  "date": "2026-10-27",
-  "day": 9,
+  "lastRunAt": "2026-10-28T05:33:11.288Z",
+  "date": "2026-10-28",
+  "day": 10,
   "status": "editorial_ready",
-  "topic": "氣味設計為何需要節奏？",
+  "topic": "氣味敘事與品牌故事",
   "canvaCreated": false,
   "canvaDesignId": null,
   "canvaEditUrl": null,
@@ -12,10 +12,10 @@
   "imagesGenerated": false,
   "reviewStatus": "internal_automated_checks_passed",
   "published": false,
-  "captionPath": "content/instagram/2026-10-27/caption.md",
-  "canvaCsvPath": "content/instagram/2026-10-27/canva-autofill.csv",
-  "canvaImportPath": "content/instagram/2026-10-27/canva-import.html",
-  "lessonPath": "content/instagram/2026-10-27/lesson.json",
+  "captionPath": "content/instagram/2026-10-28/caption.md",
+  "canvaCsvPath": "content/instagram/2026-10-28/canva-autofill.csv",
+  "canvaImportPath": "content/instagram/2026-10-28/canva-import.html",
+  "lessonPath": "content/instagram/2026-10-28/lesson.json",
   "notes": "Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.",
-  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-10-27/canva-autofill.csv"
+  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-10-28/canva-autofill.csv"
 }
