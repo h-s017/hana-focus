@@ -123,6 +123,8 @@ jobs:
           assert len(prs.slides)==len(lesson['pages'])==6
           assert prs.slide_width*5==prs.slide_height*4
           assert lesson['visuals']['fixture'] is True
+          assert lesson['visuals']['layout_status']=='draft_relayout'
+          assert lesson['visuals']['layout_reference_design_id']=='DAHYaeidsPw'
           for slide,info in zip(prs.slides,lesson['pages']):
               assert len([s for s in slide.shapes if s.shape_type==13])==1
               text='\\n'.join(shape.text for shape in slide.shapes if shape.has_text_frame)

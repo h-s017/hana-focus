@@ -56,7 +56,7 @@ export function mountWorkspaceNavigation(host,{db}={}){
     needs_verification:'需要人工確認設計與六頁完整性，不會自動重新匯入。',
     success:'今日六頁已匯入 Canva，視覺仍待 HANA 審核；尚未發布 IG／FB。'
    };
-   canvaDailyStatus.textContent=(data.date||'今日')+'｜'+(messages[data.status]||'目前狀態尚未確認。');
+   canvaDailyStatus.textContent=(data.date||'今日')+'｜'+(data.status==='source_not_ready'&&data.reason==='layout_reference_required'?'原 Canva 版型尚未套用／核對，暫停自動匯入；不會用自訂版面替代。':messages[data.status]||'目前狀態尚未確認。');
    canvaDailyLink.hidden=true;
    if(data.status==='success'&&/^https:\/\/www\.canva\.com\/design\/[A-Za-z0-9_-]+\/edit$/.test(data.edit_url||'')){
     canvaDailyLink.href=data.edit_url;canvaDailyLink.hidden=false;

@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {lessonForDay} from '../social-editor/editorial-library.mjs';
 import {canvaImportHtml} from '../social-editor/canva-html.mjs';
+import {dailyVisuals,dailyVisualBrief} from '../social-editor/visual-preset.mjs';
 
 const now=new Date();
 const date=process.env.LESSON_DATE||new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
@@ -49,19 +50,11 @@ if(lesson){
   '（此處僅推薦曲目，不包含可使用的錄音授權。）',
   '', '#HanaScentArtist #嗅覺藝術 #氣味設計 #香氛微課'
  ].join('\n');
- const visualBrief=[
-  '# HANA 嗅覺微課｜'+date,
-  '## 唯一視覺風格','每日風格：'+lesson.style+'。同日六頁維持單一風格、色彩與排版邏輯。',
-  '## 指定版面','Instagram 輪播 1080 × 1350 px（4:5），六頁各自獨立。',
-  '## 文字與圖像分層','Canva 的中文標題、內文、頁碼都必須是可編輯文字。圖像素材不得含任何 AI 生成的中文字。',
-  '## 禁用','不得出現人物、身體器官、人體圖示、柑橘、過量樹葉光影、反覆香水瓶、來源不明的照片或未授權使用的作品。',
-  '## 圖像狀態','本排程只生成創作指示與文字。尚未產生圖片、尚未建立 Canva 設計。',
-  '## 建議構圖',...slides.map((p,i)=>String(i+1)+'. '+p.title+'：運用紙張、建築、布料、雕塑、樂器或抽象材質，保持構圖差異。')
- ].join('\n\n');
+ const visualBrief='# HANA 嗅覺微課｜'+date+'\n\n'+dailyVisualBrief(lesson);
  const dataFile='canva-autofill.csv';
  await Promise.all([
   fs.writeFile(path.join(folder,'canva-import.html'),canvaImportHtml({title:lesson.title,pages:slides,day,date})),
-  fs.writeFile(path.join(folder,'lesson.json'),JSON.stringify({date,day,title:lesson.title,status:'editorial_ready',pages:slides,canvas:{width:1080,height:1350,pages:6},visuals:{style:lesson.style,artwork_ready:false,image_count:0,human_review:'not_started'},fields:data,music:lesson.music,claimStatus:lesson.citationStatus},null,2)+'\n'),
+  fs.writeFile(path.join(folder,'lesson.json'),JSON.stringify({date,day,title:lesson.title,status:'editorial_ready',pages:slides,canvas:{width:1080,height:1350,pages:6},visuals:dailyVisuals(lesson),fields:data,music:lesson.music,claimStatus:lesson.citationStatus},null,2)+'\n'),
   fs.writeFile(path.join(folder,dataFile),csv),
   fs.writeFile(path.join(folder,'caption.md'),caption+'\n'),
   fs.writeFile(path.join(folder,'visual-brief.md'),visualBrief+'\n'),

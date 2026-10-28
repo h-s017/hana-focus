@@ -18,6 +18,7 @@ from pptx.enum.text import PP_ALIGN
 from pptx.util import Inches, Pt
 
 ROOT=Path(__file__).resolve().parents[1]
+PRESET=json.loads((ROOT/'social-editor/visual-preset.json').read_text(encoding='utf-8'))
 def rgb(value):
     return RGBColor.from_string(value.lstrip("#"))
 def label(slide,value,left,top,width,height,size,color="#f0eee8",font="Georgia",bold=False):
@@ -48,8 +49,13 @@ def artwork_files(lesson,folder,allow_fixture=False):
     artwork=json.loads(file.read_text(encoding="utf-8"))
     if artwork.get("format")!="hana-social-artwork-v1" or artwork.get("date")!=lesson["date"] or artwork.get("title")!=lesson["title"] or not artwork.get("style"):
         raise ValueError("Artwork must match this exact lesson and date")
-    if lesson.get("visuals",{}).get("style") and lesson["visuals"]["style"]!=artwork["style"]:
+    visual=lesson.get("visuals",{})
+    if not isinstance(visual.get("style"),str) or not visual["style"].strip():
+        raise ValueError("Daily style is required; do not silently select a default medium")
+    if visual["style"]!=artwork["style"]:
         raise ValueError("Artwork style must match this lesson revision")
+    if visual.get("preset_id")!=PRESET['id'] or artwork.get("preset_id")!=PRESET['id'] or visual.get("layout_reference_design_id")!=PRESET['layout_reference_design_id'] or artwork.get("layout_reference_design_id")!=PRESET['layout_reference_design_id']:
+        raise ValueError("Artwork and lesson must use the confirmed HANA visual preset")
     if artwork.get("origin") not in ("new_original_artwork","test_fixture") or artwork.get("generation_mode")!="individual_images":
         raise ValueError("New independent artwork is required; no private-library reuse or grid slicing")
     fixture=artwork.get("origin")=="test_fixture"
@@ -97,7 +103,7 @@ def create(lesson,output,artwork=None):
         label(slide,"HANA 嗅覺微課 · Day "+str(lesson["day"]).zfill(3),.67,9.47,5.4,.3,10,"#5f6b60",font="Noto Sans CJK TC")
         label(slide,f"{i+1:02d} / 06",6.25,9.44,1.1,.35,12,"#45514a",font="Georgia")
     output.parent.mkdir(parents=True,exist_ok=True);deck.save(output)
-    lesson["visuals"]={"artwork_ready":True,"image_count":6,"style":artwork["manifest"]["style"],"asset_hashes":artwork["hashes"],"pptx_sha256":hashlib.sha256(output.read_bytes()).hexdigest(),"fixture":artwork["fixture"],"human_review":"pending","publication_authorized":False}
+    lesson["visuals"]={**lesson.get("visuals",{}),"artwork_ready":True,"image_count":6,"style":artwork["manifest"]["style"],"asset_hashes":artwork["hashes"],"pptx_sha256":hashlib.sha256(output.read_bytes()).hexdigest(),"fixture":artwork["fixture"],"layout_status":"draft_relayout","human_review":"pending","publication_authorized":False}
     return len(deck.slides)
 
 def main():
@@ -112,7 +118,7 @@ def main():
     output=path.parent / "canva-import.pptx"
     artwork=artwork_files(lesson,path.parent,allow_fixture=os.getenv("HANA_ALLOW_TEST_ARTWORK")=="1")
     if not artwork:
-        lesson["visuals"]={"artwork_ready":False,"image_count":0,"human_review":"not_started","reason":"missing_original_artwork"}
+        lesson["visuals"]={**lesson.get("visuals",{}),"artwork_ready":False,"image_count":0,"human_review":"not_started","reason":"missing_original_artwork"}
         path.write_text(json.dumps(lesson,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
         print("BLOCKED: original artwork is missing; copy is retained, no placeholder design created")
         return
@@ -122,5 +128,6 @@ def main():
     assert count==len(check.slides)==6
     assert check.slide_width*5==check.slide_height*4
     print("PASS: editable 6-page Canva PowerPoint source: "+str(output.relative_to(ROOT)))
+    print("DRAFT: custom PowerPoint typography is not verified against the native Canva reference")
 if __name__=="__main__":
     main()

@@ -1,0 +1,14 @@
+{
+  "id": "hana-art-editorial-2026-10-20",
+  "layout_reference_design_id": "DAHYaeidsPw",
+  "original_reference_design_id": "DAHYaVlqYOg",
+  "style_mode": "one_style_per_day",
+  "default_style": null,
+  "default_palette": null,
+  "typography": "preserve_native_canva",
+  "default_pages": 6,
+  "canvas": {"width": 1080, "height": 1350},
+  "requires_founder_review": true,
+  "prohibited_visuals": ["humans", "body_parts", "human_organs", "citrus", "excessive_leaf_shadows", "repeated_perfume_bottles", "unlicensed_reuse", "baked_in_text"],
+  "photo_library_access": false
+}

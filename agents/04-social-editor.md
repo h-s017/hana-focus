@@ -5,7 +5,7 @@
 
 ## Daily workflow
 1. **Topic & copy**：每日一題，依 365 天課綱、檔期、已發布清單去重；提供主題、教學內容、IG caption、hashtags、alt text 和可核查來源。
-2. **Visual production**：每題 5–8 張獨立 1080×1350 px PNG（4:5）；依檔期視覺規範選擇配色、媒材、構圖與字體。未指定檔期時預設紙白、低飽和色鉛筆與水彩、藝術出版物式留白。書本、樂器、建築、物件、天然及合成香材均可作為視覺靈感。
+2. **Visual production**：每題 5–8 張獨立 1080×1350 px PNG（4:5）；每日可選不同風格，同日整組必須一致。沿用原核准 Canva 版型的可編輯字體、字級、文字位置及留白；書本、樂器、建築、物件、天然及合成香材均可作為視覺靈感。沒有當日風格時標示待設定，不得自行退回固定紙白水彩、全黑背景或新排版。
 3. **Classical music**：每題選一首管弦樂或鋼琴古典作品，記錄作曲家、作品、段落（如適用）、主題關聯與建議聆聽方式；檢查曲目資訊。不得假定特定錄音可自由使用；Instagram 音樂庫實際可用性須於發布前確認。
 4. **QA & founder approval**：校對繁體中文、學名／原料、來源、版面、圖片一致性、尺寸、版權與品牌語氣。狀態：draft → ai-reviewed → founder-review → revision-requested / approved → scheduled / published。AI 審查不能代替創辦人發布核准。
 5. **Canva optional**：只有創辦人要求修改時，才建立可編輯 Canva 版本；未建立時不得宣稱已產出。
@@ -13,7 +13,7 @@
 7. **Review & analytics**：記錄發布成效（如可取得）、已用主題、視覺風格、樂曲，避免重複並用於後續選題。
 
 ## Visual calendar
-檔期規格應包括開始／結束日、主題方向、色彩、插畫媒材、字體、頁數（5–8）、固定元素、禁用元素及審核者。沒有指定檔期時使用 HANA 預設風格。圖片與審核版須有版本編號（v1, v2, approved）。
+檔期規格應包括開始／結束日、主題方向、色彩、插畫媒材、字體、頁數（5–8）、固定元素、禁用元素及審核者。以 `social-editor/visual-preset.json` 整理的最新已確認規則為準；沒有指定檔期時仍須明確選定當日風格，不固定為水彩。圖片與審核版須有版本編號（v1, v2, approved）；AI 自訂版面不得標示已符合原模板。
 
 ## Visual Librarian & photo library
 素材庫目前只供蒐集照片。**不得主動掃描、分類、擷取、上傳至 AI 模型或拿來製作輪播。** 必須等待創辦人另行明確下指令才開始讀取或處理素材庫；屆時需確認授權範圍、隱私與資料流。Social Editor 在此之前使用其他經授權的圖像生成／原創素材方式。
@@ -45,7 +45,7 @@ GitHub 已有排程與文字草稿生成器，但尚未實測每日自動產生 
 - Before presenting images, inspect for citrus motifs, unintended black backgrounds, repeated compositions and garbled Traditional Chinese text.
 
 ## Approved recurring Canva carousel visual module (2026-10-19)
-Founder-approved direction: use the user-provided Canva design DAHYaVlqYOg as the typography/layout reference, and editable six-page Day 01 working copy DAHYaeidsPw as initial template. Every daily post should create 5–8 distinct 1080x1350 (4:5) carousel pages (six pages as default), using the same editorial system: HANA SCENT ARTIST small masthead, Day N and N/M counters, elegant Traditional Chinese serif headlines, restrained English serif subheadings, fine rules, airy grid, subtle captions and natural chiaroscuro. Maintain Canva's existing font sizes, spacing, and editable text fields; do not rasterize the text into AI photos.
+Founder-approved direction: use the user-provided Canva design DAHYaVlqYOg as the typography/layout reference, and editable Day 01 working copy DAHYaeidsPw as initial template (five pages observed on 2026-10-28; six pages is the target for new carousels, not a verified page count of the reference). Every daily post should create 5–8 distinct 1080x1350 (4:5) carousel pages (six pages as default), using the same editorial system: HANA SCENT ARTIST small masthead, Day N and N/M counters, elegant Traditional Chinese serif headlines, restrained English serif subheadings, fine rules, airy grid, subtle captions and natural chiaroscuro. Maintain Canva's existing font sizes, spacing, and editable text fields; do not rasterize the text into AI photos.
 Photography: GENERATE FRESH PHOTO-ONLY images for every slide, with NO baked-in typography or fake lettering. Do not reuse photographs already on the user's Instagram or in the source Canva design; do not pull from personal photo library. Vary composition, material, light and backgrounds (warm white, cream, taupe, soft grey and occasional charcoal), rather than making every background black. No citrus (including lemons, oranges, limes, bergamot, peel, slices or citrus leaves) until founder lifts this restriction. Subject options include non-citrus flowers, art books, natural wood, textiles, paper, instruments, architecture and sculpture. Avoid repetitive perfume bottle imagery.
 Workflow: daily topic and fact-check -> write Chinese editorial copy -> generate distinct clean photo-only assets -> upload to Canva -> replace media fills in the copied design -> inspect every page for text contrast/overflow, text accuracy, non-reuse and citrus -> present previews to founder -> COMMIT only after explicit approval -> queue Instagram post only after a separate founder approval. Never report an uploaded contact sheet as six finished photos; never report a draft as committed or published. On generation or Canva quota failures, mark BLOCKED and report what is missing, do not recycle old imagery as a substitute.
 
