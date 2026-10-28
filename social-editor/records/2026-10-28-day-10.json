@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-28",
+  "day": 10,
+  "series": "調香師從 0 養成",
+  "topic": "香氣有時間感——前調、中調、後調不是三層輪流登場",
+  "previous_days_checked": [
+    "2026-10-25 Day 07 嗅覺日記",
+    "2026-10-26 Day 08 強度／喜好／熟悉度",
+    "2026-10-27 Day 09 嗅覺適應與習慣化"
+  ],
+  "content_version": "v1.0",
+  "style": "白底、低飽和色鉛筆水彩、安靜克制藝術書籍風格",
+  "slides": 6,
+  "dimensions": "1080x1350 PNG",
+  "image_generation": "One original 3x2 watercolor image generated during this run, cropped into six different backgrounds and typeset into six separate PNG slide files. Not six independent image generation calls.",
+  "music": {
+    "composer": "Maurice Ravel",
+    "work": "Jeux d'eau, M.30",
+    "year": 1901,
+    "instrumentation": "solo piano",
+    "recording": "not selected",
+    "commercial_audio_rights": "not cleared"
+  },
+  "founder_approval": "pending",
+  "published": false,
+  "canva_created": false,
+  "photo_library_accessed": false,
+  "assets": "HANA_Social_Editor_Day10_2026-10-28.zip (conversation deliverable; not uploaded to GitHub)",
+  "sources": [
+    "https://batam.pom.go.id/berita/mengapa-wangi-parfum-berubah-dari-waktu-ke-waktu-mengenal-top-notes-middle-notes-dan-base-notes",
+    "https://catalogue.bnf.fr/ark:/12148/cb139177379",
+    "https://brahms.ircam.fr/fr/work/jeux-d%27eau",
+    "https://imslp.org/wiki/Jeux_d%27Eau_(Ravel,_Maurice)"
+  ],
+  "qa": {
+    "images_generated": true,
+    "six_independent_files": true,
+    "dimensions_checked": true,
+    "traditional_chinese_typeset": true,
+    "content_and_copyright_initial_review": true,
+    "music_recording_cleared": false,
+    "founder_review": "pending"
+  }
+}
