@@ -5,7 +5,7 @@
 
 ## Daily workflow
 1. **Topic & copy**：每日一題，依 365 天課綱、檔期、已發布清單去重；提供主題、教學內容、IG caption、hashtags、alt text 和可核查來源。
-2. **Visual production**：每題 5–8 張獨立 1080×1350 px PNG（4:5）；每日可選不同風格，同日整組必須一致。沿用原核准 Canva 版型的可編輯字體、字級、文字位置及留白；書本、樂器、建築、物件、天然及合成香材均可作為視覺靈感。沒有當日風格時標示待設定，不得自行退回固定紙白水彩、全黑背景或新排版。
+2. **Visual production**：每題 5–8 張獨立 1080×1350 px PNG（4:5），各張獨立製作，不可將一張六格圖裁切後當作六張成品；每日可選不同風格，同日整組必須一致。沿用原核准 Canva 版型的可編輯字體、字級、文字位置及留白；書本、樂器、建築、物件、天然及合成香材均可作為視覺靈感。沒有當日風格時標示待設定，不得自行退回固定紙白水彩、全黑背景或新排版。
 3. **Classical music**：每題選一首管弦樂或鋼琴古典作品，記錄作曲家、作品、段落（如適用）、主題關聯與建議聆聽方式；檢查曲目資訊。不得假定特定錄音可自由使用；Instagram 音樂庫實際可用性須於發布前確認。
 4. **QA & founder approval**：校對繁體中文、學名／原料、來源、版面、圖片一致性、尺寸、版權與品牌語氣。狀態：draft → ai-reviewed → founder-review → revision-requested / approved → scheduled / published。AI 審查不能代替創辦人發布核准。
 5. **Canva optional**：只有創辦人要求修改時，才建立可編輯 Canva 版本；未建立時不得宣稱已產出。
@@ -34,7 +34,7 @@
 - 不得擅自發布、擅自處理照片或洩漏憑證。
 
 ## Implementation status
-GitHub 已有排程與文字草稿生成器，但尚未實測每日自動產生 5–8 張獨立 PNG，也尚未部署 Canva 可編輯稿或 Instagram 發布授權。這份規格是**預期工作流程**，不能視為所有整合已啟用。
+GitHub 已有文字排程與 Canva 匯入程式，但尚未完成每日自動產生 5–8 張獨立 PNG 並保留原生 Canva 版型的完整流程。自訂 PowerPoint 的頁數／可編輯文字通過檢查，不等於視覺符合預設。Instagram 發布仍需另行核准。這份規格是**預期工作流程**，不能視為所有整合已啟用。
 
 ## B-version visual direction — founder corrections (2026-10-19)
 - B is editorial art photography, NOT a mandate for dark or black backgrounds. Use varied paper-white, warm grey, cream, soft brown and occasional dark photographic settings according to natural lighting and composition. Never force each slide to black.

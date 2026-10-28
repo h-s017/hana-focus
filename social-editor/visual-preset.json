@@ -6,6 +6,8 @@
   "default_style": null,
   "default_palette": null,
   "typography": "preserve_native_canva",
+  "generation_mode": "individual_images",
+  "allow_contact_sheet_slicing": false,
   "default_pages": 6,
   "canvas": {"width": 1080, "height": 1350},
   "requires_founder_review": true,

@@ -24,6 +24,8 @@ assert.throws(()=>dailyVisuals({style:''}),/daily_visual_style_required/);
 assert.equal(dailyVisuals(lessonForDay(9)).style,'古典音樂手稿');
 assert.notEqual(dailyVisuals(lessonForDay(9)).style,dailyVisuals(lessonForDay(10)).style);
 assert.match(dailyVisualBrief(lessonForDay(9)),/保留原 Canva 的可編輯字體、字級、文字位置/);
+assert.match(dailyVisualBrief(lessonForDay(9)),/不可把一張六格圖裁成六張交付/);
+assert.equal(dailyVisuals(lessonForDay(9)).generation_mode,'individual_images');
 const first=run('2026-10-26');
 assert.equal(first.day,8);
 assert.equal(first.status,'editorial_ready');
