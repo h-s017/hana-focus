@@ -1,4 +1,4 @@
-import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=canva-20261027-r3';
+import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=office-20261028-r4';
 document.documentElement.dataset.focusWorkspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
 import {mountFocusDashboard} from './focus-dashboard.mjs';
 import {mountMonthlyCalendar} from './monthly-calendar-app.mjs';
@@ -6,7 +6,7 @@ import {mountReservationOrders} from './reservation-orders.mjs';
 import {db} from './office-client.mjs';
 import {loginController,consumeCallback,authMessage} from './office-auth.mjs';
 import {STATES,NEXT_ROLE} from './office-workflow.mjs';
-import {mountAutomation} from './automation-app.mjs';
+import {mountAutomation} from './automation-app.mjs?v=office-20261028-r4';
 import {mountMaterials} from './project-materials.mjs';
 import {availableSlots} from './calendar-availability.mjs';
 const host=document.getElementById('hana-office-root');

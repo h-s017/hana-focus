@@ -17,16 +17,51 @@ export function mountAutomation(host,{db,owner}) {
  const folderLabel=element('p','尚未選擇可讀資料夾。保存素材連結不等於授權 Agent 讀檔。');
  const button=(text,fn)=>{const b=element('button',text);b.type='button';b.onclick=fn;return b;};
  const save=element('button','儲存自動化設定');form.append(folderLabel,save);
- const connect=button('連接 OneDrive（唯讀）',()=>operate(async()=>{const data=await invoke({action:'device_start'});status.textContent='請只在 Microsoft 官方登入頁輸入此代碼：'+data.user_code+'。登入完成後回來按「確認連線」。';const a=element('a','開啟 Microsoft 登入');a.href='https://microsoft.com/devicelogin';a.target='_blank';a.rel='noopener noreferrer';status.append(document.createTextNode(' '),a);}));
- const finish=button('確認連線',()=>operate(async()=>{const data=await invoke({action:'device_finish'});status.textContent=data.status==='connected'?'OneDrive 唯讀登入已完成，請選擇專案資料夾。':'Microsoft 尚未完成驗證，請至少等待 '+data.retry_after+' 秒後再確認。';}));
+ const oneDrive=element('section');oneDrive.id='office-onedrive-connection';
+ const connectionTitle=element('h3','OneDrive｜唯讀連線');
+ const connectionStatus=element('p','尚未確認 OneDrive 連線。請先按「檢查 OneDrive 連線」。');
+ connectionStatus.setAttribute('role','status');connectionStatus.setAttribute('aria-live','polite');
+ const loginCode=element('strong');loginCode.id='office-onedrive-code';loginCode.hidden=true;
+ const microsoftLink=element('a','開啟 Microsoft 官方授權頁');
+ microsoftLink.href='https://microsoft.com/devicelogin';microsoftLink.target='_blank';microsoftLink.rel='noopener noreferrer';microsoftLink.hidden=true;
+ const connect=button('連接 OneDrive（唯讀）',()=>operate(async()=>{
+  loginCode.hidden=true;microsoftLink.hidden=true;
+  const data=await invoke({action:'device_start'});
+  if(typeof data.user_code!=='string'||!/^[A-Z0-9-]{4,20}$/.test(data.user_code))throw Error('Microsoft 尚未提供有效登入代碼，請重新檢查服務端設定。');
+  loginCode.textContent='Microsoft 登入代碼：'+data.user_code;
+  loginCode.hidden=false;microsoftLink.hidden=false;
+  connectionStatus.textContent='已取得一次性代碼。請點下方 Microsoft 官方登入連結、輸入代碼，完成授權後返回按「確認連線」。';
+ },{target:connectionStatus,message:'正在向 Microsoft 取得一次性登入代碼…'}));
+ const finish=button('確認連線',()=>operate(async()=>{
+  const data=await invoke({action:'device_finish'});
+  if(data.status==='connected'){
+   connectionStatus.textContent='OneDrive 唯讀授權憑證已安全儲存。下一步可選擇專案資料夾。';
+   loginCode.hidden=true;microsoftLink.hidden=true;
+  }else if(data.status==='pending'){
+   connectionStatus.textContent='Microsoft 尚未完成授權；請確認登入頁已同意，約 '+Math.max(5,Number(data.retry_after)||5)+' 秒後重試。';
+  }else throw Error('尚未確認 Microsoft 授權；沒有修改任何 OneDrive 檔案。');
+ },{target:connectionStatus,message:'正在核對 Microsoft 授權結果…'}));
  const picker=element('div'),summary=element('div'),configs=element('div'),events=element('div');
  const browse=button('選擇 OneDrive 資料夾',()=>folders());
+ const checkConnection=button('檢查 OneDrive 連線',()=>operate(async()=>{
+  const data=await invoke({action:'microsoft_status'});
+  connectionStatus.textContent=!data.configured?'OneDrive 服務端設定尚未完成：請核對 MICROSOFT_CLIENT_ID 與原有加密金鑰。':data.credentials_saved?'已儲存 OneDrive 唯讀授權憑證；若要驗證資料夾讀取，請點「選擇 OneDrive 資料夾」。':'Microsoft 服務端設定已就緒，但尚未授權 OneDrive。請點「連接 OneDrive（唯讀）」。';
+ },{target:connectionStatus,message:'正在檢查 OneDrive 服務端設定與授權狀態…'}));
  const reload=button('更新 Agent 狀態',()=>load());
- host.replaceChildren(title,note,connect,finish,browse,picker,form,reload,status,summary,configs,events);
+ oneDrive.append(connectionTitle,connectionStatus,connect,finish,checkConnection,loginCode,microsoftLink,browse,picker);
+ host.replaceChildren(title,note,oneDrive,form,reload,status,summary,configs,events);
  const errors={activation_required:'服務端尚未核准啟用或缺少 AI 設定；沒有開始執行。',folder_project_mismatch:'資料夾名稱必須與專案名稱一致，請重新選取。',invalid_booking_change:'請核對時段、訂單編號與修改內容。',capacity_below_booked:'新名額不得低於已報名人數。',booking_source_unavailable:'原系統資料暫時無法讀取；正式預約未變更。',booking_source_unverified:'原訂單與付款狀態未核對，不能核准此草稿。',booking_source_changed:'原系統時段已有變更，請重新讀取並建立新草稿。',source_unavailable:'OneDrive 連線尚未設定或服務暫時無法使用。',source_expired:'OneDrive 授權已過期或取消，請重新連接。',source_denied:'無權讀取此來源；不會自動擴大 Microsoft 權限。',folder_required:'請先選擇資料夾。',calendar_authorization_required:'Google Calendar 服務端尚未取得唯讀授權；聊天連線不等同網站持續同步。',calendar_unavailable:'日曆讀取失敗，未修改任何預約時段。',calendar_incomplete:'日曆資料不完整，無法產出可用時段建議。',calendar_timezone_required:'來源日曆不是 Asia/Taipei，需先確認全日行程解讀。',reservation_unavailable:'預約系統資料無法讀取，正式網站未變動。',invalid_window:'請設定有效且不超過 31 天的日期範圍。',scope_required:'請填寫本輪工作範圍。',invalid_settings:'請確認專案名稱、範圍及每日 1–6 次上限。'};
  async function invoke(body){const {data,error}=await db.functions.invoke('hana-automation',{body});if(error){let code;try{code=(await error.context?.json())?.error;}catch{}throw Error(errors[code]||'自動化服務尚未部署或無法使用；原任務不受影響。');}if(data?.error)throw Error(errors[data.error]||'操作未完成，請重新整理確認。');return data;}
- async function operate(fn){if(disposed||busy)return;busy=true;save.disabled=true;try{await fn();}catch(error){if(!disposed)status.textContent=error.message;}finally{busy=false;if(!disposed)save.disabled=false;}}
- async function folders(id=null){await operate(async()=>{const data=await invoke({action:'folders',item_id:id});if(disposed)return;picker.replaceChildren(element('p','目前資料夾：'+data.current.name));picker.append(button('選用此資料夾',()=>{folder=data.current;folderLabel.textContent='選定資料夾：'+folder.name+'（尚未儲存授權）';}));if(id)picker.append(button('返回 OneDrive 根目錄',()=>folders()));for(const f of data.folders)picker.append(button('開啟 '+f.name,()=>folders(f.id)));if(data.limited)picker.append(element('p','僅顯示前 100 個項目，部分資料夾可能未列出。'));});}
+ async function operate(fn,{target=status,message='正在處理請求…'}={}){
+  if(disposed||busy)return;
+  busy=true;
+  for(const b of [save,connect,finish,browse,checkConnection])b.disabled=true;
+  if(!disposed)target.textContent=message;
+  try{await fn();}
+  catch(error){if(!disposed)target.textContent=error?.message||'請求未完成，請檢查網路與服務端設定。';}
+  finally{busy=false;if(!disposed)for(const b of [save,connect,finish,browse,checkConnection])b.disabled=false;}
+ }
+ async function folders(id=null){await operate(async()=>{const data=await invoke({action:'folders',item_id:id});if(disposed)return;picker.replaceChildren(element('p','目前資料夾：'+data.current.name));picker.append(button('選用此資料夾',()=>{folder=data.current;folderLabel.textContent='選定資料夾：'+folder.name+'（尚未儲存授權）';}));if(id)picker.append(button('返回 OneDrive 根目錄',()=>folders()));for(const f of data.folders)picker.append(button('開啟 '+f.name,()=>folders(f.id)));if(data.limited)picker.append(element('p','僅顯示前 100 個項目，部分資料夾可能未列出。'));connectionStatus.textContent='OneDrive 資料夾清單已載入，可選擇與專案同名的資料夾（不會修改檔案）。';},{target:connectionStatus,message:'正在從 Microsoft 讀取 OneDrive 資料夾…'});}
  form.onsubmit=event=>{event.preventDefault();if(inputs.enabled.checked&&!confirm('啟用免費 PM 規則式背景整理？策略、創意與照片理解不會自動呼叫付費 AI。'))return;
   void operate(async()=>{await invoke({action:'configure',project:inputs.project.value,scope_note:inputs.scope_note.value,daily_limit:Number(inputs.daily_limit.value),source_item_id:folder?.id||null,source_read_allowed:inputs.source_read_allowed.checked,enabled:inputs.enabled.checked});if(disposed)return;status.textContent=inputs.enabled.checked?'已儲存啟用設定；排程是否運作請查看執行紀錄。':'已儲存暫停設定；已送出的請求不會被撤回。';await load(false);});
  };

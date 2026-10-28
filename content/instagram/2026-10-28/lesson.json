@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-28",
+  "day": 10,
+  "title": "氣味敘事與品牌故事",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "氣味敘事與品牌故事",
+      "body": "HANA 嗅覺微課 · Day 010\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "故事先於形式",
+      "body": "先寫清楚品牌要表達的價值，再找適合的感官線索。"
+    },
+    {
+      "title": "避免空泛形容詞",
+      "body": "與其說「奢華」，不如描述想呈現的場合與感受。"
+    },
+    {
+      "title": "一致性很重要",
+      "body": "色彩、文字、空間和氣味不必相同，但應有共同方向。"
+    },
+    {
+      "title": "尊重受眾差異",
+      "body": "品牌故事應留下理解空間，而非要求所有人有相同聯想。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "寫下一個品牌關鍵字，再用場所與材質各補充一個聯想。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "010",
+    "DATE": "2026-10-28",
+    "PAGE_01_TITLE": "氣味敘事與品牌故事",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 010\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "故事先於形式",
+    "PAGE_02_BODY": "先寫清楚品牌要表達的價值，再找適合的感官線索。",
+    "PAGE_03_TITLE": "避免空泛形容詞",
+    "PAGE_03_BODY": "與其說「奢華」，不如描述想呈現的場合與感受。",
+    "PAGE_04_TITLE": "一致性很重要",
+    "PAGE_04_BODY": "色彩、文字、空間和氣味不必相同，但應有共同方向。",
+    "PAGE_05_TITLE": "尊重受眾差異",
+    "PAGE_05_BODY": "品牌故事應留下理解空間，而非要求所有人有相同聯想。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "寫下一個品牌關鍵字，再用場所與材質各補充一個聯想。"
+  },
+  "music": {
+    "composer": "Gabriel Fauré",
+    "work": "Après un rêve, Op. 7 No. 1",
+    "reason": "區分作品故事與感官事實",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
