@@ -11,7 +11,7 @@ export function socialStatus(manifest,day=taipeiDate()){
  const editUrl=safeCanva(manifest.canvaEditUrl);
  const slides=Number.isInteger(manifest.slideCount)?manifest.slideCount:0;
  if(manifest.date!==day)return {state:'stale',detail:'最新紀錄：'+String(manifest.date||'日期未知')+'，今天的工作尚未確認。',editUrl:null};
- if(manifest.canvaCreated===true&&slides>=5&&slides<=8&&editUrl)return {state:'delivered_internal',detail:'已記錄 Canva 內部稿（'+slides+' 頁）；不代表已發布 Instagram。',editUrl};
+ if(manifest.canvaCreated===true&&slides>=5&&slides<=8&&editUrl)return {state:'delivered_internal',detail:'已有 Canva 內部稿（'+slides+' 頁），視覺仍待 HANA 審核；不代表已發布 Instagram。',editUrl};
  if(manifest.status==='needs-lesson')return {state:'blocked',detail:'排程已有執行，但尚未產生今天的課程內容或 Canva 設計。',editUrl:null};
  if(manifest.status==='editorial_ready'&&manifest.plannedSlideCount===6)return {state:'copy_ready',detail:'今日 6 頁文案、貼文與 Canva 匯入欄位已由排程產出；圖片及 Canva 可編輯設計尚未建立。',editUrl:null};
  return {state:'incomplete',detail:'已有每日紀錄，但未確認 5–8 頁可編輯 Canva 成品。',editUrl:null};

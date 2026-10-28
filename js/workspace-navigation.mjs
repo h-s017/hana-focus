@@ -48,15 +48,15 @@ export function mountWorkspaceNavigation(host,{db}={}){
    if(error||data?.error)throw Error('unavailable');
    const messages={
     not_started:'今日尚未建立 Canva 自動匯入工作。',
-    source_not_ready:'今日教材尚未完成，不會建立空白設計。',
+    source_not_ready:'今日文案或六張原創圖像尚未備齊，不會用佔位圖替代。',
     reserved:'今日匯入已保留，尚未送出。',
     submitting:'已開始送出；為避免重複，系統不會再次提交。',
     in_progress:'Canva 正在匯入今日教材，等待下次排程驗證。',
     failed:'今日匯入失敗，請查看後端紀錄；不會自動重複建立。',
     needs_verification:'需要人工確認設計與六頁完整性，不會自動重新匯入。',
-    success:'今日六頁 Canva 設計已驗證，尚未發布 IG／FB。'
+    success:'今日六頁已匯入 Canva，視覺仍待 HANA 審核；尚未發布 IG／FB。'
    };
-   canvaDailyStatus.textContent=(data.date||'今日')+'｜'+(messages[data.status]||'目前狀態尚未確認。');
+   canvaDailyStatus.textContent=(data.date||'今日')+'｜'+(data.status==='source_not_ready'&&data.reason==='layout_reference_required'?'原 Canva 版型尚未套用／核對，暫停自動匯入；不會用自訂版面替代。':messages[data.status]||'目前狀態尚未確認。');
    canvaDailyLink.hidden=true;
    if(data.status==='success'&&/^https:\/\/www\.canva\.com\/design\/[A-Za-z0-9_-]+\/edit$/.test(data.edit_url||'')){
     canvaDailyLink.href=data.edit_url;canvaDailyLink.hidden=false;

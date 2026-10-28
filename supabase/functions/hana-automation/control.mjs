@@ -1,8 +1,8 @@
 import {configuration,priorities} from './runtime.mjs';
-import {publicImportState,lessonDate} from './canva-import.mjs';
+import {publicImportState,lessonDate,checkPublicSource} from './canva-import.mjs';
 const headers={'Access-Control-Allow-Origin':'https://h-s017.github.io','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Cache-Control':'no-store','Vary':'Origin'};
 const response=(body,status=200)=>Response.json(body,{status,headers});
-export function control({authenticate,store,connector,readiness,calendarPreview,booking,reservations,monthly,focus,googleOAuth,googleSyncOAuth,calendarSync,canvaOAuth}) {
+export function control({authenticate,store,connector,readiness,calendarPreview,booking,reservations,monthly,focus,googleOAuth,googleSyncOAuth,calendarSync,canvaOAuth,canvaSourceStatus=checkPublicSource}) {
  return async req=>{
   if(req.headers.get('origin')&&req.headers.get('origin')!=='https://h-s017.github.io')return response({error:'origin_not_allowed'},403);
   if(req.method==='OPTIONS')return new Response(null,{headers});
@@ -32,6 +32,12 @@ export function control({authenticate,store,connector,readiness,calendarPreview,
    if(body.action==='canva_import_status'){
     const date=typeof body.lesson_date==='string'&&/^20\d\d-\d\d-\d\d$/.test(body.lesson_date)?body.lesson_date:lessonDate();
     const row=await store.canvaImportJob(owner,date);
+    if(!row){
+     // Read-only preflight: report a blocked source without reserving a job,
+     // contacting Canva, or creating another design.
+     let source;try{source=await canvaSourceStatus(date);}catch{source={ready:false,reason:'source_unavailable'};}
+     if(!source.ready)return response({status:'source_not_ready',date,reason:source.reason,published:false});
+    }
     return response({...publicImportState(row),date,published:false});
    }
    if(body.action==='calendar_preview'){if(!ready.calendar||!calendarPreview)return response({error:'calendar_authorization_required'},409);try{return response(await calendarPreview(owner,body.start,body.end));}catch(error){try{await store.event(owner,'課程預約',null,null,'calendar_preview_failed',{external_writes:false});}catch{}throw error;}}
