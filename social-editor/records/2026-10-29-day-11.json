@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-29",
+  "day": 11,
+  "series": "調香師從 0 養成",
+  "topic": "香調家族，是氣味的地圖：花香、清新、木質與琥珀",
+  "content_version": "v1.0",
+  "slides": 6,
+  "dimensions": "1080x1350 PNG",
+  "style": "白底、低飽和色鉛筆水彩、安靜克制的藝術書籍風格",
+  "image_generation": "One original six-panel AI illustration cropped into six different backgrounds, then typeset into six independent Traditional Chinese PNG slides.",
+  "slide_files": [
+    "slide_01.png",
+    "slide_02.png",
+    "slide_03.png",
+    "slide_04.png",
+    "slide_05.png",
+    "slide_06.png"
+  ],
+  "image_assets": "Conversation deliverable ZIP only; not uploaded to GitHub or HANA FOCUS.",
+  "music": {
+    "composer": "Claude Debussy",
+    "work": "Estampes, No. 3: Jardins sous la pluie",
+    "year": 1903,
+    "instrumentation": "solo piano",
+    "recording": "not selected",
+    "commercial_audio_rights": "not cleared"
+  },
+  "founder_approval": "pending",
+  "published": false,
+  "canva_created": false,
+  "photo_library_accessed": false,
+  "hana_focus_synced": false,
+  "github_assets_uploaded": false,
+  "sources": [
+    "https://www.fragrancesoftheworld.com/fragrancewheel/",
+    "https://www.fragrancesoftheworld.com/",
+    "https://imslp.org/wiki/Estampes_(Debussy,_Claude)"
+  ],
+  "qa": {
+    "images_generated": true,
+    "six_independent_files": true,
+    "dimensions_checked": true,
+    "traditional_chinese_typeset": true,
+    "content_and_copyright_initial_review": true,
+    "music_recording_cleared": false,
+    "prior_topics_checked": "Day 07-10; Day 01-06 not fully verified"
+  }
+}
