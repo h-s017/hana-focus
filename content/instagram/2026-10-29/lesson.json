@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-29",
+  "day": 11,
+  "title": "從香調分類到創作語言",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "從香調分類到創作語言",
+      "body": "HANA 嗅覺微課 · Day 011\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "分類是溝通工具",
+      "body": "花香、木質與其他類別有助於討論，但不是絕對的邊界。"
+    },
+    {
+      "title": "一種素材可以多面向",
+      "body": "感受會受其他元素與作品情境影響。"
+    },
+    {
+      "title": "先描述再分類",
+      "body": "先寫自己的感知，再回到分類詞，比直接套標籤更清楚。"
+    },
+    {
+      "title": "保持可修訂",
+      "body": "新的觀察可能使你重新描述原本熟悉的氣味。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "挑一個分類詞，寫出兩種彼此不同的情境。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "現代幾何版畫",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "011",
+    "DATE": "2026-10-29",
+    "PAGE_01_TITLE": "從香調分類到創作語言",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 011\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "分類是溝通工具",
+    "PAGE_02_BODY": "花香、木質與其他類別有助於討論，但不是絕對的邊界。",
+    "PAGE_03_TITLE": "一種素材可以多面向",
+    "PAGE_03_BODY": "感受會受其他元素與作品情境影響。",
+    "PAGE_04_TITLE": "先描述再分類",
+    "PAGE_04_BODY": "先寫自己的感知，再回到分類詞，比直接套標籤更清楚。",
+    "PAGE_05_TITLE": "保持可修訂",
+    "PAGE_05_BODY": "新的觀察可能使你重新描述原本熟悉的氣味。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "挑一個分類詞，寫出兩種彼此不同的情境。"
+  },
+  "music": {
+    "composer": "J. S. Bach",
+    "work": "The Well-Tempered Clavier, Book I: Prelude in C major, BWV 846",
+    "reason": "以結構整理感受",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
