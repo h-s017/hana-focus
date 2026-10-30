@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-30",
+  "day": 12,
+  "series": "調香師從 0 養成",
+  "topic": "天然與合成，不是香氣的高下",
+  "content_version": "v1.0",
+  "slides": 6,
+  "dimensions": "1080x1350 PNG",
+  "image_generation": "One original six-panel watercolor sheet generated, cropped and typeset into six independent 1080x1350 PNGs; not six independent generation calls.",
+  "slide_files": [
+    "slide_01.png",
+    "slide_02.png",
+    "slide_03.png",
+    "slide_04.png",
+    "slide_05.png",
+    "slide_06.png"
+  ],
+  "music": {
+    "composer": "Gabriel Fauré",
+    "work": "Pavane, Op.50",
+    "year": 1887,
+    "instrumentation": "orchestra (optional chorus)",
+    "recording": "not selected",
+    "commercial_audio_rights": "not cleared"
+  },
+  "founder_approval": "pending",
+  "published": false,
+  "canva_created": false,
+  "photo_library_accessed": false,
+  "hana_focus_synced": false,
+  "github_assets_uploaded": false,
+  "asset_location": "Conversation deliverable ZIP only; not uploaded to GitHub/HANA FOCUS",
+  "sources": [
+    "https://ifrafragrance.org/about-fragrance/this-is-a-fragrance-2",
+    "https://rifm.org/safety-assessment-program/",
+    "https://catalogue.bnf.fr/ark:/12148/cb13912056f",
+    "https://imslp.org/wiki/Pavane,_Op.50_(Faur%C3%A9,_Gabriel)"
+  ],
+  "qa": {
+    "images_generated": true,
+    "six_independent_files": true,
+    "dimensions_checked": true,
+    "traditional_chinese_typeset": true,
+    "content_and_copyright_initial_review": true,
+    "music_recording_cleared": false,
+    "prior_topics_checked": "Day 07–11 known topics; Day 01–06 not fully verified"
+  }
+}
