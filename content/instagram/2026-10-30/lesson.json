@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-30",
+  "day": 12,
+  "title": "氣味記憶與個人詞彙",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "氣味記憶與個人詞彙",
+      "body": "HANA 嗅覺微課 · Day 012\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "詞彙來自累積",
+      "body": "描述能力可以透過持續記錄與回看筆記逐步改善。"
+    },
+    {
+      "title": "不要只記氣味名稱",
+      "body": "也記下地點、當時情境與具體聯想。"
+    },
+    {
+      "title": "避免假設普遍性",
+      "body": "某個詞對你的意義，可能與他人的經驗不同。"
+    },
+    {
+      "title": "練習對照",
+      "body": "比較兩份筆記，找出共同線索與新的差異。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "從最近的兩次日常觀察中，選出三個反覆出現的詞。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "手寫紙張攝影",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "012",
+    "DATE": "2026-10-30",
+    "PAGE_01_TITLE": "氣味記憶與個人詞彙",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 012\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "詞彙來自累積",
+    "PAGE_02_BODY": "描述能力可以透過持續記錄與回看筆記逐步改善。",
+    "PAGE_03_TITLE": "不要只記氣味名稱",
+    "PAGE_03_BODY": "也記下地點、當時情境與具體聯想。",
+    "PAGE_04_TITLE": "避免假設普遍性",
+    "PAGE_04_BODY": "某個詞對你的意義，可能與他人的經驗不同。",
+    "PAGE_05_TITLE": "練習對照",
+    "PAGE_05_BODY": "比較兩份筆記，找出共同線索與新的差異。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "從最近的兩次日常觀察中，選出三個反覆出現的詞。"
+  },
+  "music": {
+    "composer": "Franz Schubert",
+    "work": "Impromptu in G-flat major, D 899 No. 3",
+    "reason": "比較記憶中的相似與差異",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
