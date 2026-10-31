@@ -79,7 +79,7 @@ export function mountWorkspaceNavigation(host,{db}={}){
  const buttons=new Map();
  function select(key,{focus=false}={}){
   active=Object.hasOwn(routes,key)?key:'work';
-  if(signedIn&&['work','projects','agents','church'].includes(active)){
+  if(signedIn&&['work','projects','agents','church','orders','materials'].includes(active)){
    const workspace=active==='church'?'church':'work';
    if(localStorage.getItem('hana-focus-active-workspace')!==workspace){
     localStorage.setItem('hana-focus-active-workspace',workspace);document.documentElement.dataset.focusWorkspace=workspace;
