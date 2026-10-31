@@ -1,5 +1,5 @@
 import {beginGoogleConnection,googleMessage} from './google-connect.mjs';
-import {beginCanvaConnection,canvaMessage,canvaSetupDiagnostic} from './canva-connect.mjs?v=office-20261028-r4';
+import {beginCanvaConnection,canvaMessage,canvaSetupDiagnostic} from './canva-connect.mjs?v=office-20261101-r1';
 // Existing icon destinations and compact navigation share one route, including refresh/back.
 export function mountWorkspaceNavigation(host,{db}={}){
  const tiles=document.querySelector('nav.tiles');
@@ -67,9 +67,13 @@ export function mountWorkspaceNavigation(host,{db}={}){
  const canvaInfo=document.createElement('details');const canvaSummary=document.createElement('summary');canvaSummary.textContent='設定步驟（僅管理員）';canvaInfo.append(canvaSummary);
  const canvaSteps=document.createElement('p');canvaSteps.textContent='Canva Developer → HANA AI OFFICE → Outside Canva：請確認 Scopes 已開啟 design:content:write、design:meta:read、folder:read、folder:write，Redirect URL 為 https://h-s017.github.io/hana-focus/canva-oauth-callback.html。於 Supabase Edge Functions Secrets 設定 CANVA_CLIENT_ID、CANVA_CLIENT_SECRET、CANVA_OWNER_ID，以及既有 HANA_CONNECTOR_ENCRYPTION_KEY（不得覆寫既有加密金鑰）。請勿將 Client Secret 貼入聊天室或公開 GitHub。設定完成且後端與頁面已正式發布後，再返回按連接。';canvaInfo.append(canvaSteps,canvaLink,document.createElement('br'),canvaSecrets);
  canva.append(canvaTitle,canvaStatus,canvaHelp,canvaVerify,canvaConnect,canvaDailyCheck,canvaDailyStatus,canvaDailyLink,canvaInfo);settings.append(canva);
- for(const id of ['office-automation','office-agent-archive']){const node=document.getElementById(id);if(node)settings.append(node);}
+ const legacy=document.createElement('details');legacy.id='office-legacy-tools';
+ const legacySummary=document.createElement('summary');legacySummary.textContent='封存與開發工具';legacy.append(legacySummary);
+ const automation=document.getElementById('office-automation');if(automation){const group=document.createElement('details');const label=document.createElement('summary');label.textContent='進階：既有背景整理與 OneDrive 連線';group.append(label,automation);settings.append(group);}
+ for(const id of ['office-agent-archive','office-calendar-demo']){const node=document.getElementById(id);if(node)legacy.append(node);}
+ settings.append(legacy);
  document.getElementById('office-private').append(settings);
- const routes={work:['工作','office-focus'],projects:['品牌專案','office-focus'],agents:['三大 AI Agent','office-focus'],reviews:['審核中心','office-focus'],activity:['執行紀錄','office-focus'],church:['教會工作','office-focus'],calendar:['月曆','hana-month-calendar'],orders:['預約','office-orders'],materials:['素材','office-materials'],settings:['設定','office-settings']};
+ const routes={work:['工作','office-focus'],projects:['品牌專案','office-focus'],agents:['三大 AI Agent','office-focus'],reviews:['需要我決定','office-focus'],activity:['執行紀錄','office-focus'],church:['教會工作','office-focus'],calendar:['月曆','hana-month-calendar'],orders:['預約','office-orders'],materials:['素材','office-materials'],settings:['設定','office-settings']};
  const parse=()=>{if(Object.hasOwn(routes,location.hash.slice(1)))return location.hash.slice(1);try{const saved=sessionStorage.getItem('hana-focus-destination');return Object.hasOwn(routes,saved)?saved:'work';}catch{return 'work';}};
  let active=parse(),signedIn=false;
  const buttons=new Map();
@@ -85,7 +89,7 @@ export function mountWorkspaceNavigation(host,{db}={}){
   }
   const selectedId=routes[active][1];
   for(const id of new Set(Object.values(routes).map(v=>v[1]))){const panel=document.getElementById(id);if(panel)panel.hidden=signedIn?id!==selectedId:id!=='hana-month-calendar';}
-  for(const [value,b] of buttons)b.setAttribute('aria-current',value===active?'page':'false');
+  for(const [value,b] of buttons)b.setAttribute('aria-current',value===({agents:'work',reviews:'work',activity:'projects',materials:'projects'}[active]||active)?'page':'false');
   try{sessionStorage.setItem('hana-focus-destination',active);}catch{}
   const accountHeading=host.querySelector('.office-account h2');if(accountHeading)accountHeading.textContent=signedIn?'帳號':'登入以開啟'+routes[active][0];
   if(!signedIn)googleStatus.textContent='請先登入，再檢查此網站的 Google 連線。';
@@ -94,7 +98,13 @@ export function mountWorkspaceNavigation(host,{db}={}){
   if(focus){const panel=signedIn?document.getElementById(selectedId):host.querySelector('.office-account');panel?.setAttribute('tabindex','-1');panel?.focus({preventScroll:true});panel?.scrollIntoView({block:'start',behavior:'smooth'});}
  }
  if(tiles){for(const link of tiles.querySelectorAll('[data-view]'))buttons.set(link.dataset.view,link);}
- else for(const [key,label] of [['work','工作'],['agents','AI Agent'],['calendar','月曆'],['orders','預約'],['materials','素材'],['settings','設定']]){const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.view=key;b.setAttribute('aria-controls',routes[key][1]);buttons.set(key,b);nav.append(b);}
+ else for(const [key,label] of [['work','工作總覽'],['social','社群小編'],['projects','品牌專案'],['calendar','課程月曆'],['orders','預約明細'],['church','教會工作']]){
+  if(key==='social'){const a=document.createElement('a');a.href='./social-editor.html';a.textContent=label;nav.append(a);continue;}
+  const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.view=key;b.setAttribute('aria-controls',routes[key][1]);buttons.set(key,b);nav.append(b);
+ }
+ let utility=document.querySelector('.workspace-settings');
+ if(!utility){utility=document.createElement('a');utility.className='workspace-settings';utility.href='#settings';utility.dataset.view='settings';utility.textContent='設定';utility.setAttribute('aria-label','連線與設定');host.querySelector('.office-account').prepend(utility);}
+ buttons.set('settings',utility);
  for(const [key,b] of buttons)b.addEventListener('click',e=>{e.preventDefault();if(location.hash==='#'+key)select(key,{focus:true});else location.hash=key;});
  window.addEventListener('hashchange',()=>select(parse(),{focus:true}));
  window.addEventListener('hana-workspace-changed',()=>{if(signedIn&&document.documentElement.dataset.focusWorkspace==='church'&&['orders','materials'].includes(active)){location.hash='church';}});

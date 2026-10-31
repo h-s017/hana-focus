@@ -30,6 +30,7 @@ try{
  assert.equal(await ordersPanel.locator('article').count(),0);
  await page.evaluate(()=>localStorage.removeItem('test-order-error'));
  await page.locator('[data-view="settings"]').click();
+ await page.getByText('進階：既有背景整理與 OneDrive 連線',{exact:true}).click();
  const automation=page.locator('#office-automation');
  assert.equal(await automation.locator('input[name=enabled]').isChecked(),false);
  assert.equal(await automation.locator('input[name=source_read_allowed]').isChecked(),false);
@@ -75,7 +76,7 @@ try{
  await booking.getByRole('button',{name:'儲存客戶預約修改草稿',exact:true}).click();
  await booking.getByText('審核：pending｜原訂單待查核',{exact:true}).waitFor();
  assert.equal(await booking.getByRole('button',{name:'核准修改建議（不套用）',exact:true}).isDisabled(),true);
- await page.locator('[data-view="materials"]').click();
+ await page.evaluate(()=>location.hash='materials');
  const materials=page.locator('#office-materials');
  await materials.locator('input[name=project]').fill('文慶雞');
  await materials.locator('input[name=folder_url]').fill('https://1drv.ms.attacker.invalid/f/x');
@@ -96,7 +97,7 @@ try{
  await materials.getByRole('button',{name:'儲存素材連結',exact:true}).click();
  await materials.getByRole('status').filter({hasText:'儲存未確認成功'}).waitFor();
  await page.evaluate(()=>localStorage.removeItem('test-materials-fail'));
- await page.locator('[data-view="settings"]').click();await page.locator('#office-agent-archive').evaluate(e=>e.open=true);
+ await page.locator('[data-view="settings"]').click();await page.locator('#office-legacy-tools').evaluate(e=>e.open=true);await page.locator('#office-agent-archive').evaluate(e=>e.open=true);
  await page.locator('#office-form input[name=project]').fill('Fixture');await page.locator('#office-form input[name=title]').fill('Fixture handoff regression');await page.locator('#office-form textarea[name=brief]').fill('Synthetic review-only test; no client delivery.');await page.locator('#office-add').click();await page.locator('#office-tasks article').waitFor();
  for(let i=0;i<4;i++){const article=page.locator('#office-tasks article').nth(i);await article.getByRole('button',{name:i===0||i===3?'產生PM進度草稿':'執行AI草稿',exact:true}).click();await article.getByRole('button',{name:'核准內部草稿',exact:true}).waitFor();page.once('dialog',d=>d.accept());await article.getByRole('button',{name:'核准內部草稿',exact:true}).click();if(i<3)await article.getByRole('button',{name:/建立交接草稿/}).click();}
  assert.equal(await page.locator('#office-tasks article').count(),4);

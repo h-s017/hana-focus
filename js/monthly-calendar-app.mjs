@@ -8,7 +8,7 @@ export function mountMonthlyCalendar(host,{db=null,now=Date.now}={}){
  const heading=el('h2','工作月曆'),intro=el('p','私有規劃｜Asia/Taipei。預設自動讀取原預約場次的時段、課程長度及剩餘名額，不增開場次。點「讀取來源並重算草稿」即可；額外緩衝及新候選另由本人確認。'),toolbar=el('div');toolbar.className='month-toolbar';
  const monthTitle=el('h3'),state=el('p');state.setAttribute('role','status');state.setAttribute('aria-live','polite');
  const thisButton=button('本月',()=>load(thisMonth)),nextButton=button('下月',()=>load(plan.targetMonth)),refresh=button('讀取來源並重算草稿',()=>generate()),approved=button('核准此版本（不發布）',()=>review('approved')),rejected=button('退回此版本',()=>review('rejected'));
- toolbar.append(thisButton,nextButton,refresh);
+ const syncLink=el('a','查看日曆同步與課程審核');syncLink.href='#reviews';toolbar.append(thisButton,nextButton,refresh,syncLink);
  const connect=el('a','查看 Google Calendar 連線設定');connect.href='#settings';connect.className='calendar-connect';const notice=el('p');notice.setAttribute('role','note');
  const source=el('p'),grid=el('div');grid.className='month-grid';grid.setAttribute('role','group');grid.setAttribute('aria-label','月曆日期');const detail=el('section');detail.className='month-detail';
  const form=el('form'),settings=el('details');settings.append(el('summary','選用：新增候選的授課規則（沿用原場次免填）'));const fields={};
