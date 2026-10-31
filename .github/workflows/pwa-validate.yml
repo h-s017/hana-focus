@@ -27,7 +27,7 @@ jobs:
               assert (root/icon['src']).is_file(),icon['src']
           html=(root/'workspace.html').read_text()
           modules=re.findall(r'src="(\./icons/module-[^"]+\.png)"',html)
-          required={f'./icons/module-{name}.png' for name in ['dashboard','social-editor','ai-studio','brand-projects','courses','church','review','schedule','settings']}
+          required={f'./icons/module-{name}.png' for name in ['dashboard','social-editor','brand-projects','courses','church']}
           assert required.issubset(set(modules)),sorted(required-set(modules))
           for path in modules:
               assert (root/path).is_file(),path

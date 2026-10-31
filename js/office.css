@@ -50,3 +50,18 @@
 #hana-office-root .hana-agent-card>details{margin-top:14px;border-top:1px solid #e5e9e4}
 #hana-office-root .hana-agent-card>details a{display:block;margin:10px 0;font-size:13px;min-height:44px;line-height:1.7}
 .calendar-sync-warning{padding:12px;border-left:4px solid #a65b12;background:#fff3d6;color:#663609;font-weight:600}
+
+/* Six daily destinations; settings and specialist tools stay one level down. */
+.workspace-settings{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:8px 12px;border:1px solid #cbd4cb;border-radius:10px;color:#334b40;background:#fff;text-decoration:none;font:14px system-ui;flex-shrink:0}
+.workspace-settings[aria-current="page"]{background:#e7ede6;border-color:#91aa96}
+nav.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 10px;margin:22px 0 26px}
+nav.tiles .tile{display:flex;align-items:center;flex-direction:column;gap:9px;text-align:center;text-decoration:none;color:#292d2a;padding:9px 1px;border-radius:15px;min-width:0}
+nav.tiles .tile .ico{width:76px;height:76px;border:1px solid #e3e5e0;background:#fff;border-radius:22px;display:grid;place-items:center}
+nav.tiles .ico img{width:100%;height:100%;object-fit:contain;border-radius:22px}
+nav.tiles .tile strong{font-size:12px;font-weight:600;line-height:1.4}nav.tiles .tile small{font-size:10px;color:#777;line-height:1.4}
+#hana-office-root .workspace-nav a{display:flex;justify-content:center;align-items:center;color:#5c645e;text-decoration:none;min-height:44px;font-size:14px}
+#hana-office-root #office-legacy-tools{border-top:1px solid #d9ddd8;margin-top:24px;color:#657168}
+#hana-office-root .focus-context{margin-top:22px}
+#hana-office-root .hana-agents-grid{margin-bottom:14px}
+@media(max-width:460px){#hana-office-root .workspace-nav{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:360px){nav.tiles .tile .ico{width:65px;height:65px}}

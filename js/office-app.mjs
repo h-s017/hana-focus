@@ -1,12 +1,12 @@
-import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=office-20261028-r4';
+import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=office-20261101-r1';
 document.documentElement.dataset.focusWorkspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
-import {mountFocusDashboard} from './focus-dashboard.mjs';
-import {mountMonthlyCalendar} from './monthly-calendar-app.mjs';
+import {mountFocusDashboard} from './focus-dashboard.mjs?v=office-20261101-r1';
+import {mountMonthlyCalendar} from './monthly-calendar-app.mjs?v=office-20261101-r1';
 import {mountReservationOrders} from './reservation-orders.mjs';
 import {db} from './office-client.mjs';
 import {loginController,consumeCallback,authMessage} from './office-auth.mjs';
 import {STATES,NEXT_ROLE} from './office-workflow.mjs';
-import {mountAutomation} from './automation-app.mjs?v=office-20261028-r4';
+import {mountAutomation} from './automation-app.mjs?v=office-20261101-r1';
 import {mountMaterials} from './project-materials.mjs';
 import {availableSlots} from './calendar-availability.mjs';
 const host=document.getElementById('hana-office-root');
@@ -15,7 +15,7 @@ let draftRequestId=crypto.randomUUID();
 let disposeMaterials=null,materialsOwner=null,disposeAutomation=null,disposeOrders=null,disposeMonthly=null,disposeFocus=null;
 let current=null,loading=false;const busy=new Set();let refreshVersion=0;
 host.innerHTML=`<section class="office-account"><h2>開始今天的工作</h2><p class="login-help">登入後，輸入工作需求，再查看進度與待審核成果。</p><label>電子郵件<input id="office-email" type="email" autocomplete="email"></label><button id="office-login">寄送登入連結</button><button id="office-logout" hidden>登出</button><p id="office-session" role="status" aria-live="polite">正在確認登入狀態…</p></section>
-<section id="office-private" hidden><section id="office-focus"></section><section id="office-orders" data-business-only></section><section id="office-materials" data-business-only></section><section id="office-automation" data-business-only></section><details id="office-agent-archive" data-business-only ${location.pathname.endsWith('/ai-office.html')?'open':''}><summary>既有 Agent 任務與紀錄（進階檢視）</summary><h2>專案與任務</h2><p>內部雲端資料與原本本機工作板分開保存，不會覆蓋 HANA WORK／CHURCH WORK。本人核准不代表客戶核准或正式交付。</p><form id="office-form"><label>專案<input name="project" value="文慶雞" maxlength="100" required></label><label>角色<select name="role"><option>Project Manager</option><option>Brand Strategist</option><option>Creative Producer</option></select></label><label>標題<input name="title" maxlength="140" required></label><label>需求與來源<textarea name="brief" rows="5" maxlength="12000" required></textarea></label><label>建議期限<input name="due" type="datetime-local"></label><button id="office-add">儲存雲端任務</button></form><button id="office-refresh">重新整理</button><button id="office-bkc">載入文慶雞測試需求（不自動送出）</button><label>篩選<select id="office-filter"><option value="">全部</option><option value="review">待本人審核</option><option value="approved">本人核准・未交付</option><option value="failed">失敗</option></select></label><p id="office-notice" role="status" aria-live="polite"></p><div id="office-tasks"></div></details></section>
+<section id="office-private" hidden><section id="office-focus"></section><section id="office-orders" data-business-only></section><section id="office-materials" data-business-only></section><section id="office-automation" data-business-only></section><details id="office-agent-archive" data-business-only ><summary>封存：舊版 Agent 交接與紀錄</summary><h2>專案與任務</h2><p>內部雲端資料與原本本機工作板分開保存，不會覆蓋 HANA WORK／CHURCH WORK。本人核准不代表客戶核准或正式交付。</p><form id="office-form"><label>專案<input name="project" value="文慶雞" maxlength="100" required></label><label>角色<select name="role"><option>Project Manager</option><option>Brand Strategist</option><option>Creative Producer</option></select></label><label>標題<input name="title" maxlength="140" required></label><label>需求與來源<textarea name="brief" rows="5" maxlength="12000" required></textarea></label><label>建議期限<input name="due" type="datetime-local"></label><button id="office-add">儲存雲端任務</button></form><button id="office-refresh">重新整理</button><button id="office-bkc">載入文慶雞測試需求（不自動送出）</button><label>篩選<select id="office-filter"><option value="">全部</option><option value="review">待本人審核</option><option value="approved">本人核准・未交付</option><option value="failed">失敗</option></select></label><p id="office-notice" role="status" aria-live="polite"></p><div id="office-tasks"></div></details></section>
 <details id="office-calendar-demo"><summary>開發測試：合成行程試算</summary><p>伺服端 OAuth／正式預約同步尚未啟用。以下只用合成事件驗證 Asia/Taipei 時段計算，不讀取或更動客戶預約，不寄送通知。</p><button id="office-calendar-preview">試算範例不可預約時段</button><pre id="office-calendar-result"></pre></details>`;
 const navigation=mountWorkspaceNavigation(host,{db});
 const $=id=>document.getElementById('office-'+id),message=s=>$('notice').textContent=s;
