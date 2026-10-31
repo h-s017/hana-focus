@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-31",
+  "day": 13,
+  "series": "調香師從 0 養成",
+  "topic": "聞得到，卻說不出是什麼？——偵測閾值與辨識閾值",
+  "content_version": "v1.0",
+  "slides": 6,
+  "dimensions": "1080x1350 PNG",
+  "style": "溫白紙底、低飽和色鉛筆水彩、安靜克制藝術書籍風格",
+  "image_generation": "One original 3x2 watercolor sheet generated, cropped into six different illustration panels and typeset into six independent PNGs; not six separate generation calls.",
+  "music": {
+    "composer": "Robert Schumann",
+    "work": "Kinderszenen Op.15 No.7 Träumerei",
+    "year": 1838,
+    "instrumentation": "solo piano",
+    "recording": "not selected",
+    "commercial_audio_rights": "not cleared"
+  },
+  "founder_approval": "pending",
+  "published": false,
+  "canva_created": false,
+  "photo_library_accessed": false,
+  "hana_focus_synced": "not verified",
+  "assets": "HANA_Social_Editor_Day13_2026-10-31.zip (conversation deliverable; not uploaded to GitHub)",
+  "sources": [
+    "https://webstore.ansi.org/standards/astm/astme67926",
+    "https://www.iso.org/standard/68901.html",
+    "https://www.schott-music.com/de/kinderszenen-no92851.html",
+    "https://imslp.org/wiki/Kinderszenen%2C_Op.15_%28Schumann%2C_Robert%29"
+  ],
+  "qa": {
+    "images_generated": true,
+    "six_independent_png_files": true,
+    "dimensions_checked": true,
+    "traditional_chinese_typeset": true,
+    "scientific_sources_checked": true,
+    "copyright_initial_review": true,
+    "music_recording_cleared": false,
+    "founder_review": "pending"
+  },
+  "reused_oct21_oct25_assets": false
+}
