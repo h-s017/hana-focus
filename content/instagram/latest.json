@@ -1,9 +1,9 @@
 {
-  "lastRunAt": "2026-10-30T05:40:14.798Z",
-  "date": "2026-10-30",
-  "day": 12,
+  "lastRunAt": "2026-10-31T05:31:56.246Z",
+  "date": "2026-10-31",
+  "day": 13,
   "status": "editorial_ready",
-  "topic": "氣味記憶與個人詞彙",
+  "topic": "視覺能替氣味建立期待嗎？",
   "canvaCreated": false,
   "canvaDesignId": null,
   "canvaEditUrl": null,
@@ -12,10 +12,10 @@
   "imagesGenerated": false,
   "reviewStatus": "internal_automated_checks_passed",
   "published": false,
-  "captionPath": "content/instagram/2026-10-30/caption.md",
-  "canvaCsvPath": "content/instagram/2026-10-30/canva-autofill.csv",
-  "canvaImportPath": "content/instagram/2026-10-30/canva-import.html",
-  "lessonPath": "content/instagram/2026-10-30/lesson.json",
+  "captionPath": "content/instagram/2026-10-31/caption.md",
+  "canvaCsvPath": "content/instagram/2026-10-31/canva-autofill.csv",
+  "canvaImportPath": "content/instagram/2026-10-31/canva-import.html",
+  "lessonPath": "content/instagram/2026-10-31/lesson.json",
   "notes": "Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.",
-  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-10-30/canva-autofill.csv"
+  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-10-31/canva-autofill.csv"
 }

@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-31",
+  "day": 13,
+  "title": "視覺能替氣味建立期待嗎？",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "視覺能替氣味建立期待嗎？",
+      "body": "HANA 嗅覺微課 · Day 013\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "觀看建立預期",
+      "body": "圖像的色彩與材質可能改變人們對作品氣氛的想像。"
+    },
+    {
+      "title": "預期不等於事實",
+      "body": "看到花朵不代表實際呈現的作品一定有花香。"
+    },
+    {
+      "title": "讓媒材保持誠實",
+      "body": "圖像與文案應清楚區分暗示、比喻與作品實際內容。"
+    },
+    {
+      "title": "設計留有驚喜",
+      "body": "適當對比能讓作品的感官層次更值得探索。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "選兩種顏色，為同一個抽象主題寫出兩種氣味聯想。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "抽象光影畫作",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "013",
+    "DATE": "2026-10-31",
+    "PAGE_01_TITLE": "視覺能替氣味建立期待嗎？",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 013\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "觀看建立預期",
+    "PAGE_02_BODY": "圖像的色彩與材質可能改變人們對作品氣氛的想像。",
+    "PAGE_03_TITLE": "預期不等於事實",
+    "PAGE_03_BODY": "看到花朵不代表實際呈現的作品一定有花香。",
+    "PAGE_04_TITLE": "讓媒材保持誠實",
+    "PAGE_04_BODY": "圖像與文案應清楚區分暗示、比喻與作品實際內容。",
+    "PAGE_05_TITLE": "設計留有驚喜",
+    "PAGE_05_BODY": "適當對比能讓作品的感官層次更值得探索。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "選兩種顏色，為同一個抽象主題寫出兩種氣味聯想。"
+  },
+  "music": {
+    "composer": "Claude Debussy",
+    "work": "Suite bergamasque: Clair de lune",
+    "reason": "觀察光線與氣氛的象徵",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
