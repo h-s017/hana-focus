@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-01",
+  "day": 14,
+  "series": "調香師從 0 養成",
+  "topic": "三個樣本，能看出差異嗎？——三角測試與感官差異",
+  "content_version": "v1.0",
+  "slides": 6,
+  "dimensions": "1080x1350 PNG",
+  "style": "溫白紙底、低飽和色鉛筆水彩、安靜克制藝術書籍風格",
+  "image_generation": "One original 3x2 illustration sheet, cropped into six different backgrounds and typeset into six separate PNGs; not six separate generation calls.",
+  "music": {
+    "composer": "Erik Satie",
+    "work": "Gymnopédie No. 1",
+    "year": 1888,
+    "instrumentation": "solo piano",
+    "recording": "not selected",
+    "commercial_audio_rights": "not cleared"
+  },
+  "founder_approval": "pending",
+  "published": false,
+  "canva_created": false,
+  "photo_library_accessed": false,
+  "hana_focus_synced": "not verified",
+  "image_assets_uploaded_to_github": false,
+  "assets": "HANA_Social_Editor_Day14_2026-11-01.zip (conversation deliverable; not uploaded to GitHub)",
+  "sources": [
+    "https://www.iso.org/standard/76666.html",
+    "https://store.astm.org/standards/e1885",
+    "https://imslp.org/wiki/Gymnop%C3%A9die_No.1_%28Satie%2C_%C3%89ric%29"
+  ],
+  "qa": {
+    "images_generated": true,
+    "six_independent_png_files": true,
+    "dimensions_checked": true,
+    "traditional_chinese_typeset": true,
+    "scientific_sources_checked": true,
+    "copyright_initial_review": true,
+    "music_recording_cleared": false,
+    "founder_review": "pending"
+  },
+  "reused_oct21_oct25_assets": false
+}
