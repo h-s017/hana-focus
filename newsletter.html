@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Cache-Control" content="no-store">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://esm.sh; style-src 'self'; connect-src 'self' https://esm.sh https://uzqaodfmnrjrsbvxhlmh.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="theme-color" content="#f6f5f1">
+<title>氣味通信訂閱管理｜HANA FOCUS</title>
+<link rel="stylesheet" href="./js/newsletter-admin.css">
+<script type="module" src="./js/newsletter-admin.mjs"></script>
+</head>
+<body>
+<main class="shell">
+<header class="heading"><div><p class="eyebrow">HANA FOCUS / BUSINESS</p><h1>氣味通信訂閱管理</h1><p class="intro">查看現有訂閱名單與來源。資料僅供授權管理員查詢，不會從本頁發送電子報。</p></div><a class="back" href="./workspace.html">返回工作台</a></header>
+<p class="notice" id="status" role="status" aria-live="polite">正在檢查管理員登入狀態…</p>
+<section class="panel" id="login-panel" hidden>
+<h2>官網管理員登入</h2>
+<p class="muted">HANA FOCUS 與官網使用不同帳號系統。請以官網管理員帳戶登入，並完成雙因素驗證。</p>
+<form id="login-form">
+<label for="login-email">管理員 Email</label><input id="login-email" type="email" autocomplete="username" maxlength="254" required>
+<label for="login-password">密碼</label><input id="login-password" type="password" autocomplete="current-password" required>
+<button class="primary" type="submit">登入並驗證權限</button>
+</form>
+</section>
+<section class="panel" id="mfa-panel" hidden>
+<h2>管理員雙因素驗證</h2>
+<p class="muted">請輸入驗證器顯示的六位數驗證碼。首次使用請先設定驗證器；請勿分享 QR code 或驗證碼。</p>
+<button type="button" id="enroll-mfa" hidden>首次設定驗證器</button>
+<img id="mfa-qr" alt="僅供目前管理員綁定驗證器的 QR code" hidden>
+<form id="mfa-form" hidden>
+<label for="mfa-code">六位數驗證碼</label><input id="mfa-code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+<button class="primary" type="submit">驗證並開啟名單</button>
+</form>
+</section>
+<section id="subscribers-panel" hidden>
+<div class="summary panel">
+<div><p class="eyebrow">SUBSCRIBER DIRECTORY</p><h2>訂閱名單</h2><p class="muted" id="total-note">尚未載入</p></div>
+<button type="button" id="refresh-btn">重新整理</button>
+</div>
+<form class="filters panel" id="filter-form">
+<label for="subscriber-search">搜尋姓名或 Email<input id="subscriber-search" type="search" placeholder="輸入姓名或 Email" maxlength="120"></label>
+<label for="subscriber-source">訂閱來源<select id="subscriber-source">
+<option value="">全部來源</option>
+<option value="course-intake">課前問卷</option>
+<option value="student-registration">學員工具註冊</option>
+<option value="website-subscription">官網訂閱</option>
+</select></label>
+<button class="primary" type="submit">查詢</button>
+</form>
+<section class="panel list-panel" aria-label="訂閱者資料">
+<div class="table-scroll"><table><thead><tr><th scope="col">姓名</th><th scope="col">Email</th><th scope="col">來源</th><th scope="col">訂閱日期</th></tr></thead><tbody id="subscriber-rows"></tbody></table></div>
+<p id="empty-note" class="muted" hidden>目前沒有符合條件的訂閱紀錄。</p>
+<div class="paging"><p id="page-note" class="muted"></p><div><button type="button" id="prev-btn">上一頁</button><button type="button" id="next-btn">下一頁</button></div></div>
+</section>
+<p class="privacy-note">目前僅供查詢。取消訂閱仍使用既有學員帳戶或正式訂閱管道；這裡不變更任何訂閱資料。</p>
+</section>
+<div class="account-actions"><button type="button" id="logout-btn" hidden>登出官網管理員</button></div>
+</main>
+</body>
+</html>
