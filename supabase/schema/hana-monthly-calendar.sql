@@ -19,7 +19,7 @@ create function public.hana_monthly_save(p_owner uuid,p_month text,p_revision in
 language plpgsql security invoker set search_path='' as $$
 declare old public.hana_monthly_drafts%rowtype;receipt public.hana_automation_events%rowtype;new_state text;
 begin
- if p_owner is null or p_request is null or p_month is null or p_month!~'^[1-9][0-9]{3}-(0[1-9]|1[0-2])$' or p_revision is null or p_revision<0 or p_policy is null or p_overrides is null or p_generated is null or p_changed is null or jsonb_typeof(p_policy)<>'object' or jsonb_typeof(p_overrides)<>'object' or jsonb_typeof(p_changed)<>'array' or octet_length(p_generated::text)>250000 then raise exception 'invalid_monthly';end if;
+ if p_owner is null or p_request is null or p_month is null or p_month!~'^[1-9][0-9]{3}-(0[1-9]|1[0-2])$' or p_revision is null or p_revision<0 or p_policy is null or p_overrides is null or p_generated is null or p_changed is null or jsonb_typeof(p_policy)<>'object' or jsonb_typeof(p_overrides)<>'object' or jsonb_typeof(p_changed)<>'array' or octet_length(p_generated::text)>2000000 then raise exception 'invalid_monthly';end if;
  if (p_generated->>'month') is distinct from p_month or (p_generated->>'externalWrites') is distinct from 'false' or (p_generated->>'published') is distinct from 'false' then raise exception 'invalid_monthly';end if;
  if not exists(select 1 from auth.users where id=p_owner and deleted_at is null and raw_app_meta_data->>'hana_office_access'='true') then raise exception 'access_required';end if;
  perform pg_advisory_xact_lock(hashtextextended(p_owner::text||p_month,73));

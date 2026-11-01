@@ -1,4 +1,5 @@
 \i supabase/schema/hana-monthly-calendar.sql
+\i supabase/migrations/20261101083000_expand_monthly_draft_capacity.sql
 insert into auth.users(id,raw_app_meta_data) values('10000000-0000-4000-8000-000000000006','{"hana_office_access":true}');
 set local role service_role;
 do $$
@@ -32,13 +33,33 @@ begin
  r:=public.hana_monthly_save(o,'2026-11',7,gen_random_uuid(),'{"weekdays":[1]}','{}',g,'[]');
  begin perform public.hana_monthly_review(o,'2026-11',8,'approved',gen_random_uuid());raise exception 'stale_source_approved';exception when others then if SQLERRM='stale_source_approved' then raise;end if;end;
 end $$;
+-- A realistic, aggregate-only month must survive the database boundary without truncation.
+do $$
+declare o uuid:='10000000-0000-4000-8000-000000000006';g jsonb;r jsonb;req uuid:=gen_random_uuid();oversize_req uuid:=gen_random_uuid();
+begin
+ select jsonb_build_object('month','2026-12','sourceVerified',true,'policyConfigured',true,'externalWrites',false,'published',false,'checkedAt',now(),
+  'days',jsonb_agg(jsonb_build_object('date','2026-12-'||lpad(day::text,2,'0'),'status','existing_inventory_verified',
+   'reservationSlots',slots,'existingOpen',slots,'proposed','[]'::jsonb,'conflicts','[]'::jsonb,'warnings','[]'::jsonb))) into g
+ from generate_series(1,31) as day
+ cross join lateral (select jsonb_agg(jsonb_build_object('slotId',day||'-'||slot,'course',repeat('課程範例',8),'start',600,'end',720,'capacity',5,'booked',2,'remaining',3,'status','開放')) as slots from generate_series(1,30) as slot) x;
+ if octet_length(g::text)<=250000 or octet_length(g::text)>2000000 then raise exception 'bad_capacity_fixture';end if;
+ r:=public.hana_monthly_save(o,'2026-12',0,req,'{"mode":"existing_slots_only"}','{"2026-12-02":"closed"}',g,'[]');
+ if r->'generated'<>g or r->'overrides'<>'{"2026-12-02":"closed"}'::jsonb or r->>'state'<>'pending' or (r->>'schedule_enabled')::boolean then raise exception 'large_draft_lost';end if;
+ r:=public.hana_monthly_save(o,'2026-12',0,req,'{}','{}',g,'[]');
+ if (r->>'revision')::int<>1 then raise exception 'large_draft_replay';end if;
+ begin
+  perform public.hana_monthly_save(o,'2026-12',1,oversize_req,'{}','{}',g||jsonb_build_object('padding',repeat('課',666667)),'[]');
+  raise exception 'oversize_draft_accepted';
+ exception when others then if SQLERRM<>'invalid_monthly' then raise;end if;end;
+ if exists(select 1 from public.hana_automation_events where id=oversize_req) or (select revision from public.hana_monthly_drafts where owner_id=o and month='2026-12')<>1 then raise exception 'oversize_draft_partial_write';end if;
+end $$;
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000002',true);
 do $$ begin if exists(select 1 from public.hana_monthly_drafts) then raise exception 'monthly_cross_owner_read';end if;end $$;
 select set_config('request.jwt.claim.sub','10000000-0000-4000-8000-000000000006',true);
 select set_config('request.jwt.claims','{"app_metadata":{"hana_office_access":true}}',true);
-do $$ begin if (select count(*) from public.hana_monthly_drafts)<>1 then raise exception 'owner_cannot_read';end if;
+do $$ begin if (select count(*) from public.hana_monthly_drafts)<>2 then raise exception 'owner_cannot_read';end if;
  begin update public.hana_monthly_drafts set schedule_enabled=true;raise exception 'client_can_enable';exception when insufficient_privilege then null;end;
 end $$;
 reset role;
