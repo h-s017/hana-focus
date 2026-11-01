@@ -1,5 +1,5 @@
 import {beginGoogleConnection,googleMessage} from './google-connect.mjs';
-import {beginCanvaConnection,canvaMessage,canvaSetupDiagnostic} from './canva-connect.mjs?v=office-20261101-r1';
+import {beginCanvaConnection,canvaMessage,canvaSetupDiagnostic} from './canva-connect.mjs?v=office-20261102-r1';
 // Existing icon destinations and compact navigation share one route, including refresh/back.
 export function mountWorkspaceNavigation(host,{db}={}){
  const tiles=document.querySelector('nav.tiles');
@@ -67,11 +67,12 @@ export function mountWorkspaceNavigation(host,{db}={}){
  const canvaInfo=document.createElement('details');const canvaSummary=document.createElement('summary');canvaSummary.textContent='設定步驟（僅管理員）';canvaInfo.append(canvaSummary);
  const canvaSteps=document.createElement('p');canvaSteps.textContent='Canva Developer → HANA AI OFFICE → Outside Canva：請確認 Scopes 已開啟 design:content:write、design:meta:read、folder:read、folder:write，Redirect URL 為 https://h-s017.github.io/hana-focus/canva-oauth-callback.html。於 Supabase Edge Functions Secrets 設定 CANVA_CLIENT_ID、CANVA_CLIENT_SECRET、CANVA_OWNER_ID，以及既有 HANA_CONNECTOR_ENCRYPTION_KEY（不得覆寫既有加密金鑰）。請勿將 Client Secret 貼入聊天室或公開 GitHub。設定完成且後端與頁面已正式發布後，再返回按連接。';canvaInfo.append(canvaSteps,canvaLink,document.createElement('br'),canvaSecrets);
  canva.append(canvaTitle,canvaStatus,canvaHelp,canvaVerify,canvaConnect,canvaDailyCheck,canvaDailyStatus,canvaDailyLink,canvaInfo);settings.append(canva);
- const legacy=document.createElement('details');legacy.id='office-legacy-tools';
- const legacySummary=document.createElement('summary');legacySummary.textContent='封存與開發工具';legacy.append(legacySummary);
- const automation=document.getElementById('office-automation');if(automation){const group=document.createElement('details');const label=document.createElement('summary');label.textContent='進階：既有背景整理與 OneDrive 連線';group.append(label,automation);settings.append(group);}
+ // Keep historical controls for recovery without a visible or focusable archive entry.
+ const legacy=document.createElement('div');legacy.id='office-legacy-tools';legacy.hidden=true;legacy.inert=true;
+ const automation=document.getElementById('office-automation');if(automation){const group=document.createElement('details');const label=document.createElement('summary');label.textContent='進階：既有背景整理與 OneDrive 連線';group.append(label,automation);legacy.append(group);}
  for(const id of ['office-agent-archive','office-calendar-demo']){const node=document.getElementById(id);if(node)legacy.append(node);}
  settings.append(legacy);
+ const install=document.getElementById('workspace-install');if(install){install.hidden=false;settings.append(install);}
  document.getElementById('office-private').append(settings);
  const routes={work:['工作','office-focus'],projects:['品牌專案','office-focus'],agents:['三大 AI Agent','office-focus'],reviews:['需要我決定','office-focus'],activity:['執行紀錄','office-focus'],church:['教會工作','office-focus'],calendar:['月曆','hana-month-calendar'],orders:['預約','office-orders'],materials:['素材','office-materials'],settings:['設定','office-settings']};
  const parse=()=>{if(Object.hasOwn(routes,location.hash.slice(1)))return location.hash.slice(1);try{const saved=sessionStorage.getItem('hana-focus-destination');return Object.hasOwn(routes,saved)?saved:'work';}catch{return 'work';}};
