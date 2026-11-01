@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-01",
+  "day": 14,
+  "title": "如何規劃一份嗅覺創作簡報？",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "如何規劃一份嗅覺創作簡報？",
+      "body": "HANA 嗅覺微課 · Day 014\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "先說明目標",
+      "body": "作品希望傳達什麼，以及準備在哪種場域使用？"
+    },
+    {
+      "title": "整理使用情境",
+      "body": "受眾、空間、時間與體驗流程都應列入說明。"
+    },
+    {
+      "title": "定義交付範圍",
+      "body": "概念稿、視覺提案與實際製作文件不可混為一談。"
+    },
+    {
+      "title": "列出未確認事項",
+      "body": "素材規格、授權與法規事項應由相關專業人員核實。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "用五行寫下主題、目的、受眾、形式與待確認事項。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "當代藝術展覽型錄",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "014",
+    "DATE": "2026-11-01",
+    "PAGE_01_TITLE": "如何規劃一份嗅覺創作簡報？",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 014\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "先說明目標",
+    "PAGE_02_BODY": "作品希望傳達什麼，以及準備在哪種場域使用？",
+    "PAGE_03_TITLE": "整理使用情境",
+    "PAGE_03_BODY": "受眾、空間、時間與體驗流程都應列入說明。",
+    "PAGE_04_TITLE": "定義交付範圍",
+    "PAGE_04_BODY": "概念稿、視覺提案與實際製作文件不可混為一談。",
+    "PAGE_05_TITLE": "列出未確認事項",
+    "PAGE_05_BODY": "素材規格、授權與法規事項應由相關專業人員核實。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "用五行寫下主題、目的、受眾、形式與待確認事項。"
+  },
+  "music": {
+    "composer": "Maurice Ravel",
+    "work": "Miroirs: Une barque sur l’océan",
+    "reason": "練習以序列呈現感受",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
