@@ -1,5 +1,5 @@
 import {createClient} from 'https://esm.sh/@supabase/supabase-js@2.57.0';
-const db=createClient("https://uzqaodfmnrjrsbvxhlmh.supabase.co","sb_publishable_3ukkjs-QtgauXjmOrcDAVg_XBWzh2rd",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'hana-focus-newsletter-cms-admin'}});
+const db=createClient("https://uzqaodfmnrjrsbvxhlmh.supabase.co","sb_publishable_3ukkjs-QtgauXjmOrcDAVg_XBWzh2rd",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storage:sessionStorage,storageKey:'hana-focus-newsletter-cms-admin'}});
 const $=id=>document.getElementById(id);
 const show=(id,visible)=>{$(id).hidden=!visible;};
 const say=text=>{$('status').textContent=text;};
