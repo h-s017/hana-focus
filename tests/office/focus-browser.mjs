@@ -24,7 +24,8 @@ try{
  await page.goto('https://h-s017.github.io/hana-focus/index.html');const root=page.locator('#office-focus');await root.getByRole('status').filter({hasText:'已更新雲端資料'}).waitFor();
  await mkdir('test-artifacts',{recursive:true});await page.screenshot({path:'test-artifacts/workspace-redesign-mobile.png',fullPage:true});await page.setViewportSize({width:820,height:900});await page.screenshot({path:'test-artifacts/workspace-redesign-desktop.png',fullPage:true});await page.setViewportSize({width:390,height:844});
  const nav=page.getByRole('navigation',{name:'工作台主要功能'});await root.getByLabel('新增雲端工作',{exact:true}).fill('unsent requirement');
- assert.equal(await nav.locator('a').count(),6);
+ assert.equal(await nav.locator('a').count(),7);
+ assert.equal(await nav.getByRole('link',{name:'氣味通信 訂閱名單',exact:true}).getAttribute('href'),'./newsletter.html');
  for(const [key,id] of [['calendar','hana-month-calendar'],['orders','office-orders']]){await nav.locator('[data-view="'+key+'"]').click();await page.locator('#'+id).waitFor({state:'visible'});assert.equal(await root.isVisible(),false);assert.equal(await nav.locator('[data-view="'+key+'"]').getAttribute('aria-current'),'page');}
  await page.locator('.workspace-settings').click();await page.locator('#office-settings').waitFor({state:'visible'});
  await nav.locator('[data-view="work"]').click();await root.waitFor({state:'visible'});assert.equal(await root.getByLabel('新增雲端工作',{exact:true}).inputValue(),'unsent requirement');assert.equal(await page.locator('#office-orders').isVisible(),false);await root.getByLabel('新增雲端工作',{exact:true}).fill('');
@@ -60,7 +61,7 @@ try{
  await agents.getByRole('button',{name:'更新幫手狀態',exact:true}).click();
  await agents.locator('.hana-agent-card').first().getByRole('status').filter({hasText:/還沒確認|還沒有|已有 Canva|需要補充|目前無法|今天的文案/}).waitFor();
  assert.equal(await root.locator('.focus-composer').isVisible(),true);assert.equal(await root.getByRole('heading',{name:'全部工作與詳細操作',exact:true}).isVisible(),false);
- const icons=page.locator('nav.tiles');assert.equal(await icons.locator('a').count(),6);
+ const icons=page.locator('nav.tiles');assert.equal(await icons.locator('a').count(),7);
  for(const [key,heading] of [['projects','品牌專案'],['reviews','需要我決定'],['activity','執行紀錄']]){await page.evaluate(key=>location.hash=key,key);await root.getByRole('heading',{name:heading,exact:true}).waitFor();assert.equal(await root.locator('.focus-composer').isVisible(),false);}
  await icons.locator('[data-view="church"]').click();await root.getByRole('heading',{name:'教會工作',exact:true}).waitFor();assert.equal(await root.getByLabel('雲端工作區').inputValue(),'church');assert.equal(await root.getByRole('button',{name:'加入工作並開始整理',exact:true}).isDisabled(),true);await icons.locator('[data-view="orders"]').click();await page.locator('#office-orders').waitFor({state:'visible'});assert.equal(await page.locator('#office-orders').isVisible(),true);assert.equal(await page.locator('html').getAttribute('data-focus-workspace'),'work');await icons.locator('[data-view="church"]').click();await root.getByRole('heading',{name:'教會工作',exact:true}).waitFor();
  await icons.locator('[data-view="projects"]').click();await root.getByRole('heading',{name:'品牌專案',exact:true}).waitFor();assert.equal(await root.getByLabel('雲端工作區').inputValue(),'work');await page.reload();await root.getByRole('heading',{name:'品牌專案',exact:true}).waitFor();
