@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-02",
+  "day": 15,
+  "title": "紙張的時間感",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "紙張的時間感",
+      "body": "HANA 嗅覺微課 · Day 015\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "從表面開始",
+      "body": "先描述紙的纖維、紋路和光澤，避免直接猜測氣味。"
+    },
+    {
+      "title": "時間留下線索",
+      "body": "新紙與保存多年的紙，會帶來不同的視覺與記憶聯想。"
+    },
+    {
+      "title": "材質也是敘事",
+      "body": "紙張的顏色、厚薄與使用痕跡能支撐一個主題。"
+    },
+    {
+      "title": "區分感知與想像",
+      "body": "看到舊書，不代表實際聞到某一種特定氣味。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "挑兩種紙張，寫下觀察到的材質和想像的氛圍各兩詞。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "復古紙張圖鑑",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "015",
+    "DATE": "2026-11-02",
+    "PAGE_01_TITLE": "紙張的時間感",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 015\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "從表面開始",
+    "PAGE_02_BODY": "先描述紙的纖維、紋路和光澤，避免直接猜測氣味。",
+    "PAGE_03_TITLE": "時間留下線索",
+    "PAGE_03_BODY": "新紙與保存多年的紙，會帶來不同的視覺與記憶聯想。",
+    "PAGE_04_TITLE": "材質也是敘事",
+    "PAGE_04_BODY": "紙張的顏色、厚薄與使用痕跡能支撐一個主題。",
+    "PAGE_05_TITLE": "區分感知與想像",
+    "PAGE_05_BODY": "看到舊書，不代表實際聞到某一種特定氣味。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "挑兩種紙張，寫下觀察到的材質和想像的氛圍各兩詞。"
+  },
+  "music": {
+    "composer": "Claude Debussy",
+    "work": "Préludes, Book I: La fille aux cheveux de lin",
+    "reason": "細微色彩與音樂層次",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
