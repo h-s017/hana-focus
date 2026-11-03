@@ -1,6 +1,6 @@
 import {focusDestination} from './calendar-overview.mjs';
 import {beginGoogleConnection,googleMessage} from './google-connect.mjs';
-import {beginCanvaConnection,canvaMessage,canvaSetupDiagnostic} from './canva-connect.mjs?v=office-20261101-r1';
+import {beginCanvaConnection,canvaMessage,canvaSetupDiagnostic} from './canva-connect.mjs?v=office-20261104-unified-calendar';
 // Existing icon destinations and compact navigation share one route, including refresh/back.
 export function mountWorkspaceNavigation(host,{db}={}){
  const tiles=document.querySelector('nav.tiles');
