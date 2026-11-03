@@ -12,7 +12,7 @@ export function mountDailyAgenda({db,owner,now=Date.now}){
  async function show(manual=false){
   if(disposed||loading||dialog.open)return;let seen;try{seen=localStorage.getItem(key);}catch{}
   if(!manual&&(!enabled.checked||!reminderDue(now(),seen)||document.visibilityState!=='visible'||['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)))return;
-  try{localStorage.setItem(key,taipeiDay(new Date(now()).toISOString()));}catch{}
+  if(reminderDue(now(),null))try{localStorage.setItem(key,taipeiDay(new Date(now()).toISOString()));}catch{}
   loading=true;status.textContent='正在讀取 HANA 與教會工作…';list.replaceChildren();dialog.showModal();
   try{
    const {data,error}=await db.functions.invoke('hana-automation',{body:{action:'focus_snapshot'}});if(error||data?.error)throw Error('unavailable');if(disposed)return;
@@ -23,7 +23,6 @@ export function mountDailyAgenda({db,owner,now=Date.now}){
     if(!groups[key].length)section.append(el('p','目前已讀取資料沒有此類待辦。'));list.append(section);
    }
    status.textContent='來源：HANA FOCUS 兩個雲端工作區。Google 行程與正式預約請在月曆核對。'+(data.truncated?'任務僅載入部分資料，清單可能不完整。':'');
-   try{localStorage.setItem(key,date);}catch{}
   }catch{status.textContent='無法讀取當日待辦，請更新共用日曆；這不代表今天沒有工作。';}finally{loading=false;}
  }
  const manual=()=>void show(true),check=()=>void show();window.addEventListener('hana-show-today',manual);document.addEventListener('visibilitychange',check);
