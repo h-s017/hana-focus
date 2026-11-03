@@ -1,6 +1,6 @@
 import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=office-20261104-unified-calendar';
 document.documentElement.dataset.focusWorkspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
-import {mountFocusDashboard} from './focus-dashboard.mjs?v=office-20261104-unified-calendar';
+import {mountFocusDashboard} from './focus-dashboard.mjs?v=office-20261104-church-create';
 import {mountMonthlyCalendar} from './monthly-calendar-app.mjs?v=office-20261104-unified-calendar';
 import {mountReservationOrders} from './reservation-orders.mjs';
 import {db} from './office-client.mjs';
