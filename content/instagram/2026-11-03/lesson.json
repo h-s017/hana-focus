@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-03",
+  "day": 16,
+  "title": "布料的層次",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "布料的層次",
+      "body": "HANA 嗅覺微課 · Day 016\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "軟硬如何被想像",
+      "body": "布的垂墜、編織密度和表面處理影響整體印象。"
+    },
+    {
+      "title": "靠近與距離",
+      "body": "近看材質與遠看輪廓，可能讓作品呈現不同節奏。"
+    },
+    {
+      "title": "色彩不是答案",
+      "body": "同樣的質地使用不同顏色，也未必改變實際氣味。"
+    },
+    {
+      "title": "設計需要對照",
+      "body": "將布料視覺和氣味語言分開記錄，才容易回頭修訂。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "為棉、麻兩種材質各寫一個不使用「舒服」的描述。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "織物紋理攝影",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "016",
+    "DATE": "2026-11-03",
+    "PAGE_01_TITLE": "布料的層次",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 016\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "軟硬如何被想像",
+    "PAGE_02_BODY": "布的垂墜、編織密度和表面處理影響整體印象。",
+    "PAGE_03_TITLE": "靠近與距離",
+    "PAGE_03_BODY": "近看材質與遠看輪廓，可能讓作品呈現不同節奏。",
+    "PAGE_04_TITLE": "色彩不是答案",
+    "PAGE_04_BODY": "同樣的質地使用不同顏色，也未必改變實際氣味。",
+    "PAGE_05_TITLE": "設計需要對照",
+    "PAGE_05_BODY": "將布料視覺和氣味語言分開記錄，才容易回頭修訂。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "為棉、麻兩種材質各寫一個不使用「舒服」的描述。"
+  },
+  "music": {
+    "composer": "Maurice Ravel",
+    "work": "Pavane pour une infante défunte",
+    "reason": "讓回憶與時間有留白",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
