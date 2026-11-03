@@ -11,16 +11,16 @@ body :is(input,select,textarea){background:var(--focus-bg)!important;color:var(-
 body button,body .workspace-settings{background:var(--focus-bg)!important;color:var(--focus-text)!important;border:1px solid #b8b8b8!important;min-height:44px;font-family:var(--focus-font-family)!important}
 body :is(button.primary,button.focus-primary,button[type=submit],#office-login){background:var(--focus-brand)!important;color:var(--focus-on-brand)!important;border-color:var(--focus-brand)!important}
 body :is(button.primary,button.focus-primary,button[type=submit],#office-login) *{color:var(--focus-on-brand)!important}
-body :is(a,button,input,select,textarea,summary):focus-visible{outline:3px solid var(--focus-brand)!important;outline-offset:3px!important}
+body :is(a,button,input,select,textarea,summary):focus-visible{outline:3px solid #8a8a8a!important;outline-offset:3px!important}
 body input[type=checkbox],body input[type=range]{accent-color:var(--focus-brand)}
-body nav.tiles .tile{min-width:0}body nav.tiles .tile strong{font-size:.95rem!important}body nav.tiles .tile small{font-size:.8rem!important}body nav.tiles [aria-current=page]{background:var(--focus-bg)!important;box-shadow:inset 0 0 0 2px var(--focus-brand)!important}
+body nav.tiles .tile{min-width:0}body nav.tiles .tile strong{font-size:.95rem!important}body nav.tiles .tile small{font-size:.8rem!important}body nav.tiles [aria-current=page]{background:color-mix(in srgb,var(--focus-text) 8%,var(--focus-bg))!important;box-shadow:none!important}
 #hana-office-root{font:1rem var(--focus-font-family)!important;color:var(--focus-text)!important;line-height:1.75}
-#hana-office-root .workspace-nav :is(a,button){font-size:.9rem!important}#hana-office-root .workspace-nav button[aria-current=page]{background:var(--focus-brand)!important;color:var(--focus-on-brand)!important}
+#hana-office-root .workspace-nav :is(a,button){font-size:.9rem!important}#hana-office-root .workspace-nav button[aria-current=page]{background:color-mix(in srgb,var(--focus-text) 8%,var(--focus-bg))!important;color:var(--focus-text)!important;box-shadow:none!important}
 #hana-office-root :is(.focus-quick,.hana-agent-actions){gap:10px}#hana-office-root .hana-agent-card>p{min-height:0}
 #hana-month-calendar{background:var(--focus-bg)!important;color:var(--focus-text)!important;border-color:var(--focus-border)!important}
 #hana-month-calendar .month-day{background:var(--focus-bg)!important;color:var(--focus-text)!important;min-height:100px;font-size:1rem!important;border:1px solid var(--focus-border)!important}
 #hana-month-calendar .month-day strong{font-size:1rem!important}#hana-month-calendar .month-day small{font-size:.72rem!important;line-height:1.5!important}
-#hana-month-calendar .month-day[aria-pressed=true]{outline:2px solid var(--focus-brand)!important;outline-offset:-2px!important}#hana-month-calendar .month-day[aria-current]{box-shadow:inset 0 0 0 2px var(--focus-brand)!important}
+#hana-month-calendar .month-day[aria-pressed=true]{outline:none!important;box-shadow:none!important;background:color-mix(in srgb,var(--focus-text) 8%,var(--focus-bg))!important}#hana-month-calendar .month-day[aria-current]{box-shadow:none!important;font-weight:700}#hana-month-calendar .month-day:focus-visible{outline:3px solid #8a8a8a!important;outline-offset:2px!important}
 #hana-month-calendar .month-list-view .month-day{min-height:58px;flex-wrap:wrap}#hana-month-calendar .month-list-view .month-day small{font-size:.85rem!important}
 .month-toolbar{gap:9px!important}.month-toolbar :is(button,a){font-size:.85rem!important;white-space:normal}.month-summary span{font-size:.9rem!important}
 .focus-appearance-toggle{position:fixed;right:18px;bottom:20px;z-index:35;border-radius:99px!important;padding:9px 16px!important;font-size:.85rem!important;box-shadow:0 3px 18px #0001!important;min-height:44px}
