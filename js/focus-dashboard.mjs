@@ -2,7 +2,7 @@ import {workStages,workStageText} from './work-stage.mjs';
 import {focusSummary,AGENT_ROLES} from './focus-domain.mjs';
 import {makeBackup,restoreBackup} from './focus-backup.mjs';
 import {createInternalCanvaPackage,CANVA_FORMATS} from './project-canva-export.mjs';
-import {mountThreeAgentConsole} from './three-agent-console.mjs';
+import {mountThreeAgentConsole} from './three-agent-console.mjs?v=shared-calendar-20261104';
 import {mountCalendarSyncPanel,inputWindow,taipeiInput} from './calendar-sync-app.mjs';
 const stateNames={todo:'未開始',in_progress:'進行中',waiting:'等待中',done:'工作已完成（非客戶交付核准）'};
 export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){

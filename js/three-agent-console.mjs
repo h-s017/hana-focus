@@ -13,7 +13,7 @@ export function mountThreeAgentConsole(host,{db,request=fetch,now=()=>new Date()
  const cards=new Map();
  for(const agent of THREE_AGENTS){
   const article=element('article');article.className='hana-agent-card';
-  article.append(element('h3',agent.name),element('p',CAPABILITIES[agent.id]));
+  const portrait=element('img');portrait.className='hana-agent-portrait';portrait.src='./icons/agent-'+({social:'sora',secretary:'hana',pm:'mori'}[agent.id])+'.png';portrait.alt=({social:'Sora 貓頭鷹',secretary:'Hana 貓',pm:'Mori 小熊貓'}[agent.id]);portrait.width=portrait.height=88;article.append(portrait,element('h3',agent.name),element('p',CAPABILITIES[agent.id]));
   const state=element('p','正在讀取…');state.className='hana-agent-state';state.setAttribute('role','status');
   const detail=element('p','尚未確認服務狀態。');detail.className='hana-agent-detail';
   const actions=element('div');actions.className='hana-agent-actions';
