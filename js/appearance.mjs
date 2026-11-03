@@ -30,7 +30,7 @@ export function mountAppearance(doc=document){
  function preview(){const x=values();output.value=x.fontSize+'px';sample.style.background=x.background;sample.style.color=x.text;sample.style.setProperty('--focus-text',x.text);sample.style.fontFamily=FONTS[x.fontFamily];sample.style.fontSize=x.fontSize+'px';const readable=contrastRatio(x.background,x.text)>=4.5;message.textContent=readable?'預覽中；按「儲存外觀」保留設定。':'背景與文字太接近，請調深文字或調淺背景，讓內容清楚可讀。';applyAppearance(doc.documentElement,readable?x:{...current,fontSize:x.fontSize,fontFamily:x.fontFamily});}
  for(const input of Object.values(fields))input.addEventListener('input',preview);
  toggle.onclick=()=>{populate(current);dialog.showModal();};
- cancel.onclick=()=>dialog.close();dialog.addEventListener('close',()=>applyAppearance(doc.documentElement,current));
+ cancel.onclick=()=>{applyAppearance(doc.documentElement,current);dialog.close();};dialog.addEventListener('cancel',()=>applyAppearance(doc.documentElement,current));dialog.addEventListener('close',()=>applyAppearance(doc.documentElement,current));
  function persist(x){try{if(!storage)throw Error();storage.setItem(APPEARANCE_KEY,JSON.stringify(x));current=applyAppearance(doc.documentElement,x);status.hidden=false;status.textContent='外觀設定已儲存';clearTimeout(timer);timer=setTimeout(()=>status.hidden=true,3000);dialog.close();}catch{message.textContent='這個瀏覽器無法儲存外觀設定；尚未保存，請檢查瀏覽器儲存權限。';}}
  reset.onclick=()=>{populate(DEFAULT_APPEARANCE);persist({...DEFAULT_APPEARANCE});};
  form.onsubmit=event=>{event.preventDefault();const x=values();if(contrastRatio(x.background,x.text)<4.5){message.textContent='文字與背景對比不足，請調整顏色後再儲存。';return;}persist(x);};
