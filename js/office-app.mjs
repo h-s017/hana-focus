@@ -1,12 +1,12 @@
-import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=office-20261101-r1';
+import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=office-20261104-unified-calendar';
 document.documentElement.dataset.focusWorkspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
-import {mountFocusDashboard} from './focus-dashboard.mjs?v=office-20261101-r1';
-import {mountMonthlyCalendar} from './monthly-calendar-app.mjs?v=office-20261101-r1';
+import {mountFocusDashboard} from './focus-dashboard.mjs?v=office-20261104-unified-calendar';
+import {mountMonthlyCalendar} from './monthly-calendar-app.mjs?v=office-20261104-unified-calendar';
 import {mountReservationOrders} from './reservation-orders.mjs';
 import {db} from './office-client.mjs';
 import {loginController,consumeCallback,authMessage} from './office-auth.mjs';
 import {STATES,NEXT_ROLE} from './office-workflow.mjs';
-import {mountAutomation} from './automation-app.mjs?v=office-20261101-r1';
+import {mountAutomation} from './automation-app.mjs?v=office-20261104-unified-calendar';
 import {mountMaterials} from './project-materials.mjs';
 import {availableSlots} from './calendar-availability.mjs';
 const host=document.getElementById('hana-office-root');
