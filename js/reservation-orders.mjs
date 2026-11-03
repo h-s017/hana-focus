@@ -1,3 +1,4 @@
+import {orderMatchesDate} from './calendar-overview.mjs';
 export function mountReservationOrders(host,{db}){
  let disposed=false,busy=false,generation=0,rows=[],cursor=null,next=null;const history=[];
  const el=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=String(text);return e;};
@@ -5,17 +6,18 @@ export function mountReservationOrders(host,{db}){
  const title=el('h2','客戶預約明細｜唯讀'),notice=el('p','資料由原預約系統即時讀取，不複製客戶資料到工作台資料庫。僅限已獲預約查詢權限的管理帳號。');
  const status=el('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  const search=el('input');search.type='search';search.placeholder='搜尋目前頁的姓名、訂單編號、課程';search.setAttribute('aria-label','搜尋本頁預約');search.autocomplete='off';
- const list=el('div'),controls=el('div');
+ const list=el('div'),controls=el('div');const date=el('input');date.type='date';date.setAttribute('aria-label','依日期篩選本頁預約');const dateLabel=el('label','日期篩選（僅目前頁）');dateLabel.append(date);const filterNote=el('p');filterNote.setAttribute('role','status');
  const button=(text,fn)=>{const b=el('button',text);b.type='button';b.onclick=fn;return b;};
  const first=button('讀取／重新整理預約明細',()=>load(null,true)),prev=button('上一頁',()=>{if(history.length)void load(history.pop(),false,true);}),more=button('下一頁',()=>{if(next){history.push(cursor);void load(next);}});
  prev.disabled=more.disabled=true;controls.append(first,prev,more);
  const money=v=>v===null||v===undefined?'未提供':'NT$ '+Number(v).toLocaleString('zh-TW');
- function render(){list.replaceChildren();const q=search.value.trim().toLocaleLowerCase();
-  for(const row of rows){if(q&&![row.id,row.name,row.course,row.variant,row.sessions].join(' ').toLocaleLowerCase().includes(q))continue;
+ function render(){list.replaceChildren();let matched=0;const q=search.value.trim().toLocaleLowerCase();
+  for(const row of rows){if(!orderMatchesDate(row,date.value))continue;if(q&&![row.id,row.name,row.course,row.variant,row.sessions].join(' ').toLocaleLowerCase().includes(q))continue;
    const article=el('article'),detail=el('details');detail.append(el('summary',row.name+'｜'+row.course+'｜'+(stateNames[row.status]||row.status||'狀態待確認')));
    for(const [label,value] of [['訂單編號',row.id],['課程方案',row.variant],['場次',row.sessions],['人數／單位',row.quantity===null?'未提供':String(row.quantity)+' '+(row.booking_unit||'位')],['金額',money(row.amount)],['付款狀態',stateNames[row.status]||row.status],['電話',row.phone],['Email',row.email],['LINE',row.line],['取消狀態',row.cancellation_status],['備註',row.note]])detail.append(el('p',label+'：'+(value||'—')));
-   article.append(detail);list.append(article);
+   article.append(detail);list.append(article);matched++;
   }
+  filterNote.textContent=(date.value?date.value+'｜':'')+'目前頁符合 '+matched+' 筆；不代表全部訂單。其他頁請使用下一頁查詢。';
  }
  async function load(wanted,reset=false,back=false){if(disposed||busy)return;busy=true;first.disabled=prev.disabled=more.disabled=true;const v=++generation;status.textContent='正在唯讀查詢原系統…';
   // Clear previous private records before a request, including when a session expires.
@@ -31,7 +33,7 @@ export function mountReservationOrders(host,{db}){
    status.textContent=messages[error.code]||'暫時無法讀取預約明細。請確認登入及原系統連線；正式預約沒有變更。';
   }finally{busy=false;if(!disposed){first.disabled=false;prev.disabled=!history.length;more.disabled=!next;}}
  }
- search.oninput=render;host.replaceChildren(title,notice,controls,search,status,list);status.textContent='按「讀取／重新整理預約明細」查詢。';
+ const selectDate=event=>{if(/^\d{4}-\d{2}-\d{2}$/.test(event.detail||'')){date.value=event.detail;render();}};window.addEventListener('hana-reservation-date',selectDate);date.onchange=render;search.oninput=render;host.replaceChildren(title,notice,controls,dateLabel,search,status,filterNote,list);status.textContent='按「讀取／重新整理預約明細」查詢。';
  // No localStorage, offline cache, URL parameters, third-party resources or automatic PII fetch.
- return ()=>{disposed=true;generation++;rows=[];next=null;cursor=null;history.length=0;search.value='';host.replaceChildren();};
+ return ()=>{window.removeEventListener('hana-reservation-date',selectDate);disposed=true;generation++;rows=[];next=null;cursor=null;history.length=0;search.value='';host.replaceChildren();};
 }
