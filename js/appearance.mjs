@@ -8,7 +8,7 @@ const luminance=c=>{const v=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)/255).map(
 export function contrastRatio(a,b){const l1=luminance(a),l2=luminance(b);return (Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);}
 export function onBrand(brand){return contrastRatio(brand,'#ffffff')>=contrastRatio(brand,'#000000')?'#ffffff':'#000000';}
 export function readAppearance(storage){try{return normalizeAppearance(JSON.parse(storage.getItem(APPEARANCE_KEY)||'null'));}catch{return {...DEFAULT_APPEARANCE};}}
-export function applyAppearance(root,value){const x=normalizeAppearance(value);root.dataset.focusAppearance='';for(const [key,v] of Object.entries({'--focus-bg':x.background,'--focus-text':x.text,'--focus-brand':x.brand,'--focus-on-brand':onBrand(x.brand),'--focus-font-size':x.fontSize+'px','--focus-font-family':FONTS[x.fontFamily]}))root.style.setProperty(key,v);return x;}
+export function applyAppearance(root,value){const x=normalizeAppearance(value);root.dataset.focusAppearance='';root.ownerDocument?.querySelector('meta[name="theme-color"]')?.setAttribute('content',x.background);for(const [key,v] of Object.entries({'--focus-bg':x.background,'--focus-text':x.text,'--focus-brand':x.brand,'--focus-on-brand':onBrand(x.brand),'--focus-font-size':x.fontSize+'px','--focus-font-family':FONTS[x.fontFamily]}))root.style.setProperty(key,v);return x;}
 export function mountAppearance(doc=document){
  if(doc.getElementById('focus-appearance-dialog'))return;
  let storage=null;try{storage=window.localStorage;}catch{}
