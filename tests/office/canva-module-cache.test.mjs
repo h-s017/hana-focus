@@ -5,8 +5,8 @@ const read=name=>readFileSync(fileURLToPath(new URL('../../'+name,import.meta.ur
 const paths=['workspace.html','ai-office.html','js/office-app.mjs','js/workspace-navigation.mjs'];
 const version='office-20261104-unified-calendar';
 const refs=[
- 'src="./js/office-app.mjs?v='+version+'"',
- 'src="./js/office-app.mjs?v='+version+'"',
+ 'src="./js/office-app.mjs?v=orders-intake-20261104"',
+ 'src="./js/office-app.mjs?v=orders-intake-20261104"',
  "from './workspace-navigation.mjs?v="+version+"'",
  "from './canva-connect.mjs?v="+version+"'"
 ];

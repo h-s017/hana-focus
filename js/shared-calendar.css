@@ -17,3 +17,5 @@
 #hana-month-calendar .month-list-view .shared-day-task{flex:0 0 100%;white-space:normal;text-align:left!important}
 
 #hana-month-calendar .shared-day-more{font-weight:600;text-align:left;padding:3px 2px}
+/* Private intake receipts and manual order preview */
+.intake-toast{position:fixed;inset:auto 16px 20px auto;z-index:1000;max-width:min(450px,calc(100vw - 32px));padding:18px;background:#fff;color:#111;border:1px solid #ddd;border-radius:18px;box-shadow:0 6px 24px #0002;font:18px/1.5 system-ui}.intake-toast button{font:inherit;margin:5px;background:#f3f3f3;color:#111;border:0;border-radius:10px;padding:8px 12px}#office-orders label{display:block;margin:12px 0}#office-orders input:not([type=checkbox]),#office-orders select,#office-orders textarea{display:block;max-width:100%;width:100%;box-sizing:border-box;font:inherit;padding:10px;background:#fff;color:#111;border:1px solid #ddd;border-radius:10px}#office-orders input[type=checkbox]{margin-right:8px}#office-orders article{padding:12px 0;border-bottom:1px solid #eee}#office-orders details>summary{cursor:pointer;line-height:1.6}#office-orders button{margin:6px 8px 6px 0}#office-orders form{max-width:700px}
