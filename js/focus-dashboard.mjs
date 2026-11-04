@@ -3,14 +3,14 @@ import {focusSummary,AGENT_ROLES} from './focus-domain.mjs';
 import {makeBackup,restoreBackup} from './focus-backup.mjs';
 import {createInternalCanvaPackage,CANVA_FORMATS} from './project-canva-export.mjs';
 import {mountThreeAgentConsole} from './three-agent-console.mjs?v=shared-calendar-20261104';
-import {mountCalendarSyncPanel,inputWindow,taipeiInput} from './calendar-sync-app.mjs';
+import {inputWindow,taipeiInput} from './calendar-sync-app.mjs?v=google-hub-20261104';
 const stateNames={todo:'未開始',in_progress:'進行中',waiting:'等待中',done:'工作已完成（非客戶交付核准）'};
 export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
  let disposed=false,busy=false,generation=0,data=null,projectId='',workspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
  const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=String(text);return n;};
  const button=(text,fn)=>{const b=el('button',text);b.type='button';b.onclick=fn;return b;};
  const status=el('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');const content=el('div');
- const calendarPanel=el('div');mountCalendarSyncPanel(calendarPanel,{db});
+ const calendarPanel=el('div'),calendarEntry=el('a','前往共用日曆管理 Google 同步與審核');calendarEntry.href='#calendar';calendarPanel.append(calendarEntry);
  let view=document.getElementById('hana-office-root')?.dataset.destination||'work';
  const head=el('h2','今天想完成什麼？'),help=el('p','選擇專案、寫下需求，讓 Agent 協助整理；成果由你審核。');help.className='focus-intro';
  const controls=el('div'),workspaceSelect=el('select'),projectSelect=el('select');workspaceSelect.setAttribute('aria-label','雲端工作區');for(const [v,text] of [['work','HANA WORK'],['church','CHURCH WORK']]){const o=el('option',text);o.value=v;workspaceSelect.append(o);}workspaceSelect.value=workspace;
@@ -101,3 +101,4 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
  const timer=setInterval(()=>{if(document.visibilityState==='visible'&&!busy&&!(host.contains(document.activeElement)&&['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)))void load();},30000);void load();
  return ()=>{disposed=true;generation++;clearInterval(timer);window.removeEventListener('hana-workspace-changed',change);window.removeEventListener('hana-focus-view',viewChange);data=null;agentController.dispose();host.replaceChildren();};
 }
+
