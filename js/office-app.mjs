@@ -3,7 +3,7 @@ import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=office-2026
 document.documentElement.dataset.focusWorkspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
 import {mountFocusDashboard} from './focus-dashboard.mjs?v=google-hub-20261104';
 import {mountMonthlyCalendar} from './monthly-calendar-app.mjs?v=compact-calendar-20261104';
-import {mountReservationOrders} from './reservation-orders.mjs?v=orders-intake-20261104';
+import {mountReservationOrders} from './reservation-orders.mjs?v=orders-intake-20261104b';
 import {db} from './office-client.mjs';
 import {loginController,consumeCallback,authMessage} from './office-auth.mjs';
 import {STATES,NEXT_ROLE} from './office-workflow.mjs';

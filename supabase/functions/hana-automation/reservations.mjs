@@ -56,6 +56,7 @@ export function reservationReader({token,store,ownerId,fetcher=fetch}){
    const codes={BAD_REQUEST:'invalid_booking_change',SLOT_FULL:'reservation_slot_full',COURSE_UNAVAILABLE:'reservation_course_unavailable',ORDER_STATE_CONFLICT:'reservation_state_conflict',PAYMENT_PENDING:'reservation_state_conflict',NOT_FOUND:'reservation_not_found'};throw fail(codes[data.error]||'reservation_manage_unknown');
   }
   if(body.action==='reservation_catalogue'){
+   if(data.management_version!==1)throw fail('reservation_manage_setup_required');
    if(!Array.isArray(data.courses)||!Array.isArray(data.slots))throw fail('reservation_manage_unknown');
    return {courses:data.courses.map(c=>({id:text(c.id,200),course:text(c.course,200),variant:text(c.variant,120),price:number(c.price,1000000000),unit:text(c.unit,50),required_slots:number(c.required_slots,12),enabled:c.enabled===1,contest:c.contest===1})),slots:data.slots.map(s=>({id:text(s.id,140),course_id:text(s.course_id,200),date:text(s.date,10),time:text(s.time,80),capacity:number(s.capacity,100),booked:number(s.booked,100),bookable:s.bookable===1}))};
   }
