@@ -15,3 +15,5 @@
 @media(max-width:550px){#hana-month-calendar .month-day{min-height:100px}#hana-month-calendar .month-grid .month-day .shared-day-task{font-size:calc(var(--focus-size,18px) * .8)!important}#hana-daily-agenda{padding:18px}#hana-month-calendar .month-list-view .month-day{align-items:center}#hana-month-calendar .month-list-view .shared-day-task{white-space:normal;text-align:left;flex-basis:100%}}
 
 #hana-month-calendar .month-list-view .shared-day-task{flex:0 0 100%;white-space:normal;text-align:left!important}
+
+#hana-month-calendar .shared-day-more{font-weight:600;text-align:left;padding:3px 2px}

@@ -30,7 +30,20 @@ export function mountMonthlyCalendar(host,{db=null,now=Date.now}={}){
   monthTitle.textContent=month+' 月';source.textContent=`Google Calendar：${draft.sourceStatus?.calendar==='verified'?'已驗證':draft.sourceStatus?.calendar==='needs_connection'?'待網站授權':'未驗證'}；Reservation：${draft.sourceStatus?.reservation==='verified'?'已驗證':'未驗證'}。${draft.checkedAt?'檢查時間：'+new Date(draft.checkedAt).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):''}`;
   connect.hidden=draft.sourceStatus?.calendar==='verified';notice.textContent=draft.sourceStatus?.calendar==='needs_connection'?'已驗證的預約場次可以查看，但尚未核對你的私人行程；不會產生或發布新的可預約時段。':'';
   summary.replaceChildren();for(const [label,kind] of [['已預約','booked'],['可預約原場次','available'],['需留意','alerts']]){const n=draft.days.filter(day=>kind==='booked'?overview(day).booked>0:kind==='alerts'?overview(day).alerts.some(a=>!a.includes('Google Calendar')&&!a.includes('來源快照')&&!a.includes('預約來源')):overview(day).kind===kind).length;summary.append(el('span',label+' '+n+' 天'));}grid.classList.toggle('month-list-view',listView);grid.replaceChildren();for(const day of ['日','一','二','三','四','五','六'])grid.append(el('span',day));for(let i=0;i<monthDays(month)[0].weekday;i++)grid.append(el('span'));
-  for(const day of draft.days){const b=button('',()=>{selected=day.date;renderDetail();});const info=overview(day);b.className='month-day month-'+info.kind;b.setAttribute('aria-label',day.date+' '+info.label);b.setAttribute('aria-pressed',String(day.date===selected));b.dataset.date=day.date;b.append(el('strong',listView?day.date:Number(day.date.slice(-2))),el('small',info.label));if(info.booked)b.append(el('small',info.booked+' 個報名單位'));if(info.booked&&info.confidence==='待確認')b.append(el('small','訂單來源需更新'));const items=tasksOnDay(tasks,day.date,workspaceFilter);const events=googleOnDay(googleEvents,day.date,workspaceFilter);for(const e of events){const line=el('small','Google｜'+e.title);line.className='shared-day-task';b.append(line);}for(const t of items){const line=el('small',workspaceName(t.workspace)+'｜'+t.title);line.className='shared-day-task shared-'+t.workspace;b.append(line);}if(items.length||events.length)b.setAttribute('aria-label',day.date+' '+info.label+' 工作 '+items.length+' 件，Google '+events.length+' 件');if(day.date===today)b.setAttribute('aria-current','date');grid.append(b);}
+  for(const day of draft.days){
+   const b=button('',()=>{selected=day.date;renderDetail();detail.scrollIntoView({behavior:'smooth',block:'start'});});
+   const info=overview(day),items=tasksOnDay(tasks,day.date,workspaceFilter),events=googleOnDay(googleEvents,day.date,workspaceFilter);
+   const entries=[...events.map(e=>({title:e.title,time:e.startMs})),...items.map(t=>({title:t.title,time:Date.parse(t.schedule_start_at||t.due_at)||0}))].sort((a,b)=>a.time-b.time);
+   b.className='month-day month-'+info.kind;b.dataset.date=day.date;b.setAttribute('aria-pressed',String(day.date===selected));b.setAttribute('aria-label',day.date+' 行程與工作 '+entries.length+' 筆。'+info.label);
+   b.append(el('strong',listView?day.date:Number(day.date.slice(-2))));
+   if(info.booked)b.append(el('small','已預約 '+info.booked));
+   else if(info.kind==='closed')b.append(el('small','不可預約'));
+   else if(!entries.length&&info.kind==='rule')b.append(el('small',info.label));
+   else if(info.kind==='available')b.append(el('small','可預約'));
+   for(const entry of entries.slice(0,2)){const line=el('small',entry.title);line.className='shared-day-task';line.title=entry.title;b.append(line);}
+   if(entries.length>2){const more=el('small','＋'+(entries.length-2)+' 筆');more.className='shared-day-more';b.append(more);}
+   if(day.date===today)b.setAttribute('aria-current','date');grid.append(b);
+  }
   selected=draft.days.some(d=>d.date===selected)?selected:draft.days.some(d=>d.date===today)?today:draft.days[0].date;renderDetail();
   audit.textContent=record?`草稿 monthly-availability:${month}｜版本 ${record.revision}｜${({pending:'待本人審核',unverified:'待來源或規則驗證',approved_internal:'內部核准・未發布',rejected:'退回'})[record.state]||'待確認'}｜變更日期：${(record.changedDates||draft.changedDates||[]).join('、')||'請見執行紀錄'}。重新產製會重新送審。`:'尚無已儲存草稿。';lock(false);
  }
