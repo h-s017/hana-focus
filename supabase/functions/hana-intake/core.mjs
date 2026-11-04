@@ -29,7 +29,7 @@ export function intakeHandler({store,ownerId,hash,fetcher=fetch}){
    let ack;
    try{const r=await fetcher(SCRIPT,{method:'POST',redirect:'follow',signal:AbortSignal.timeout(30000),headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(d)});if(!r.ok)throw Error();const raw=await r.text();if(raw.length>2000)throw Error();ack=JSON.parse(raw);if(ack.status!=='success'||ack.submissionId!==d.submissionId||!Number.isInteger(ack.row)||ack.row<2)throw Error();}
    catch{await store.finish(d.submissionId,claim.lease,{status:'failed',error_code:'sheet_not_verified'});return reply({error:'save_not_verified'},503);}
-   await store.finish(d.submissionId,claim.lease,{status:'saved',source_row:ack.row,error_code:null});
+   await store.finish(d.submissionId,claim.lease,{status:'saved',source_row:ack.row,error_code:null,submitted_at:d.submittedAt,source_verified_at:new Date().toISOString()});
    return reply({ok:true,submissionId:d.submissionId});
   }catch{return reply({error:'save_not_verified'},503);}
  };
