@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-04",
+  "day": 17,
+  "title": "木質的空間語言",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "木質的空間語言",
+      "body": "HANA 嗅覺微課 · Day 017\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "紋理引導視線",
+      "body": "木紋能建立方向感，也可以成為作品的安靜背景。"
+    },
+    {
+      "title": "從物件到空間",
+      "body": "一張桌子與一整面牆，對場所的影響並不相同。"
+    },
+    {
+      "title": "不要以色猜氣味",
+      "body": "深色木材並不保證帶有特定氣味類別。"
+    },
+    {
+      "title": "先定義作品目的",
+      "body": "材質與氣味應共同回應空間希望傳達的性格。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "選一件木作物件，寫下它在作品中擔任主角或配角的理由。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "木紋建築圖鑑",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "017",
+    "DATE": "2026-11-04",
+    "PAGE_01_TITLE": "木質的空間語言",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 017\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "紋理引導視線",
+    "PAGE_02_BODY": "木紋能建立方向感，也可以成為作品的安靜背景。",
+    "PAGE_03_TITLE": "從物件到空間",
+    "PAGE_03_BODY": "一張桌子與一整面牆，對場所的影響並不相同。",
+    "PAGE_04_TITLE": "不要以色猜氣味",
+    "PAGE_04_BODY": "深色木材並不保證帶有特定氣味類別。",
+    "PAGE_05_TITLE": "先定義作品目的",
+    "PAGE_05_BODY": "材質與氣味應共同回應空間希望傳達的性格。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "選一件木作物件，寫下它在作品中擔任主角或配角的理由。"
+  },
+  "music": {
+    "composer": "Erik Satie",
+    "work": "Gymnopédie No. 1",
+    "reason": "以簡潔感受不同媒材",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}

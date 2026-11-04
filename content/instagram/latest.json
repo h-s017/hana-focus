@@ -1,9 +1,9 @@
 {
-  "lastRunAt": "2026-11-03T06:41:38.095Z",
-  "date": "2026-11-03",
-  "day": 16,
+  "lastRunAt": "2026-11-04T06:08:48.116Z",
+  "date": "2026-11-04",
+  "day": 17,
   "status": "editorial_ready",
-  "topic": "布料的層次",
+  "topic": "木質的空間語言",
   "canvaCreated": false,
   "canvaDesignId": null,
   "canvaEditUrl": null,
@@ -12,10 +12,10 @@
   "imagesGenerated": false,
   "reviewStatus": "internal_automated_checks_passed",
   "published": false,
-  "captionPath": "content/instagram/2026-11-03/caption.md",
-  "canvaCsvPath": "content/instagram/2026-11-03/canva-autofill.csv",
-  "canvaImportPath": "content/instagram/2026-11-03/canva-import.html",
-  "lessonPath": "content/instagram/2026-11-03/lesson.json",
+  "captionPath": "content/instagram/2026-11-04/caption.md",
+  "canvaCsvPath": "content/instagram/2026-11-04/canva-autofill.csv",
+  "canvaImportPath": "content/instagram/2026-11-04/canva-import.html",
+  "lessonPath": "content/instagram/2026-11-04/lesson.json",
   "notes": "Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.",
-  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-03/canva-autofill.csv"
+  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-04/canva-autofill.csv"
 }
