@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-05",
+  "day": 18,
+  "title": "金屬的冷暖錯覺",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "金屬的冷暖錯覺",
+      "body": "HANA 嗅覺微課 · Day 018\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "視覺可以有溫度",
+      "body": "金屬的光澤與色相常使人產生冷暖聯想。"
+    },
+    {
+      "title": "觸感與嗅覺不同",
+      "body": "視覺的冷冽感，不等同實際的溫度或氣味。"
+    },
+    {
+      "title": "留意反射",
+      "body": "反光、周邊物件和空間光線一起影響感受。"
+    },
+    {
+      "title": "使用對照語言",
+      "body": "將精確觀察與主觀比喻分成兩欄。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "描述一件金屬物品，用三個材質詞和一個氣氛詞。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "金屬雕塑攝影",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "018",
+    "DATE": "2026-11-05",
+    "PAGE_01_TITLE": "金屬的冷暖錯覺",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 018\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "視覺可以有溫度",
+    "PAGE_02_BODY": "金屬的光澤與色相常使人產生冷暖聯想。",
+    "PAGE_03_TITLE": "觸感與嗅覺不同",
+    "PAGE_03_BODY": "視覺的冷冽感，不等同實際的溫度或氣味。",
+    "PAGE_04_TITLE": "留意反射",
+    "PAGE_04_BODY": "反光、周邊物件和空間光線一起影響感受。",
+    "PAGE_05_TITLE": "使用對照語言",
+    "PAGE_05_BODY": "將精確觀察與主觀比喻分成兩欄。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "描述一件金屬物品，用三個材質詞和一個氣氛詞。"
+  },
+  "music": {
+    "composer": "Camille Saint-Saëns",
+    "work": "Le Carnaval des animaux: Aquarium",
+    "reason": "練習抽象且具體的描述",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
