@@ -1,9 +1,9 @@
 {
-  "lastRunAt": "2026-11-05T06:37:59.121Z",
-  "date": "2026-11-05",
-  "day": 18,
+  "lastRunAt": "2026-11-06T06:33:20.890Z",
+  "date": "2026-11-06",
+  "day": 19,
   "status": "editorial_ready",
-  "topic": "金屬的冷暖錯覺",
+  "topic": "石材與沉靜氛圍",
   "canvaCreated": false,
   "canvaDesignId": null,
   "canvaEditUrl": null,
@@ -12,10 +12,10 @@
   "imagesGenerated": false,
   "reviewStatus": "internal_automated_checks_passed",
   "published": false,
-  "captionPath": "content/instagram/2026-11-05/caption.md",
-  "canvaCsvPath": "content/instagram/2026-11-05/canva-autofill.csv",
-  "canvaImportPath": "content/instagram/2026-11-05/canva-import.html",
-  "lessonPath": "content/instagram/2026-11-05/lesson.json",
+  "captionPath": "content/instagram/2026-11-06/caption.md",
+  "canvaCsvPath": "content/instagram/2026-11-06/canva-autofill.csv",
+  "canvaImportPath": "content/instagram/2026-11-06/canva-import.html",
+  "lessonPath": "content/instagram/2026-11-06/lesson.json",
   "notes": "Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.",
-  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-05/canva-autofill.csv"
+  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-06/canva-autofill.csv"
 }
