@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-07",
+  "day": 20,
+  "title": "陶土與手作語彙",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "陶土與手作語彙",
+      "body": "HANA 嗅覺微課 · Day 020\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "形式保存痕跡",
+      "body": "陶器輪廓和表面肌理可承載製作過程的故事。"
+    },
+    {
+      "title": "感官不可互換",
+      "body": "手作的視覺線索不代表一定有某種氣味。"
+    },
+    {
+      "title": "器物承接內容",
+      "body": "選擇容器形態前，先知道它要傳達什麼。"
+    },
+    {
+      "title": "尊重材料限制",
+      "body": "美感提案和實際材料相容性都需要各自確認。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "為一只陶器寫一段不超過三十字的展品說明。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "陶器輪廓繪圖",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "020",
+    "DATE": "2026-11-07",
+    "PAGE_01_TITLE": "陶土與手作語彙",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 020\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "形式保存痕跡",
+    "PAGE_02_BODY": "陶器輪廓和表面肌理可承載製作過程的故事。",
+    "PAGE_03_TITLE": "感官不可互換",
+    "PAGE_03_BODY": "手作的視覺線索不代表一定有某種氣味。",
+    "PAGE_04_TITLE": "器物承接內容",
+    "PAGE_04_BODY": "選擇容器形態前，先知道它要傳達什麼。",
+    "PAGE_05_TITLE": "尊重材料限制",
+    "PAGE_05_BODY": "美感提案和實際材料相容性都需要各自確認。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "為一只陶器寫一段不超過三十字的展品說明。"
+  },
+  "music": {
+    "composer": "J. S. Bach",
+    "work": "Cello Suite No. 1 in G major, BWV 1007: Prélude",
+    "reason": "感受空間中的連續與方向",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
