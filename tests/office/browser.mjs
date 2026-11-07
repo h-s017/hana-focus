@@ -121,7 +121,7 @@ try{
  await page.locator('[data-view=settings]').click();await page.locator('#office-settings #workspace-install').waitFor({state:'visible'});
  await page.evaluate(()=>{window.__installPrompts=0;const event=new Event('beforeinstallprompt',{cancelable:true});event.prompt=()=>{window.__installPrompts++;};event.userChoice=Promise.resolve({outcome:'accepted'});window.dispatchEvent(event);});
  await page.locator('#workspace-install #install').click();assert.equal(await page.evaluate(()=>window.__installPrompts),1);assert.equal(await page.locator('#install').isVisible(),false);
- await page.locator('[data-view=calendar]').click();assert.equal(await page.locator('#workspace-install').isVisible(),false);await page.locator('#hana-month-calendar').waitFor({state:'visible'});
+ await page.locator('[data-view=calendar]').click();await page.locator('#workspace-install').waitFor({state:'hidden'});assert.equal(await page.locator('#workspace-install').isVisible(),false);await page.locator('#hana-month-calendar').waitFor({state:'visible'});
  await page.locator('[data-view="calendar"]').click();
  const calendar=page.locator('#hana-month-calendar');
  await calendar.getByRole('status').filter({hasText:'已載入草稿'}).waitFor();
