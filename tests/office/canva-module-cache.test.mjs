@@ -4,10 +4,11 @@ import {fileURLToPath} from 'node:url';
 const read=name=>readFileSync(fileURLToPath(new URL('../../'+name,import.meta.url)),'utf8');
 const paths=['workspace.html','ai-office.html','js/office-app.mjs','js/workspace-navigation.mjs'];
 const version='office-20261104-unified-calendar';
+const release='office-20261108-archive';
 const refs=[
- 'src="./js/office-app.mjs?v=intake-history-20261104"',
- 'src="./js/office-app.mjs?v=intake-history-20261104"',
- "from './workspace-navigation.mjs?v="+version+"'",
+ 'src="./js/office-app.mjs?v=office-20261108-archive"',
+ 'src="./js/office-app.mjs?v=office-20261108-archive"',
+ "from './workspace-navigation.mjs?v="+release+"'",
  "from './canva-connect.mjs?v="+version+"'"
 ];
 paths.forEach((p,i)=>assert.ok(read(p).includes(refs[i]),p+' must load the OAuth fix without stale module cache'));

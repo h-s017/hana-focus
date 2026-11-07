@@ -16,12 +16,13 @@ try{
  await page.goto('https://h-s017.github.io/hana-focus/workspace.html');await page.locator('#office-email').fill('hana@example.invalid');await page.locator('#office-login').click();await page.locator('#office-session').filter({hasText:'寄送請求已受理'}).waitFor();await page.locator('#office-login').click();assert.equal(await page.evaluate(()=>localStorage.getItem('test-mail-count')),'1');
  await page.evaluate(()=>localStorage.setItem('hana-focus-workspace-v2-church','legacy-kept'));
  await page.goto('https://h-s017.github.io/hana-focus/ai-office.html#access_token=fixture&refresh_token=fixture2');await page.locator('#office-logout').waitFor({state:'visible'});assert.ok(!page.url().includes('token='));
+ await page.locator('#hana-daily-agenda').waitFor({state:'visible'});await page.getByRole('button',{name:'關閉今日待辦',exact:true}).click();
  await page.locator('[data-view="orders"]').click();
  const ordersPanel=page.locator('#office-orders');
  assert.equal(await ordersPanel.locator('article').count(),0);
  await ordersPanel.getByRole('button',{name:'讀取／重新整理預約明細',exact:true}).click();
  await ordersPanel.getByText('Fixture Customer｜Fixture Course｜已付款',{exact:true}).waitFor();
- await ordersPanel.locator('summary').click();
+ await ordersPanel.getByText('Fixture Customer｜Fixture Course｜已付款',{exact:true}).click();
  await ordersPanel.getByText('Email：fixture@example.invalid',{exact:true}).waitFor();
  assert.equal(await page.evaluate(()=>Object.values(localStorage).some(v=>String(v).includes('Fixture Customer'))),false);
  await page.evaluate(()=>localStorage.setItem('test-order-error','1'));
@@ -30,7 +31,9 @@ try{
  assert.equal(await ordersPanel.locator('article').count(),0);
  await page.evaluate(()=>localStorage.removeItem('test-order-error'));
  await page.locator('[data-view="settings"]').click();
- await page.getByText('進階：既有背景整理與 OneDrive 連線',{exact:true}).click();
+ assert.equal(await page.locator('#office-legacy-tools').isVisible(),false);
+ // Historical integrations remain testable, but have no product entry point.
+ await page.locator('#office-legacy-tools').evaluate(e=>{e.hidden=false;e.inert=false;});await page.getByText('進階：既有背景整理與 OneDrive 連線',{exact:true}).click();
  const automation=page.locator('#office-automation');
  assert.equal(await automation.locator('input[name=enabled]').isChecked(),false);
  assert.equal(await automation.locator('input[name=source_read_allowed]').isChecked(),false);
@@ -76,7 +79,7 @@ try{
  await booking.getByRole('button',{name:'儲存客戶預約修改草稿',exact:true}).click();
  await booking.getByText('審核：pending｜原訂單待查核',{exact:true}).waitFor();
  assert.equal(await booking.getByRole('button',{name:'核准修改建議（不套用）',exact:true}).isDisabled(),true);
- await page.evaluate(()=>location.hash='materials');
+ await page.locator('#office-legacy-tools').evaluate(e=>{e.hidden=true;e.inert=true;});await page.evaluate(()=>location.hash='materials');
  const materials=page.locator('#office-materials');
  await materials.locator('input[name=project]').fill('文慶雞');
  await materials.locator('input[name=folder_url]').fill('https://1drv.ms.attacker.invalid/f/x');
@@ -97,7 +100,9 @@ try{
  await materials.getByRole('button',{name:'儲存素材連結',exact:true}).click();
  await materials.getByRole('status').filter({hasText:'儲存未確認成功'}).waitFor();
  await page.evaluate(()=>localStorage.removeItem('test-materials-fail'));
- await page.locator('[data-view="settings"]').click();await page.locator('#office-legacy-tools').evaluate(e=>e.open=true);await page.locator('#office-agent-archive').evaluate(e=>e.open=true);
+ await page.locator('[data-view="settings"]').click();assert.equal(await page.locator('#office-legacy-tools').isVisible(),false);
+ // Exercise retained historical handlers only after deliberately exposing the test fixture.
+ await page.locator('#office-legacy-tools').evaluate(e=>{e.hidden=false;e.inert=false;});await page.locator('#office-agent-archive').evaluate(e=>e.open=true);
  await page.locator('#office-form input[name=project]').fill('Fixture');await page.locator('#office-form input[name=title]').fill('Fixture handoff regression');await page.locator('#office-form textarea[name=brief]').fill('Synthetic review-only test; no client delivery.');await page.locator('#office-add').click();await page.locator('#office-tasks article').waitFor();
  for(let i=0;i<4;i++){const article=page.locator('#office-tasks article').nth(i);await article.getByRole('button',{name:i===0||i===3?'產生PM進度草稿':'執行AI草稿',exact:true}).click();await article.getByRole('button',{name:'核准內部草稿',exact:true}).waitFor();page.once('dialog',d=>d.accept());await article.getByRole('button',{name:'核准內部草稿',exact:true}).click();if(i<3)await article.getByRole('button',{name:/建立交接草稿/}).click();}
  assert.equal(await page.locator('#office-tasks article').count(),4);
@@ -108,9 +113,15 @@ try{
 
  // Open a new document before the callback; changing only the current page hash does not rerun module init.
  await page.goto('https://h-s017.github.io/hana-focus/workspace.html');
+ assert.equal(await page.locator('.workspace-extra').isVisible(),false);
+
  // Re-login through the existing callback; private monthly records are API fixtures only.
  await page.goto('https://h-s017.github.io/hana-focus/ai-office.html#access_token=fixture&refresh_token=fixture2');await page.locator('#office-logout').waitFor({state:'visible'});
  await page.goto('https://h-s017.github.io/hana-focus/workspace.html');
+ await page.locator('[data-view=settings]').click();await page.locator('#office-settings #workspace-install').waitFor({state:'visible'});
+ await page.evaluate(()=>{window.__installPrompts=0;const event=new Event('beforeinstallprompt',{cancelable:true});event.prompt=()=>{window.__installPrompts++;};event.userChoice=Promise.resolve({outcome:'accepted'});window.dispatchEvent(event);});
+ await page.locator('#workspace-install #install').click();assert.equal(await page.evaluate(()=>window.__installPrompts),1);assert.equal(await page.locator('#install').isVisible(),false);
+ await page.locator('[data-view=calendar]').click();await page.locator('#workspace-install').waitFor({state:'hidden'});assert.equal(await page.locator('#workspace-install').isVisible(),false);await page.locator('#hana-month-calendar').waitFor({state:'visible'});
  await page.locator('[data-view="calendar"]').click();
  const calendar=page.locator('#hana-month-calendar');
  await calendar.getByRole('status').filter({hasText:'已載入草稿'}).waitFor();
@@ -118,7 +129,7 @@ try{
  await calendar.getByRole('button',{name:'下月',exact:true}).click();await calendar.getByRole('status').filter({hasText:'已載入草稿'}).waitFor();
  assert.equal(await calendar.locator('.month-day').count(),30);
  await calendar.getByRole('button',{name:'切換列表檢視',exact:true}).click();assert.equal(await calendar.locator('.month-list-view').count(),1);await calendar.getByRole('button',{name:'切換月曆檢視',exact:true}).click();assert.equal(await calendar.locator('.month-list-view').count(),0);await calendar.locator('.month-day').nth(1).click();await calendar.getByRole('button',{name:'查看這天的客戶預約',exact:true}).click();await ordersPanel.waitFor({state:'visible'});assert.equal(await ordersPanel.getByLabel('依日期篩選本頁預約',{exact:true}).inputValue(),'2026-11-02');assert.equal(await ordersPanel.locator('article').count(),0);await ordersPanel.getByRole('button',{name:'讀取／重新整理預約明細',exact:true}).click();await ordersPanel.getByText('Fixture Customer｜Fixture Course｜已付款',{exact:true}).waitFor();await page.locator('[data-view=calendar]').click();await calendar.waitFor({state:'visible'});
- await calendar.locator('summary').click();await calendar.locator('[name=weekdays]').fill('0,1,2,3,4,5,6');await calendar.locator('[name=start]').fill('10:00');await calendar.locator('[name=end]').fill('12:00');await calendar.locator('[name=duration]').fill('60');
+ await calendar.getByText('選用：新增候選的授課規則（沿用原場次免填）',{exact:true}).click();await calendar.locator('[name=weekdays]').fill('0,1,2,3,4,5,6');await calendar.locator('[name=start]').fill('10:00');await calendar.locator('[name=end]').fill('12:00');await calendar.locator('[name=duration]').fill('60');
  await calendar.getByRole('button',{name:'確認規則並重算',exact:true}).click();await calendar.getByRole('status').filter({hasText:'草稿已更新'}).waitFor();
  await calendar.locator('.month-day').nth(1).click();await calendar.getByRole('button',{name:'本草稿手動關閉此日',exact:true}).click();await calendar.getByRole('status').filter({hasText:'草稿已更新'}).waitFor();
  await calendar.getByRole('button',{name:'讀取來源並重算草稿',exact:true}).click();await calendar.getByRole('status').filter({hasText:'草稿已更新'}).waitFor();
@@ -140,16 +151,16 @@ try{
   localStorage.setItem('hana-focus-active-workspace','church');return {work,church};
  });
  await page.setViewportSize({width:390,height:844});await page.goto('https://h-s017.github.io/hana-focus/index.html');
- assert.equal(await page.locator('[data-workspace=work]').count(),3);await page.locator('#focus-local-archive').evaluate(e=>e.open=true);
- for(const node of await page.locator('[data-workspace=work]').all())assert.equal(await node.isVisible(),false);
+ const legacyWork=page.locator('#focus-local-archive [data-workspace=work]');assert.equal(await legacyWork.count(),2);assert.equal(await page.locator('#focus-local-archive').isVisible(),false);await page.locator('#focus-local-archive').evaluate(e=>{e.hidden=false;e.inert=false;e.open=true;});
+ for(const node of await legacyWork.all())assert.equal(await node.isVisible(),false);
  await page.locator('#all').getByText('教會任務保留',{exact:true}).waitFor();assert.equal(await page.locator('#all').getByText('商務任務保留',{exact:true}).count(),0);
  await page.screenshot({path:'test-artifacts/workspace-church.png',fullPage:true});
- await page.locator('#workBtn').click();for(const node of await page.locator('[data-workspace=work]').all())assert.equal(await node.isVisible(),true);
+ await page.locator('#workBtn').click();for(const node of await legacyWork.all())assert.equal(await node.isVisible(),true);
  await page.locator('#all').getByText('商務任務保留',{exact:true}).waitFor();assert.equal(await page.locator('#all').getByText('教會任務保留',{exact:true}).count(),0);
  await page.screenshot({path:'test-artifacts/workspace-work.png',fullPage:true});
- await page.reload();await page.locator('#focus-local-archive').evaluate(e=>e.open=true);assert.equal(await page.locator('section[data-workspace=work]').first().isVisible(),true);
+ await page.reload();assert.equal(await page.locator('#focus-local-archive').isVisible(),false);await page.locator('#focus-local-archive').evaluate(e=>{e.hidden=false;e.inert=false;e.open=true;});assert.equal(await page.locator('section[data-workspace=work]').first().isVisible(),true);
  await page.locator('#churchBtn').click();await page.reload();
- for(const node of await page.locator('[data-workspace=work]').all())assert.equal(await node.isVisible(),false);
+ for(const node of await legacyWork.all())assert.equal(await node.isVisible(),false);
  assert.deepEqual(await page.evaluate(()=>({work:localStorage.getItem('hana-focus-workspace-v2-work'),church:localStorage.getItem('hana-focus-workspace-v2-church')})),workspaceFixtures);
  for(const width of [320,390]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'church workspace overflow '+width);}
  assert.deepEqual(errors,[]);

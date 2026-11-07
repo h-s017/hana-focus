@@ -1,5 +1,5 @@
 import {mountDailyAgenda} from './daily-agenda.mjs?v=shared-calendar-20261104b';
-import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=office-20261104-unified-calendar';
+import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=office-20261108-archive';
 document.documentElement.dataset.focusWorkspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
 import {mountFocusDashboard} from './focus-dashboard.mjs?v=google-hub-20261104';
 import {mountMonthlyCalendar} from './monthly-calendar-app.mjs?v=compact-calendar-20261104';
