@@ -113,13 +113,14 @@ try{
  // Open a new document before the callback; changing only the current page hash does not rerun module init.
  await page.goto('https://h-s017.github.io/hana-focus/workspace.html');
  assert.equal(await page.locator('.workspace-extra').isVisible(),false);
+
+ // Re-login through the existing callback; private monthly records are API fixtures only.
+ await page.goto('https://h-s017.github.io/hana-focus/ai-office.html#access_token=fixture&refresh_token=fixture2');await page.locator('#office-logout').waitFor({state:'visible'});
+ await page.goto('https://h-s017.github.io/hana-focus/workspace.html');
  await page.locator('[data-view=settings]').click();await page.locator('#office-settings #workspace-install').waitFor({state:'visible'});
  await page.evaluate(()=>{window.__installPrompts=0;const event=new Event('beforeinstallprompt',{cancelable:true});event.prompt=()=>{window.__installPrompts++;};event.userChoice=Promise.resolve({outcome:'accepted'});window.dispatchEvent(event);});
  await page.locator('#workspace-install #install').click();assert.equal(await page.evaluate(()=>window.__installPrompts),1);assert.equal(await page.locator('#install').isVisible(),false);
  await page.locator('[data-view=calendar]').click();assert.equal(await page.locator('#workspace-install').isVisible(),false);await page.locator('#hana-month-calendar').waitFor({state:'visible'});
- // Re-login through the existing callback; private monthly records are API fixtures only.
- await page.goto('https://h-s017.github.io/hana-focus/ai-office.html#access_token=fixture&refresh_token=fixture2');await page.locator('#office-logout').waitFor({state:'visible'});
- await page.goto('https://h-s017.github.io/hana-focus/workspace.html');
  await page.locator('[data-view="calendar"]').click();
  const calendar=page.locator('#hana-month-calendar');
  await calendar.getByRole('status').filter({hasText:'已載入草稿'}).waitFor();
