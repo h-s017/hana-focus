@@ -6,7 +6,7 @@ export function inputWindow(start,end){
  if(!valid(start)||!valid(end)||Date.parse(end+':00+08:00')<=Date.parse(start+':00+08:00'))throw Object.assign(Error('calendar_sync_invalid'),{code:'calendar_sync_invalid'});
  return {start:new Date(start+':00+08:00').toISOString(),end:new Date(end+':00+08:00').toISOString()};
 }
-export function mountCalendarSyncPanel(host,{db}){
+export function mountCalendarSyncPanel(host,{db,onChange=()=>{}}){
  const el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
  const status=el('p','尚未檢查同步設定。'),list=el('div'),month=el('input');status.setAttribute('role','status');month.type='month';month.value=new Date(Date.now()+28800000).toISOString().slice(0,7);month.setAttribute('aria-label','同步月份');
  const button=(label,fn)=>{const b=el('button',label);b.type='button';b.onclick=()=>operate(fn);return b;};
@@ -20,7 +20,7 @@ export function mountCalendarSyncPanel(host,{db}){
    const warning=el('p',enrolled?(r.status==='unknown'?'警告：已有報名，更新結果尚未確認。請重新查核兩邊資料後再決定。':'警告：已有 '+p.source.booked+' 單位報名。Google 的改期／刪除尚未更新原課程系統，須本人審核。'):'同步狀態：'+r.status+'；兩邊資料需本人核對。');if(enrolled){warning.setAttribute('role','alert');warning.className='calendar-sync-warning';}card.append(warning);
    if(p){card.append(el('p','原課程／任務：'+(p.source.date? p.source.date+' '+p.source.time : taipeiInput(p.source.schedule_start_at)+' ～ '+taipeiInput(p.source.schedule_end_at))));card.append(el('p','Google：'+(p.google?.status==='cancelled'||!p.google?'已刪除':taipeiInput(p.google.start?.dateTime)+' ～ '+taipeiInput(p.google.end?.dateTime))));
     card.append(el('p','日曆刪除核准後只停止該場次收新報名；既有訂單及付款保留，不自動退款或通知客戶。'));
-    if(['pending','conflict'].includes(r.status))for(const [direction,label] of [['import','核准 Google 變更並更新原系統'],['export','採原系統資料更新 Google']])card.append(button(label,async()=>{if(!confirm(label+'？請核對警告及新舊時間。'))return;await call({action:'calendar_sync_review',link_id:r.id,review_id:p.id,decision:'approved',direction});await load();}));
+    if(['pending','conflict'].includes(r.status))for(const [direction,label] of [['import','核准 Google 變更並更新原系統'],['export','採原系統資料更新 Google']])card.append(button(label,async()=>{if(!confirm(label+'？請核對警告及新舊時間。'))return;await call({action:'calendar_sync_review',link_id:r.id,review_id:p.id,decision:'approved',direction});await load();await onChange();}));
     if(['pending','conflict'].includes(r.status))card.append(button('退回變更（保留兩邊資料）',async()=>{await call({action:'calendar_sync_review',link_id:r.id,review_id:p.id,decision:'rejected'});await load();}));
    }
    card.append(button('重新查核兩邊資料',async()=>{await call({action:'calendar_sync_reconcile',link_id:r.id});await load();}));list.append(card);
@@ -28,5 +28,7 @@ export function mountCalendarSyncPanel(host,{db}){
  }
  host.append(el('p','課程雙向同步；已報名課程先警告並送本人審核。只有已排開始／結束時間的任務會同步。'),month,
   button('授權 Google 日曆同步寫入',async()=>{if(!confirm('允許 HANA 管理同步事件；Google 將要求日曆事件寫入權限。本人需在 Google 最後同意。'))return;await beginGoogleConnection({db,storage:sessionStorage,navigate:url=>location.assign(url),sync:true});}),
-  button('更新同步與待審核狀態',load),button('同步此月份課程與任務',async()=>{const r=await call({action:'calendar_sync_run',month:month.value});await load();status.textContent='本次同步 '+r.changed+' 項；待審核 '+r.pending+' 項；未完成 '+r.skipped+' 項。'+(r.status==='more_pending'?'仍有待處理資料，請再次同步。':'');for(const w of r.warnings||[])list.append(el('p',w.source_id+'：'+w.code));}),status,list);
+  button('更新同步與待審核狀態',load),button('同步此月份課程與任務',async()=>{const r=await call({action:'calendar_sync_run',month:month.value});await load();status.textContent='本次同步 '+r.changed+' 項；待審核 '+r.pending+' 項；未完成 '+r.skipped+' 項。'+(r.status==='more_pending'?'仍有待處理資料，請再次同步。':'');for(const w of r.warnings||[])list.append(el('p',w.source_id+'：'+w.code));await onChange();}),status,list);
+ return {setMonth(value){month.value=value;},refresh:()=>operate(load)};
 }
+

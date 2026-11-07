@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-03",
+  "day": 16,
+  "series": "調香師從 0 養成",
+  "title": "為什麼熟悉的氣味會變淡？——嗅覺適應與習慣化",
+  "version": "1.0",
+  "content_path": "social-editor/content/2026-11-03-day-16.md",
+  "editorial_status": "draft_complete",
+  "science_review": "passed_initial_review",
+  "source_urls": [
+    "https://pubmed.ncbi.nlm.nih.gov/10944515/",
+    "https://pubmed.ncbi.nlm.nih.gov/28408237/"
+  ],
+  "music": {
+    "composer": "Claude Debussy",
+    "work": "La mer, L.109",
+    "movement": "De l’aube à midi sur la mer",
+    "source_url": "https://www.berliner-philharmoniker.de/en/programme-notes/claude-debussy-la-mer/",
+    "recording_selected": false,
+    "recording_licensed": false
+  },
+  "images": {
+    "required": 6,
+    "delivered": 0,
+    "format": "PNG",
+    "required_dimensions": [
+      1080,
+      1350
+    ],
+    "status": "not_delivered",
+    "reason": "Generated draft failed topical and visual quality check; file processing runtime unavailable, so six independent dimension-verified PNGs were not created."
+  },
+  "alt_text_status": "draft_only",
+  "canva_status": "not_created",
+  "instagram_status": "not_published",
+  "founder_approval": "pending",
+  "hana_focus_sync": "not_verified",
+  "private_photo_library_accessed": false,
+  "duplicate_check": "known Day 11–15 only; earlier full syllabus not verified",
+  "publication_authorized": false
+}

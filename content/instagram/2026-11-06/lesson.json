@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-06",
+  "day": 19,
+  "title": "石材與沉靜氛圍",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "石材與沉靜氛圍",
+      "body": "HANA 嗅覺微課 · Day 019\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "重量不是氣味",
+      "body": "視覺的厚重感可以啟發敘事，卻不能代替嗅覺觀察。"
+    },
+    {
+      "title": "表面帶來差異",
+      "body": "粗糙、拋光與霧面能改變作品的視覺節奏。"
+    },
+    {
+      "title": "從局部到整體",
+      "body": "小型物件和建築表面需要不同的觀看距離。"
+    },
+    {
+      "title": "做出主題取捨",
+      "body": "只保留與創作目的相關的材質聯想。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "挑一種石材表面，為安靜、開放兩種空間寫不同描述。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "石材建築素描",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "019",
+    "DATE": "2026-11-06",
+    "PAGE_01_TITLE": "石材與沉靜氛圍",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 019\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "重量不是氣味",
+    "PAGE_02_BODY": "視覺的厚重感可以啟發敘事，卻不能代替嗅覺觀察。",
+    "PAGE_03_TITLE": "表面帶來差異",
+    "PAGE_03_BODY": "粗糙、拋光與霧面能改變作品的視覺節奏。",
+    "PAGE_04_TITLE": "從局部到整體",
+    "PAGE_04_BODY": "小型物件和建築表面需要不同的觀看距離。",
+    "PAGE_05_TITLE": "做出主題取捨",
+    "PAGE_05_BODY": "只保留與創作目的相關的材質聯想。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "挑一種石材表面，為安靜、開放兩種空間寫不同描述。"
+  },
+  "music": {
+    "composer": "Claude Debussy",
+    "work": "Estampes: Pagodes",
+    "reason": "思考意象如何轉成藝術",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}

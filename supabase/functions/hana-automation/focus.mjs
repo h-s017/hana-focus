@@ -1,12 +1,19 @@
+import {monthBounds} from '../../../js/monthly-calendar.mjs';
 import {busyIntervals} from '../../../js/calendar-availability.mjs';
 import {focusSummary,roleTool,localTask} from '../../../js/focus-domain.mjs';
 import {digest,verifyBackup,localRows} from '../../../js/focus-backup.mjs';
 import {schedule} from './calendar-sync.mjs';
 const fail=code=>Object.assign(Error(code),{code});const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-export function focusService({store,notion,readCalendar,now=Date.now}){
+export function focusService({store,notion,readCalendar,readCalendarEvents,now=Date.now}){
  async function snapshot(owner){const value=await store.focusSnapshot(owner);value.tasks=value.tasks.map(t=>({...t,is_current:value.projects.some(p=>p.id===t.project_id&&p.active_version_id===t.version_id)}));value.summary=focusSummary(value.tasks,now());return value;}
  return async function service(owner,body){
   if(body.action==='focus_snapshot')return snapshot(owner);
+  if(body.action==='focus_calendar'){
+   const bounds=monthBounds(body.month);if(!readCalendarEvents)throw fail('calendar_authorization_required');
+   const value=await readCalendarEvents(owner,bounds.start,bounds.end),links=await store.calendarLinks(owner),mapped=new Map(links.map(r=>[r.event_id,r]));
+   await store.event(owner,'共用日曆',null,null,'calendar_hub_read',{month:body.month,event_count:value.events.length,external_writes:false});
+   return {status:'verified',month:body.month,timeZone:'Asia/Taipei',checked_at:value.checked_at,external_writes:false,events:value.events.filter(e=>e.status!=='cancelled').map(e=>{const link=mapped.get(e.id);return {id:e.id,title:String(e.summary||'未命名行程').slice(0,300),start:e.start,end:e.end,status:e.status||'confirmed',transparency:e.transparency||'opaque',source_url:e.htmlLink||null,updated_at:e.updated||null,managed:link?{kind:link.kind,source_id:link.source_id,status:link.status}:null};})};
+  }
   if(body.action==='focus_week'){if(!readCalendar)return {status:'needs_connection',busy:[]};const date=new Date(now()+8*3600000).toISOString().slice(0,10),start=date+'T00:00:00+08:00',end=new Date(Date.parse(start)+7*86400000).toISOString();const value=await readCalendar(owner,start,end);return {status:'verified',busy:busyIntervals(value.events,{start,end}),timeZone:'Asia/Taipei',external_writes:false};}
   if(!UUID.test(body.request_id||''))throw fail('invalid_focus_request');
   if(body.action==='focus_project'){validateProject(body.project);const result=await store.focusBootstrap(owner,body.project,body.request_id);return {result,snapshot:await snapshot(owner)};}
@@ -79,3 +86,4 @@ function validateProject(project){
  const v=project.version;if(typeof v.label!=='string'||!v.label||!/^\d{4}-\d{2}-\d{2}$/.test(v.version_date||'')||![v.included_terms,v.excluded_terms].every(a=>Array.isArray(a)&&a.length<=100&&a.every(t=>typeof t==='string'&&t.trim()&&t.length<=100)))throw fail('invalid_focus_bundle');
  if(!Array.isArray(project.documents||[])||(project.documents||[]).length>30)throw fail('invalid_focus_bundle');
 }
+

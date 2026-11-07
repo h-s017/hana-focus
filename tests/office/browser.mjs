@@ -113,6 +113,10 @@ try{
  // Open a new document before the callback; changing only the current page hash does not rerun module init.
  await page.goto('https://h-s017.github.io/hana-focus/workspace.html');
  assert.equal(await page.locator('.workspace-extra').isVisible(),false);
+ await page.locator('[data-view=settings]').click();await page.locator('#office-settings #workspace-install').waitFor({state:'visible'});
+ await page.evaluate(()=>{window.__installPrompts=0;const event=new Event('beforeinstallprompt',{cancelable:true});event.prompt=()=>{window.__installPrompts++;};event.userChoice=Promise.resolve({outcome:'accepted'});window.dispatchEvent(event);});
+ await page.locator('#workspace-install #install').click();assert.equal(await page.evaluate(()=>window.__installPrompts),1);assert.equal(await page.locator('#install').isVisible(),false);
+ await page.locator('[data-view=calendar]').click();assert.equal(await page.locator('#workspace-install').isVisible(),false);await page.locator('#hana-month-calendar').waitFor({state:'visible'});
  // Re-login through the existing callback; private monthly records are API fixtures only.
  await page.goto('https://h-s017.github.io/hana-focus/ai-office.html#access_token=fixture&refresh_token=fixture2');await page.locator('#office-logout').waitFor({state:'visible'});
  await page.goto('https://h-s017.github.io/hana-focus/workspace.html');
@@ -122,6 +126,7 @@ try{
  assert.ok(await calendar.evaluate(e=>document.querySelector('nav.tiles').compareDocumentPosition(e)&Node.DOCUMENT_POSITION_FOLLOWING));
  await calendar.getByRole('button',{name:'下月',exact:true}).click();await calendar.getByRole('status').filter({hasText:'已載入草稿'}).waitFor();
  assert.equal(await calendar.locator('.month-day').count(),30);
+ await calendar.getByRole('button',{name:'切換列表檢視',exact:true}).click();assert.equal(await calendar.locator('.month-list-view').count(),1);await calendar.getByRole('button',{name:'切換月曆檢視',exact:true}).click();assert.equal(await calendar.locator('.month-list-view').count(),0);await calendar.locator('.month-day').nth(1).click();await calendar.getByRole('button',{name:'查看這天的客戶預約',exact:true}).click();await ordersPanel.waitFor({state:'visible'});assert.equal(await ordersPanel.getByLabel('依日期篩選本頁預約',{exact:true}).inputValue(),'2026-11-02');assert.equal(await ordersPanel.locator('article').count(),0);await ordersPanel.getByRole('button',{name:'讀取／重新整理預約明細',exact:true}).click();await ordersPanel.getByText('Fixture Customer｜Fixture Course｜已付款',{exact:true}).waitFor();await page.locator('[data-view=calendar]').click();await calendar.waitFor({state:'visible'});
  await calendar.locator('summary').click();await calendar.locator('[name=weekdays]').fill('0,1,2,3,4,5,6');await calendar.locator('[name=start]').fill('10:00');await calendar.locator('[name=end]').fill('12:00');await calendar.locator('[name=duration]').fill('60');
  await calendar.getByRole('button',{name:'確認規則並重算',exact:true}).click();await calendar.getByRole('status').filter({hasText:'草稿已更新'}).waitFor();
  await calendar.locator('.month-day').nth(1).click();await calendar.getByRole('button',{name:'本草稿手動關閉此日',exact:true}).click();await calendar.getByRole('status').filter({hasText:'草稿已更新'}).waitFor();
