@@ -16,6 +16,7 @@ try{
  await page.goto('https://h-s017.github.io/hana-focus/workspace.html');await page.locator('#office-email').fill('hana@example.invalid');await page.locator('#office-login').click();await page.locator('#office-session').filter({hasText:'寄送請求已受理'}).waitFor();await page.locator('#office-login').click();assert.equal(await page.evaluate(()=>localStorage.getItem('test-mail-count')),'1');
  await page.evaluate(()=>localStorage.setItem('hana-focus-workspace-v2-church','legacy-kept'));
  await page.goto('https://h-s017.github.io/hana-focus/ai-office.html#access_token=fixture&refresh_token=fixture2');await page.locator('#office-logout').waitFor({state:'visible'});assert.ok(!page.url().includes('token='));
+ await page.locator('#hana-daily-agenda').waitFor({state:'visible'});await page.getByRole('button',{name:'關閉今日待辦',exact:true}).click();
  await page.locator('[data-view="orders"]').click();
  const ordersPanel=page.locator('#office-orders');
  assert.equal(await ordersPanel.locator('article').count(),0);
