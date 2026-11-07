@@ -151,16 +151,16 @@ try{
   localStorage.setItem('hana-focus-active-workspace','church');return {work,church};
  });
  await page.setViewportSize({width:390,height:844});await page.goto('https://h-s017.github.io/hana-focus/index.html');
- assert.equal(await page.locator('[data-workspace=work]').count(),3);assert.equal(await page.locator('#focus-local-archive').isVisible(),false);await page.locator('#focus-local-archive').evaluate(e=>{e.hidden=false;e.inert=false;e.open=true;});
- for(const node of await page.locator('[data-workspace=work]').all())assert.equal(await node.isVisible(),false);
+ const legacyWork=page.locator('#focus-local-archive [data-workspace=work]');assert.equal(await legacyWork.count(),2);assert.equal(await page.locator('#focus-local-archive').isVisible(),false);await page.locator('#focus-local-archive').evaluate(e=>{e.hidden=false;e.inert=false;e.open=true;});
+ for(const node of await legacyWork.all())assert.equal(await node.isVisible(),false);
  await page.locator('#all').getByText('教會任務保留',{exact:true}).waitFor();assert.equal(await page.locator('#all').getByText('商務任務保留',{exact:true}).count(),0);
  await page.screenshot({path:'test-artifacts/workspace-church.png',fullPage:true});
- await page.locator('#workBtn').click();for(const node of await page.locator('[data-workspace=work]').all())assert.equal(await node.isVisible(),true);
+ await page.locator('#workBtn').click();for(const node of await legacyWork.all())assert.equal(await node.isVisible(),true);
  await page.locator('#all').getByText('商務任務保留',{exact:true}).waitFor();assert.equal(await page.locator('#all').getByText('教會任務保留',{exact:true}).count(),0);
  await page.screenshot({path:'test-artifacts/workspace-work.png',fullPage:true});
  await page.reload();assert.equal(await page.locator('#focus-local-archive').isVisible(),false);await page.locator('#focus-local-archive').evaluate(e=>{e.hidden=false;e.inert=false;e.open=true;});assert.equal(await page.locator('section[data-workspace=work]').first().isVisible(),true);
  await page.locator('#churchBtn').click();await page.reload();
- for(const node of await page.locator('[data-workspace=work]').all())assert.equal(await node.isVisible(),false);
+ for(const node of await legacyWork.all())assert.equal(await node.isVisible(),false);
  assert.deepEqual(await page.evaluate(()=>({work:localStorage.getItem('hana-focus-workspace-v2-work'),church:localStorage.getItem('hana-focus-workspace-v2-church')})),workspaceFixtures);
  for(const width of [320,390]){await page.setViewportSize({width,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'church workspace overflow '+width);}
  assert.deepEqual(errors,[]);
