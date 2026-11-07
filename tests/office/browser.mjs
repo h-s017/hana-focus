@@ -22,7 +22,7 @@ try{
  assert.equal(await ordersPanel.locator('article').count(),0);
  await ordersPanel.getByRole('button',{name:'讀取／重新整理預約明細',exact:true}).click();
  await ordersPanel.getByText('Fixture Customer｜Fixture Course｜已付款',{exact:true}).waitFor();
- await ordersPanel.locator('summary').click();
+ await ordersPanel.getByText('Fixture Customer｜Fixture Course｜已付款',{exact:true}).click();
  await ordersPanel.getByText('Email：fixture@example.invalid',{exact:true}).waitFor();
  assert.equal(await page.evaluate(()=>Object.values(localStorage).some(v=>String(v).includes('Fixture Customer'))),false);
  await page.evaluate(()=>localStorage.setItem('test-order-error','1'));
