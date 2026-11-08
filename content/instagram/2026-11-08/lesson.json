@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-08",
+  "day": 21,
+  "title": "透明與朦朧",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "透明與朦朧",
+      "body": "HANA 嗅覺微課 · Day 021\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "清楚並非唯一目標",
+      "body": "透明度可以用來調整作品的可見與不可見。"
+    },
+    {
+      "title": "霧面降低銳利",
+      "body": "半透明材質能讓光線與輪廓柔和過渡。"
+    },
+    {
+      "title": "氣味也有暗示",
+      "body": "透過敘事安排，感官線索可以逐步出現。"
+    },
+    {
+      "title": "不做過度比擬",
+      "body": "透明感是一種表達方法，不是香材的客觀分類。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "替同一主題設計清晰版與朦朧版各一句描述。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "透明材質藝術攝影",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "021",
+    "DATE": "2026-11-08",
+    "PAGE_01_TITLE": "透明與朦朧",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 021\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "清楚並非唯一目標",
+    "PAGE_02_BODY": "透明度可以用來調整作品的可見與不可見。",
+    "PAGE_03_TITLE": "霧面降低銳利",
+    "PAGE_03_BODY": "半透明材質能讓光線與輪廓柔和過渡。",
+    "PAGE_04_TITLE": "氣味也有暗示",
+    "PAGE_04_BODY": "透過敘事安排，感官線索可以逐步出現。",
+    "PAGE_05_TITLE": "不做過度比擬",
+    "PAGE_05_BODY": "透明感是一種表達方法，不是香材的客觀分類。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "替同一主題設計清晰版與朦朧版各一句描述。"
+  },
+  "music": {
+    "composer": "Robert Schumann",
+    "work": "Kinderszenen, Op. 15: Träumerei",
+    "reason": "把日常觀察寫成自己的語言",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
