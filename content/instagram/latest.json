@@ -1,9 +1,9 @@
 {
-  "lastRunAt": "2026-11-08T05:54:43.873Z",
-  "date": "2026-11-08",
-  "day": 21,
+  "lastRunAt": "2026-11-09T06:15:22.207Z",
+  "date": "2026-11-09",
+  "day": 22,
   "status": "editorial_ready",
-  "topic": "透明與朦朧",
+  "topic": "重複與變奏",
   "canvaCreated": false,
   "canvaDesignId": null,
   "canvaEditUrl": null,
@@ -12,10 +12,10 @@
   "imagesGenerated": false,
   "reviewStatus": "internal_automated_checks_passed",
   "published": false,
-  "captionPath": "content/instagram/2026-11-08/caption.md",
-  "canvaCsvPath": "content/instagram/2026-11-08/canva-autofill.csv",
-  "canvaImportPath": "content/instagram/2026-11-08/canva-import.html",
-  "lessonPath": "content/instagram/2026-11-08/lesson.json",
+  "captionPath": "content/instagram/2026-11-09/caption.md",
+  "canvaCsvPath": "content/instagram/2026-11-09/canva-autofill.csv",
+  "canvaImportPath": "content/instagram/2026-11-09/canva-import.html",
+  "lessonPath": "content/instagram/2026-11-09/lesson.json",
   "notes": "Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.",
-  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-08/canva-autofill.csv"
+  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-09/canva-autofill.csv"
 }

@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-09",
+  "day": 22,
+  "title": "重複與變奏",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "重複與變奏",
+      "body": "HANA 嗅覺微課 · Day 022\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "重複建立辨識",
+      "body": "一致的元素有助於作品形成可辨認的視覺節奏。"
+    },
+    {
+      "title": "微小差異會被看見",
+      "body": "當背景穩定時，變化更容易被察覺。"
+    },
+    {
+      "title": "不要為變化而變",
+      "body": "每次調整都應回應明確的創作目標。"
+    },
+    {
+      "title": "感官表達可保留",
+      "body": "不是所有細節都需要被逐項命名。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "以同一句主題寫三次，每次只改一個形容詞。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "現代版畫重複構圖",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "022",
+    "DATE": "2026-11-09",
+    "PAGE_01_TITLE": "重複與變奏",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 022\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "重複建立辨識",
+    "PAGE_02_BODY": "一致的元素有助於作品形成可辨認的視覺節奏。",
+    "PAGE_03_TITLE": "微小差異會被看見",
+    "PAGE_03_BODY": "當背景穩定時，變化更容易被察覺。",
+    "PAGE_04_TITLE": "不要為變化而變",
+    "PAGE_04_BODY": "每次調整都應回應明確的創作目標。",
+    "PAGE_05_TITLE": "感官表達可保留",
+    "PAGE_05_BODY": "不是所有細節都需要被逐項命名。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "以同一句主題寫三次，每次只改一個形容詞。"
+  },
+  "music": {
+    "composer": "Frédéric Chopin",
+    "work": "Nocturne in E-flat major, Op. 9 No. 2",
+    "reason": "觀察前景與背景的平衡",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
