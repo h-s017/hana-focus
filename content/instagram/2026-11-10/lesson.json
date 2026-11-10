@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-10",
+  "day": 23,
+  "title": "比例與主次",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "比例與主次",
+      "body": "HANA 嗅覺微課 · Day 023\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "主角需要位置",
+      "body": "比例能讓觀眾知道應先注意哪個元素。"
+    },
+    {
+      "title": "小不等於不重要",
+      "body": "較安靜的配角可能承擔作品的連續感。"
+    },
+    {
+      "title": "避免全部突出",
+      "body": "每個元素都很強烈時，反而難以形成重點。"
+    },
+    {
+      "title": "重新看整體",
+      "body": "取捨以主題為準，而非元素數量。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "畫出主次比例，再用一句話說明為何如此分配。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "極簡雕塑比例圖",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "023",
+    "DATE": "2026-11-10",
+    "PAGE_01_TITLE": "比例與主次",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 023\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "主角需要位置",
+    "PAGE_02_BODY": "比例能讓觀眾知道應先注意哪個元素。",
+    "PAGE_03_TITLE": "小不等於不重要",
+    "PAGE_03_BODY": "較安靜的配角可能承擔作品的連續感。",
+    "PAGE_04_TITLE": "避免全部突出",
+    "PAGE_04_BODY": "每個元素都很強烈時，反而難以形成重點。",
+    "PAGE_05_TITLE": "重新看整體",
+    "PAGE_05_BODY": "取捨以主題為準，而非元素數量。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "畫出主次比例，再用一句話說明為何如此分配。"
+  },
+  "music": {
+    "composer": "Ludwig van Beethoven",
+    "work": "Piano Sonata No. 14, Op. 27 No. 2: I. Adagio sostenuto",
+    "reason": "理解緩慢展開的設計節奏",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
