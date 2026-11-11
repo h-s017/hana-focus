@@ -1,0 +1,19 @@
+name: HANA WORKSPACE reservation UI static check
+on:
+  pull_request:
+    paths:
+      - 'docs/index.html'
+      - 'docs/reservation-manager.html'
+      - 'scripts/check-reservation-manager.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/check-reservation-manager.mjs
