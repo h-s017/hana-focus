@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-11",
+  "day": 24,
+  "title": "留白讓氣味有空間",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "留白讓氣味有空間",
+      "body": "HANA 嗅覺微課 · Day 024\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "安靜也是構圖",
+      "body": "沒有放入物件的位置，仍可能影響作品如何被閱讀。"
+    },
+    {
+      "title": "觀眾需要時間",
+      "body": "過多線索可能讓體驗失去喘息與思考的空間。"
+    },
+    {
+      "title": "讓節奏自然形成",
+      "body": "用停頓區分開場、發展與收束。"
+    },
+    {
+      "title": "重視實際場所",
+      "body": "留白的效果仍會受空間與受眾影響。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "刪去一份作品提案的三個裝飾元素，觀察主題是否更清楚。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "留白印刷設計",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "024",
+    "DATE": "2026-11-11",
+    "PAGE_01_TITLE": "留白讓氣味有空間",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 024\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "安靜也是構圖",
+    "PAGE_02_BODY": "沒有放入物件的位置，仍可能影響作品如何被閱讀。",
+    "PAGE_03_TITLE": "觀眾需要時間",
+    "PAGE_03_BODY": "過多線索可能讓體驗失去喘息與思考的空間。",
+    "PAGE_04_TITLE": "讓節奏自然形成",
+    "PAGE_04_BODY": "用停頓區分開場、發展與收束。",
+    "PAGE_05_TITLE": "重視實際場所",
+    "PAGE_05_BODY": "留白的效果仍會受空間與受眾影響。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "刪去一份作品提案的三個裝飾元素，觀察主題是否更清楚。"
+  },
+  "music": {
+    "composer": "Gabriel Fauré",
+    "work": "Après un rêve, Op. 7 No. 1",
+    "reason": "區分作品故事與感官事實",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}

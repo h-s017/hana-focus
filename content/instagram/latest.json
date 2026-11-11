@@ -1,9 +1,9 @@
 {
-  "lastRunAt": "2026-11-10T07:10:27.416Z",
-  "date": "2026-11-10",
-  "day": 23,
+  "lastRunAt": "2026-11-11T06:04:39.907Z",
+  "date": "2026-11-11",
+  "day": 24,
   "status": "editorial_ready",
-  "topic": "比例與主次",
+  "topic": "留白讓氣味有空間",
   "canvaCreated": false,
   "canvaDesignId": null,
   "canvaEditUrl": null,
@@ -12,10 +12,10 @@
   "imagesGenerated": false,
   "reviewStatus": "internal_automated_checks_passed",
   "published": false,
-  "captionPath": "content/instagram/2026-11-10/caption.md",
-  "canvaCsvPath": "content/instagram/2026-11-10/canva-autofill.csv",
-  "canvaImportPath": "content/instagram/2026-11-10/canva-import.html",
-  "lessonPath": "content/instagram/2026-11-10/lesson.json",
+  "captionPath": "content/instagram/2026-11-11/caption.md",
+  "canvaCsvPath": "content/instagram/2026-11-11/canva-autofill.csv",
+  "canvaImportPath": "content/instagram/2026-11-11/canva-import.html",
+  "lessonPath": "content/instagram/2026-11-11/lesson.json",
   "notes": "Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.",
-  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-10/canva-autofill.csv"
+  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-11/canva-autofill.csv"
 }
