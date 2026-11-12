@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-12",
+  "day": 25,
+  "title": "界線如何形成體驗",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "界線如何形成體驗",
+      "body": "HANA 嗅覺微課 · Day 025\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "進入是一個事件",
+      "body": "門框、地面轉換與光線都在暗示場域的變化。"
+    },
+    {
+      "title": "不是只有入口",
+      "body": "人們何時停止、轉向、離開同樣值得規劃。"
+    },
+    {
+      "title": "氣味表達需克制",
+      "body": "空間感官安排要與通風和實際使用需求並行。"
+    },
+    {
+      "title": "先畫體驗順序",
+      "body": "在選擇素材以前，先決定重要的轉折點。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "為一段從門外到室內的動線寫出三個感受節點。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "建築門檻手繪圖",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "025",
+    "DATE": "2026-11-12",
+    "PAGE_01_TITLE": "界線如何形成體驗",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 025\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "進入是一個事件",
+    "PAGE_02_BODY": "門框、地面轉換與光線都在暗示場域的變化。",
+    "PAGE_03_TITLE": "不是只有入口",
+    "PAGE_03_BODY": "人們何時停止、轉向、離開同樣值得規劃。",
+    "PAGE_04_TITLE": "氣味表達需克制",
+    "PAGE_04_BODY": "空間感官安排要與通風和實際使用需求並行。",
+    "PAGE_05_TITLE": "先畫體驗順序",
+    "PAGE_05_BODY": "在選擇素材以前，先決定重要的轉折點。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "為一段從門外到室內的動線寫出三個感受節點。"
+  },
+  "music": {
+    "composer": "J. S. Bach",
+    "work": "The Well-Tempered Clavier, Book I: Prelude in C major, BWV 846",
+    "reason": "以結構整理感受",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
