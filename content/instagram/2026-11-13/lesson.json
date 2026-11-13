@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-13",
+  "day": 26,
+  "title": "時間的三個尺度",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "時間的三個尺度",
+      "body": "HANA 嗅覺微課 · Day 026\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "瞬間留下印象",
+      "body": "第一個線索可能建立觀眾對後續內容的期待。"
+    },
+    {
+      "title": "停留改變觀察",
+      "body": "較長的觀看或體驗可能出現不同層次。"
+    },
+    {
+      "title": "回想並非重播",
+      "body": "離開後的記憶不一定與當下感知完全一致。"
+    },
+    {
+      "title": "為不同時長設計",
+      "body": "短暫經過和深度停留不宜套用同一種敘事密度。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "寫下十秒、一分鐘與十分鐘的作品觀察各一句。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "古典樂譜細部",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "026",
+    "DATE": "2026-11-13",
+    "PAGE_01_TITLE": "時間的三個尺度",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 026\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "瞬間留下印象",
+    "PAGE_02_BODY": "第一個線索可能建立觀眾對後續內容的期待。",
+    "PAGE_03_TITLE": "停留改變觀察",
+    "PAGE_03_BODY": "較長的觀看或體驗可能出現不同層次。",
+    "PAGE_04_TITLE": "回想並非重播",
+    "PAGE_04_BODY": "離開後的記憶不一定與當下感知完全一致。",
+    "PAGE_05_TITLE": "為不同時長設計",
+    "PAGE_05_BODY": "短暫經過和深度停留不宜套用同一種敘事密度。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "寫下十秒、一分鐘與十分鐘的作品觀察各一句。"
+  },
+  "music": {
+    "composer": "Franz Schubert",
+    "work": "Impromptu in G-flat major, D 899 No. 3",
+    "reason": "比較記憶中的相似與差異",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}

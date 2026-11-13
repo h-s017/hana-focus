@@ -1,9 +1,9 @@
 {
-  "lastRunAt": "2026-11-12T07:04:02.612Z",
-  "date": "2026-11-12",
-  "day": 25,
+  "lastRunAt": "2026-11-13T06:34:27.614Z",
+  "date": "2026-11-13",
+  "day": 26,
   "status": "editorial_ready",
-  "topic": "界線如何形成體驗",
+  "topic": "時間的三個尺度",
   "canvaCreated": false,
   "canvaDesignId": null,
   "canvaEditUrl": null,
@@ -12,10 +12,10 @@
   "imagesGenerated": false,
   "reviewStatus": "internal_automated_checks_passed",
   "published": false,
-  "captionPath": "content/instagram/2026-11-12/caption.md",
-  "canvaCsvPath": "content/instagram/2026-11-12/canva-autofill.csv",
-  "canvaImportPath": "content/instagram/2026-11-12/canva-import.html",
-  "lessonPath": "content/instagram/2026-11-12/lesson.json",
+  "captionPath": "content/instagram/2026-11-13/caption.md",
+  "canvaCsvPath": "content/instagram/2026-11-13/canva-autofill.csv",
+  "canvaImportPath": "content/instagram/2026-11-13/canva-import.html",
+  "lessonPath": "content/instagram/2026-11-13/lesson.json",
   "notes": "Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.",
-  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-12/canva-autofill.csv"
+  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-13/canva-autofill.csv"
 }
