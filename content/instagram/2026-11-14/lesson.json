@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-14",
+  "day": 27,
+  "title": "入口的第一印象",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "入口的第一印象",
+      "body": "HANA 嗅覺微課 · Day 027\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "入口傳達方向",
+      "body": "招牌、材質與光線先給訪客基本線索。"
+    },
+    {
+      "title": "不要過度承諾",
+      "body": "視覺與文字不應暗示作品沒有提供的實際體驗。"
+    },
+    {
+      "title": "氣味可以低調",
+      "body": "有些場所更適合讓氣味融入背景。"
+    },
+    {
+      "title": "維持可調整性",
+      "body": "開放空間的感官安排應保留實測與修訂餘地。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "替一間工作室入口寫一個不超過二十字的感官主題。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "門廳建築攝影",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "027",
+    "DATE": "2026-11-14",
+    "PAGE_01_TITLE": "入口的第一印象",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 027\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "入口傳達方向",
+    "PAGE_02_BODY": "招牌、材質與光線先給訪客基本線索。",
+    "PAGE_03_TITLE": "不要過度承諾",
+    "PAGE_03_BODY": "視覺與文字不應暗示作品沒有提供的實際體驗。",
+    "PAGE_04_TITLE": "氣味可以低調",
+    "PAGE_04_BODY": "有些場所更適合讓氣味融入背景。",
+    "PAGE_05_TITLE": "維持可調整性",
+    "PAGE_05_BODY": "開放空間的感官安排應保留實測與修訂餘地。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "替一間工作室入口寫一個不超過二十字的感官主題。"
+  },
+  "music": {
+    "composer": "Claude Debussy",
+    "work": "Suite bergamasque: Clair de lune",
+    "reason": "觀察光線與氣氛的象徵",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
