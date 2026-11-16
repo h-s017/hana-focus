@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-16",
+  "day": 29,
+  "title": "展櫃的觀看距離",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "展櫃的觀看距離",
+      "body": "HANA 嗅覺微課 · Day 029\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "展示與作品相互作用",
+      "body": "櫃體、標籤及觀眾站位影響作品如何被理解。"
+    },
+    {
+      "title": "物件需要留白",
+      "body": "不是每一段說明都需要很長。"
+    },
+    {
+      "title": "聞與看要區分",
+      "body": "嗅覺體驗若存在，應清楚說明其參與方式。"
+    },
+    {
+      "title": "尊重場館條件",
+      "body": "展示設備與材料須另行核對保存、安全及維護要求。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "為一件小型器物寫出名稱、材料與一個感官問題。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "博物館展示素描",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "029",
+    "DATE": "2026-11-16",
+    "PAGE_01_TITLE": "展櫃的觀看距離",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 029\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "展示與作品相互作用",
+    "PAGE_02_BODY": "櫃體、標籤及觀眾站位影響作品如何被理解。",
+    "PAGE_03_TITLE": "物件需要留白",
+    "PAGE_03_BODY": "不是每一段說明都需要很長。",
+    "PAGE_04_TITLE": "聞與看要區分",
+    "PAGE_04_BODY": "嗅覺體驗若存在，應清楚說明其參與方式。",
+    "PAGE_05_TITLE": "尊重場館條件",
+    "PAGE_05_BODY": "展示設備與材料須另行核對保存、安全及維護要求。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "為一件小型器物寫出名稱、材料與一個感官問題。"
+  },
+  "music": {
+    "composer": "Claude Debussy",
+    "work": "Préludes, Book I: La fille aux cheveux de lin",
+    "reason": "細微色彩與音樂層次",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
