@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-17",
+  "day": 30,
+  "title": "閱讀角的感官秩序",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "閱讀角的感官秩序",
+      "body": "HANA 嗅覺微課 · Day 030\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "場域用途優先",
+      "body": "安靜閱讀需要的是清楚且不干擾的空間安排。"
+    },
+    {
+      "title": "材質建立溫度",
+      "body": "桌面、紙張與座椅的視覺線索可以形成一致感。"
+    },
+    {
+      "title": "嗅覺不必突出",
+      "body": "是否加入氣味，應先考慮使用情境與他人感受。"
+    },
+    {
+      "title": "讓體驗保持選擇",
+      "body": "不是所有訪客都希望有相同的感官刺激。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "為一個閱讀角選三個材質詞，說明彼此的關係。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "閱讀空間插畫",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "030",
+    "DATE": "2026-11-17",
+    "PAGE_01_TITLE": "閱讀角的感官秩序",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 030\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "場域用途優先",
+    "PAGE_02_BODY": "安靜閱讀需要的是清楚且不干擾的空間安排。",
+    "PAGE_03_TITLE": "材質建立溫度",
+    "PAGE_03_BODY": "桌面、紙張與座椅的視覺線索可以形成一致感。",
+    "PAGE_04_TITLE": "嗅覺不必突出",
+    "PAGE_04_BODY": "是否加入氣味，應先考慮使用情境與他人感受。",
+    "PAGE_05_TITLE": "讓體驗保持選擇",
+    "PAGE_05_BODY": "不是所有訪客都希望有相同的感官刺激。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "為一個閱讀角選三個材質詞，說明彼此的關係。"
+  },
+  "music": {
+    "composer": "Maurice Ravel",
+    "work": "Pavane pour une infante défunte",
+    "reason": "讓回憶與時間有留白",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
