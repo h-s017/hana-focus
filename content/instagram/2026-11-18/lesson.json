@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-18",
+  "day": 31,
+  "title": "停留區與節奏",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "停留區與節奏",
+      "body": "HANA 嗅覺微課 · Day 031\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "停留需要理由",
+      "body": "一個座位或一件展品都可能改變動線速度。"
+    },
+    {
+      "title": "不要用滿每個角落",
+      "body": "留白有助於形成自己的觀看時間。"
+    },
+    {
+      "title": "感官重點要單純",
+      "body": "讓少量線索彼此呼應，比堆疊更容易理解。"
+    },
+    {
+      "title": "從回饋再修正",
+      "body": "實際停留時間可成為檢查設計的觀察資料。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "設計一個一分鐘停留點，寫出唯一希望被記住的主題。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "靜物攝影",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "031",
+    "DATE": "2026-11-18",
+    "PAGE_01_TITLE": "停留區與節奏",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 031\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "停留需要理由",
+    "PAGE_02_BODY": "一個座位或一件展品都可能改變動線速度。",
+    "PAGE_03_TITLE": "不要用滿每個角落",
+    "PAGE_03_BODY": "留白有助於形成自己的觀看時間。",
+    "PAGE_04_TITLE": "感官重點要單純",
+    "PAGE_04_BODY": "讓少量線索彼此呼應，比堆疊更容易理解。",
+    "PAGE_05_TITLE": "從回饋再修正",
+    "PAGE_05_BODY": "實際停留時間可成為檢查設計的觀察資料。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "設計一個一分鐘停留點，寫出唯一希望被記住的主題。"
+  },
+  "music": {
+    "composer": "Erik Satie",
+    "work": "Gymnopédie No. 1",
+    "reason": "以簡潔感受不同媒材",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
