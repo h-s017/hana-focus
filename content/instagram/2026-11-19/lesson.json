@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-19",
+  "day": 32,
+  "title": "兩個空間的銜接",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "兩個空間的銜接",
+      "body": "HANA 嗅覺微課 · Day 032\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "轉場需要邏輯",
+      "body": "不同區域不必完全一樣，仍可共享一個故事。"
+    },
+    {
+      "title": "尋找連續元素",
+      "body": "色彩、材質與語言可以提供穩定的辨識。"
+    },
+    {
+      "title": "差異應有原因",
+      "body": "讓主題變化服務體驗，而非只是追求新奇。"
+    },
+    {
+      "title": "記錄轉場感受",
+      "body": "先描述實際發生，再判斷是否達成目的。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "替兩間相連的展室各寫一句主題，找出它們共同的詞。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "雙幅建築水彩",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "032",
+    "DATE": "2026-11-19",
+    "PAGE_01_TITLE": "兩個空間的銜接",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 032\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "轉場需要邏輯",
+    "PAGE_02_BODY": "不同區域不必完全一樣，仍可共享一個故事。",
+    "PAGE_03_TITLE": "尋找連續元素",
+    "PAGE_03_BODY": "色彩、材質與語言可以提供穩定的辨識。",
+    "PAGE_04_TITLE": "差異應有原因",
+    "PAGE_04_BODY": "讓主題變化服務體驗，而非只是追求新奇。",
+    "PAGE_05_TITLE": "記錄轉場感受",
+    "PAGE_05_BODY": "先描述實際發生，再判斷是否達成目的。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "替兩間相連的展室各寫一句主題，找出它們共同的詞。"
+  },
+  "music": {
+    "composer": "Camille Saint-Saëns",
+    "work": "Le Carnaval des animaux: Aquarium",
+    "reason": "練習抽象且具體的描述",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
