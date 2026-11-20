@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-20",
+  "day": 33,
+  "title": "品牌語氣的密度",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "品牌語氣的密度",
+      "body": "HANA 嗅覺微課 · Day 033\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "少量語言更清楚",
+      "body": "一個品牌不必用許多形容詞同時描述自己。"
+    },
+    {
+      "title": "選出真正的關鍵字",
+      "body": "保留最能代表價值與使用情境的詞。"
+    },
+    {
+      "title": "不同媒材需一致",
+      "body": "空間、文字與氣味設計可以各自表達共同方向。"
+    },
+    {
+      "title": "檢查過度承諾",
+      "body": "所有感官敘述都應能被作品或服務支持。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "將五個品牌形容詞刪減至兩個，說明選擇原因。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "品牌紙樣拼貼",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "033",
+    "DATE": "2026-11-20",
+    "PAGE_01_TITLE": "品牌語氣的密度",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 033\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "少量語言更清楚",
+    "PAGE_02_BODY": "一個品牌不必用許多形容詞同時描述自己。",
+    "PAGE_03_TITLE": "選出真正的關鍵字",
+    "PAGE_03_BODY": "保留最能代表價值與使用情境的詞。",
+    "PAGE_04_TITLE": "不同媒材需一致",
+    "PAGE_04_BODY": "空間、文字與氣味設計可以各自表達共同方向。",
+    "PAGE_05_TITLE": "檢查過度承諾",
+    "PAGE_05_BODY": "所有感官敘述都應能被作品或服務支持。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "將五個品牌形容詞刪減至兩個，說明選擇原因。"
+  },
+  "music": {
+    "composer": "Claude Debussy",
+    "work": "Estampes: Pagodes",
+    "reason": "思考意象如何轉成藝術",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
