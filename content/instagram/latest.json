@@ -1,9 +1,9 @@
 {
-  "lastRunAt": "2026-11-20T07:05:27.701Z",
-  "date": "2026-11-20",
-  "day": 33,
+  "lastRunAt": "2026-11-21T06:58:40.008Z",
+  "date": "2026-11-21",
+  "day": 34,
   "status": "editorial_ready",
-  "topic": "品牌語氣的密度",
+  "topic": "影像與氣味的距離",
   "canvaCreated": false,
   "canvaDesignId": null,
   "canvaEditUrl": null,
@@ -12,10 +12,10 @@
   "imagesGenerated": false,
   "reviewStatus": "internal_automated_checks_passed",
   "published": false,
-  "captionPath": "content/instagram/2026-11-20/caption.md",
-  "canvaCsvPath": "content/instagram/2026-11-20/canva-autofill.csv",
-  "canvaImportPath": "content/instagram/2026-11-20/canva-import.html",
-  "lessonPath": "content/instagram/2026-11-20/lesson.json",
+  "captionPath": "content/instagram/2026-11-21/caption.md",
+  "canvaCsvPath": "content/instagram/2026-11-21/canva-autofill.csv",
+  "canvaImportPath": "content/instagram/2026-11-21/canva-import.html",
+  "lessonPath": "content/instagram/2026-11-21/lesson.json",
   "notes": "Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.",
-  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-20/canva-autofill.csv"
+  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-21/canva-autofill.csv"
 }

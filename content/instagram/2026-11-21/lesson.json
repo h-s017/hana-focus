@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-21",
+  "day": 34,
+  "title": "影像與氣味的距離",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "影像與氣味的距離",
+      "body": "HANA 嗅覺微課 · Day 034\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "圖像會預設期待",
+      "body": "畫面可能使觀眾在體驗前形成某種聯想。"
+    },
+    {
+      "title": "不要以圖代聞",
+      "body": "呈現一朵花不代表現場一定有花香。"
+    },
+    {
+      "title": "留心文化差異",
+      "body": "比喻不是所有人共享的既定答案。"
+    },
+    {
+      "title": "善用反差",
+      "body": "適度保留差異，讓體驗有被重新理解的可能。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "為同一段文字選兩種構圖，記下各自帶來的期待。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "抽象攝影藝術",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "034",
+    "DATE": "2026-11-21",
+    "PAGE_01_TITLE": "影像與氣味的距離",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 034\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "圖像會預設期待",
+    "PAGE_02_BODY": "畫面可能使觀眾在體驗前形成某種聯想。",
+    "PAGE_03_TITLE": "不要以圖代聞",
+    "PAGE_03_BODY": "呈現一朵花不代表現場一定有花香。",
+    "PAGE_04_TITLE": "留心文化差異",
+    "PAGE_04_BODY": "比喻不是所有人共享的既定答案。",
+    "PAGE_05_TITLE": "善用反差",
+    "PAGE_05_BODY": "適度保留差異，讓體驗有被重新理解的可能。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "為同一段文字選兩種構圖，記下各自帶來的期待。"
+  },
+  "music": {
+    "composer": "J. S. Bach",
+    "work": "Cello Suite No. 1 in G major, BWV 1007: Prélude",
+    "reason": "感受空間中的連續與方向",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
