@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-22",
+  "day": 35,
+  "title": "聲音如何陪伴嗅覺",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "聲音如何陪伴嗅覺",
+      "body": "HANA 嗅覺微課 · Day 035\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "音樂不是背景填充",
+      "body": "選曲需回應作品希望建立的時間感。"
+    },
+    {
+      "title": "節奏可以共存",
+      "body": "聲音與氣味不必每個瞬間都同步強調。"
+    },
+    {
+      "title": "作品與錄音不同",
+      "body": "推薦古典曲目不代表具備特定錄音的使用授權。"
+    },
+    {
+      "title": "做聆賞筆記",
+      "body": "先描述聲音中的動態，再寫與空間的連結。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "選一段器樂作品，用快慢、密度、留白三個面向記錄。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "古典樂器靜物",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "035",
+    "DATE": "2026-11-22",
+    "PAGE_01_TITLE": "聲音如何陪伴嗅覺",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 035\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "音樂不是背景填充",
+    "PAGE_02_BODY": "選曲需回應作品希望建立的時間感。",
+    "PAGE_03_TITLE": "節奏可以共存",
+    "PAGE_03_BODY": "聲音與氣味不必每個瞬間都同步強調。",
+    "PAGE_04_TITLE": "作品與錄音不同",
+    "PAGE_04_BODY": "推薦古典曲目不代表具備特定錄音的使用授權。",
+    "PAGE_05_TITLE": "做聆賞筆記",
+    "PAGE_05_BODY": "先描述聲音中的動態，再寫與空間的連結。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "選一段器樂作品，用快慢、密度、留白三個面向記錄。"
+  },
+  "music": {
+    "composer": "Robert Schumann",
+    "work": "Kinderszenen, Op. 15: Träumerei",
+    "reason": "把日常觀察寫成自己的語言",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
