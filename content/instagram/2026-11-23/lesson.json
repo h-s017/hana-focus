@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-23",
+  "day": 36,
+  "title": "字體與感官性格",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "字體與感官性格",
+      "body": "HANA 嗅覺微課 · Day 036\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "文字本身有形態",
+      "body": "字重、字距與尺寸會改變訊息的整體氣氛。"
+    },
+    {
+      "title": "易讀性先於裝飾",
+      "body": "讓觀眾理解內容，比追求特殊效果更重要。"
+    },
+    {
+      "title": "字體不等於氣味",
+      "body": "視覺調性可以啟發描述，但不能代替實際感知。"
+    },
+    {
+      "title": "建立層級",
+      "body": "標題、正文、註解應有明確的閱讀順序。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "將一個品牌標題以兩種字重排列，描述印象差異。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "活版印刷圖錄",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "036",
+    "DATE": "2026-11-23",
+    "PAGE_01_TITLE": "字體與感官性格",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 036\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "文字本身有形態",
+    "PAGE_02_BODY": "字重、字距與尺寸會改變訊息的整體氣氛。",
+    "PAGE_03_TITLE": "易讀性先於裝飾",
+    "PAGE_03_BODY": "讓觀眾理解內容，比追求特殊效果更重要。",
+    "PAGE_04_TITLE": "字體不等於氣味",
+    "PAGE_04_BODY": "視覺調性可以啟發描述，但不能代替實際感知。",
+    "PAGE_05_TITLE": "建立層級",
+    "PAGE_05_BODY": "標題、正文、註解應有明確的閱讀順序。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "將一個品牌標題以兩種字重排列，描述印象差異。"
+  },
+  "music": {
+    "composer": "Frédéric Chopin",
+    "work": "Nocturne in E-flat major, Op. 9 No. 2",
+    "reason": "觀察前景與背景的平衡",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
