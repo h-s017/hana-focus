@@ -1,5 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {calendarPreview,compareReservations,windowBounds} from '../../supabase/functions/hana-automation/calendar.mjs';
+import {control} from '../../supabase/functions/hana-automation/control.mjs';
 import {instant} from '../../js/calendar-availability.mjs';
 const start='2026-10-26T00:00:00+08:00',end='2026-10-27T00:00:00+08:00';
 const event={status:'confirmed',start:{dateTime:'2026-10-26T13:00:00+08:00'},end:{dateTime:'2026-10-26T15:00:00+08:00'}};
@@ -21,3 +22,17 @@ test('stored Google OAuth credential works without a manually supplied seed refr
  assert.deepEqual((await run('owner',start,end)).events,[]);assert.equal(saved,false);
 });
 test('configured client without either a stored credential or legacy seed stays unauthorized',async()=>{const {calendarSources}=await import('../../supabase/functions/hana-automation/calendar.mjs');let calls=0;const run=calendarSources({clientId:'fixture',clientSecret:'fixture',ownerId:'owner',store:{credential:async()=>null},encryption:{},fetcher:()=>calls++});await assert.rejects(run('owner',start,end),{code:'calendar_authorization_required'});assert.equal(calls,0);});
+
+test('revoked Google refresh token records a reconnect reason without retaining provider errors',async()=>{
+ const events=[];
+ const store={credential:async()=>null,event:async(...args)=>events.push(args)};
+ const preview=calendarPreview({clientId:'fixture',clientSecret:'fixture',seedRefreshToken:'fixture',ownerId:'owner',store,encryption:{},fetcher:async url=>{
+  assert.equal(url,'https://oauth2.googleapis.com/token');
+  return Response.json({error:'invalid_grant',error_description:'private provider detail'},{status:400});
+ }});
+ const handler=control({store,calendarPreview:preview,readiness:()=>({calendar:true}),authenticate:async()=>({id:'owner',app_metadata:{hana_office_access:true}})});
+ const response=await handler(new Request('https://example.invalid',{method:'POST',headers:{Authorization:'Bearer fixture'},body:JSON.stringify({action:'calendar_preview',start,end})}));
+ assert.equal(response.status,409);
+ assert.deepEqual(await response.json(),{error:'calendar_authorization_required'});
+ assert.deepEqual(events[0].slice(-2),['calendar_preview_failed',{error_code:'calendar_authorization_required',external_writes:false}]);
+});

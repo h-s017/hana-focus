@@ -13,7 +13,7 @@ function checkDate(value){
 checkDate(date);
 const day=Math.floor((Date.parse(date+'T00:00:00Z')-Date.parse('2026-10-19T00:00:00Z'))/86400000)+1;
 if(day<1)throw Error('Schedule starts on 2026-10-19');
-const folder=path.join('content','instagram',date);
+const folder=path.posix.join('content','instagram',date);
 await fs.mkdir(folder,{recursive:true});
 const readJSON=async file=>{try{return JSON.parse(await fs.readFile(file,'utf8'));}catch{return null;}};
 const previous=await readJSON(path.join('content','instagram','latest.json'));

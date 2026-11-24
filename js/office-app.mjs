@@ -1,11 +1,11 @@
 import {mountDailyAgenda} from './daily-agenda.mjs?v=shared-calendar-20261104b';
 import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=office-20261108-archive';
 document.documentElement.dataset.focusWorkspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
-import {mountFocusDashboard} from './focus-dashboard.mjs?v=business-hq-20261124';
+import {mountFocusDashboard} from './focus-dashboard.mjs?v=office-hq-auth-20261124';
 import {mountMonthlyCalendar} from './monthly-calendar-app.mjs?v=compact-calendar-20261104';
 import {mountReservationOrders} from './reservation-orders.mjs?v=intake-history-20261104';
 import {db} from './office-client.mjs';
-import {loginController,consumeCallback,authMessage} from './office-auth.mjs';
+import {loginController,consumeCallback} from './office-auth.mjs?v=office-auth-20261124';
 import {STATES,NEXT_ROLE} from './office-workflow.mjs';
 import {mountAutomation} from './automation-app.mjs?v=office-20261104-unified-calendar';
 import {mountMaterials} from './project-materials.mjs';
@@ -14,24 +14,48 @@ const host=document.getElementById('hana-office-root');
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let draftRequestId=crypto.randomUUID();
 let disposeDaily=null;let disposeMaterials=null,materialsOwner=null,disposeAutomation=null,disposeOrders=null,disposeMonthly=null,disposeFocus=null;
-let current=null,loading=false;const busy=new Set();let refreshVersion=0;
-host.innerHTML=`<section class="office-account"><h2>開始今天的工作</h2><p class="login-help">登入後，輸入工作需求，再查看進度與待審核成果。</p><label>電子郵件<input id="office-email" type="email" autocomplete="email"></label><button id="office-login">寄送登入連結</button><button id="office-logout" hidden>登出</button><p id="office-session" role="status" aria-live="polite">正在確認登入狀態…</p></section>
+let current=null,loading=false;const busy=new Set();let refreshVersion=0,sessionVersion=0;
+host.innerHTML=`<section class="office-account"><h2>開始今天的工作</h2><p class="login-help">登入後，輸入工作需求，再查看進度與待審核成果。</p><form id="office-login-form"><label>電子郵件<input id="office-email" type="email" autocomplete="email" required></label><button id="office-login">寄送登入連結</button></form><button id="office-logout" hidden>登出</button><p id="office-account-state" role="status">正在確認登入狀態…</p><p id="office-session" role="status"></p></section>
 <section id="office-private" hidden><section id="office-focus"></section><section id="office-orders" data-business-only></section><section id="office-materials" data-business-only></section><section id="office-automation" data-business-only></section><details id="office-agent-archive" data-business-only ><summary>封存：舊版 Agent 交接與紀錄</summary><h2>專案與任務</h2><p>內部雲端資料與原本本機工作板分開保存，不會覆蓋 HANA WORK／CHURCH WORK。本人核准不代表客戶核准或正式交付。</p><form id="office-form"><label>專案<input name="project" value="文慶雞" maxlength="100" required></label><label>角色<select name="role"><option>Project Manager</option><option>Brand Strategist</option><option>Creative Producer</option></select></label><label>標題<input name="title" maxlength="140" required></label><label>需求與來源<textarea name="brief" rows="5" maxlength="12000" required></textarea></label><label>建議期限<input name="due" type="datetime-local"></label><button id="office-add">儲存雲端任務</button></form><button id="office-refresh">重新整理</button><button id="office-bkc">載入文慶雞測試需求（不自動送出）</button><label>篩選<select id="office-filter"><option value="">全部</option><option value="review">待本人審核</option><option value="approved">本人核准・未交付</option><option value="failed">失敗</option></select></label><p id="office-notice" role="status" aria-live="polite"></p><div id="office-tasks"></div></details></section>
 <details id="office-calendar-demo"><summary>開發測試：合成行程試算</summary><p>伺服端 OAuth／正式預約同步尚未啟用。以下只用合成事件驗證 Asia/Taipei 時段計算，不讀取或更動客戶預約，不寄送通知。</p><button id="office-calendar-preview">試算範例不可預約時段</button><pre id="office-calendar-result"></pre></details>`;
 const navigation=mountWorkspaceNavigation(host,{db});
 const $=id=>document.getElementById('office-'+id),message=s=>$('notice').textContent=s;
 const controller=loginController({auth:db.auth,storage:localStorage,withLock:fn=>navigator.locks?navigator.locks.request('hana-office-login',fn):fn()});
-function loggedOut(){disposeDaily?.();disposeDaily=null;disposeFocus?.();disposeFocus=null;disposeMonthly?.();disposeMonthly=null;const calendarHost=document.getElementById('hana-month-calendar');if(calendarHost)disposeMonthly=mountMonthlyCalendar(calendarHost);disposeOrders?.();disposeOrders=null;disposeAutomation?.();disposeAutomation=null;disposeMaterials?.();disposeMaterials=null;materialsOwner=null;current=null;refreshVersion++;$('private').hidden=true;navigation.setSession(false);$('tasks').replaceChildren();$('logout').hidden=true;}
+function loggedOut(){disposeDaily?.();disposeDaily=null;disposeFocus?.();disposeFocus=null;disposeMonthly?.();disposeMonthly=null;const calendarHost=document.getElementById('hana-month-calendar');if(calendarHost)disposeMonthly=mountMonthlyCalendar(calendarHost);disposeOrders?.();disposeOrders=null;disposeAutomation?.();disposeAutomation=null;disposeMaterials?.();disposeMaterials=null;materialsOwner=null;current=null;refreshVersion++;$('private').hidden=true;navigation.setSession(false);$('tasks').replaceChildren();$('logout').hidden=true;$('login-form').hidden=false;}
 async function sync(){
- try{const {data:{session},error}=await db.auth.getSession();if(error)throw error;current=session;
- $('private').hidden=!session;$('logout').hidden=!session;
- $('session').textContent=session?'已登入：'+session.user.email:'未登入，請使用最新登入郵件。';
+ const version=++sessionVersion;
+ try{const {data:{session},error}=await db.auth.getSession();if(version!==sessionVersion)return;if(error)throw error;current=session;
+ $('private').hidden=!session;$('logout').hidden=!session;$('login-form').hidden=!!session;
+ $('account-state').textContent=session?'已登入：'+session.user.email:'未登入，請使用最新登入郵件。';
  if(session){if(materialsOwner!==session.user.id){disposeDaily?.();disposeDaily=mountDailyAgenda({db,owner:session.user.id});disposeFocus?.();disposeFocus=mountFocusDashboard($('focus'),{db,owner:session.user.id,onRefresh:()=>void refresh()});const archive=document.getElementById('focus-local-archive');if(archive)archive.open=false;disposeMonthly?.();const calendarHost=document.getElementById('hana-month-calendar');if(calendarHost)disposeMonthly=mountMonthlyCalendar(calendarHost,{db});disposeOrders?.();disposeOrders=mountReservationOrders($('orders'),{db});disposeAutomation?.();disposeAutomation=mountAutomation($('automation'),{db,owner:session.user.id});disposeMaterials?.();disposeMaterials=mountMaterials($('materials'),{db,owner:session.user.id});materialsOwner=session.user.id;}navigation.setSession(true);await refresh();}else loggedOut();
- }catch{loggedOut();$('session').textContent='無法確認登入狀態，請重新登入。';}
+ }catch{if(version===sessionVersion){loggedOut();$('account-state').textContent='無法確認登入狀態，請重新登入。';}}
 }
-$('login').onclick=async()=>{$('login').disabled=true;const result=await controller.send($('email').value);$('session').textContent=result.message;$('login').disabled=false;};
-setInterval(()=>{const sec=Math.ceil(controller.remaining()/1000);if(!$('login').disabled)$('login').textContent=sec?'請等待 '+sec+' 秒':'寄送登入連結';},1000);
-$('logout').onclick=async()=>{try{const {error}=await db.auth.signOut();if(error)throw error;loggedOut();$('session').textContent='已登出。';}catch{$('session').textContent='登出未成功，請重試；目前登入狀態尚未清除。';}};
+let sending=false;
+function updateLoginButton(){
+ const seconds=Math.ceil(controller.remaining()/1000);
+ $('login').disabled=sending||seconds>0;
+ $('login').textContent=sending?'正在處理…':seconds?'請等待 '+seconds+' 秒':'寄送登入連結';
+}
+$('login-form').onsubmit=async event=>{
+ event.preventDefault();
+ if(sending||current||controller.remaining()>0)return;
+ sending=true;updateLoginButton();
+ try{const result=await controller.send($('email').value);$('session').textContent=result.message;}
+ finally{sending=false;updateLoginButton();}
+};
+updateLoginButton();setInterval(updateLoginButton,1000);
+function showSignedOut(){
+ sessionVersion++;
+ loggedOut();
+ $('account-state').textContent='已登出。';
+ $('session').textContent='';
+}
+$('logout').onclick=async()=>{
+ $('logout').disabled=true;
+ try{const {error}=await db.auth.signOut();if(error)throw error;showSignedOut();}
+ catch{$('session').textContent='登出未成功，請重試；目前登入狀態尚未清除。';}
+ finally{$('logout').disabled=false;}
+};
 $('form').addEventListener('input',()=>{draftRequestId=crypto.randomUUID();});
 $('form').onsubmit=async e=>{e.preventDefault();if(!current||loading)return;loading=true;$('add').disabled=true;
  try{const f=new FormData(e.target),due=f.get('due');
@@ -73,8 +97,20 @@ async function refresh(){if(!current)return;const v=++refreshVersion,owner=curre
  }
  }catch{if(v===refreshVersion)message('無法載入任務，請確認登入與網路；未清除任何資料。');}}
 $('calendar-preview').onclick=()=>{const result=availableSlots([{status:'confirmed',start:{dateTime:'2026-10-26T10:00:00+08:00'},end:{dateTime:'2026-10-26T11:00:00+08:00'}}],{start:'2026-10-26T09:00:00+08:00',end:'2026-10-26T12:00:00+08:00',durationMinutes:60});$('calendar-result').textContent='合成資料測試，非正式預約時段：\n'+result.map(s=>new Date(s.start).toLocaleTimeString('zh-TW',{timeZone:'Asia/Taipei'})+'–'+new Date(s.end).toLocaleTimeString('zh-TW',{timeZone:'Asia/Taipei'})).join('\n');};
-db.auth.onAuthStateChange(()=>setTimeout(sync,0));
-const callback=await consumeCallback({auth:db.auth,href:location.href,replace:path=>history.replaceState(null,'',path)});
-await sync();if(callback.handled)$('session').textContent=callback.message;
+async function completeCallback(){
+ const callback=await consumeCallback({auth:db.auth,href:location.href,replace:path=>history.replaceState(null,'',path)});
+ if(callback.handled)$('session').textContent=callback.message;
+ return callback.handled;
+}
+await completeCallback();
+db.auth.onAuthStateChange(event=>{
+ if(event==='SIGNED_OUT'){
+  const version=++sessionVersion;
+  setTimeout(()=>{if(version===sessionVersion)showSignedOut();},0);
+ }
+ else if(event!=='INITIAL_SESSION'&&event!=='TOKEN_REFRESHED')setTimeout(sync,0);
+});
+window.addEventListener('hashchange',async()=>{if(await completeCallback())await sync();});
+await sync();
 
 

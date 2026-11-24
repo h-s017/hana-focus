@@ -1,4 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {focusService} from '../../supabase/functions/hana-automation/focus.mjs';import {control} from '../../supabase/functions/hana-automation/control.mjs';
+import {agentProvider} from '../../supabase/functions/hana-automation/agent-provider.mjs';
 const id='70000000-0000-4000-8000-000000000001',project={id:'p',legacy_name:'fixture',name:'fixture',workspace:'work',active_version_id:'v'},version={id:'v',project_id:'p',label:'V3',included_terms:['wall'],excluded_terms:['packaging']},task={id,project_id:'p',version_id:'v',title:'wall',brief:'fixture',status:'queued',scope_status:'in_scope',work_state:'todo',priority:1};
 function fixture(){const calls=[];const store={focusSnapshot:async()=>({projects:[project],versions:[version],tasks:[task],documents:[],conflicts:[],sync:[],ideas:[],events:[],runs:[]}),focusRunStart:async(o,t,r,request)=>{calls.push(['start',o,t,r,request]);return {fresh:true,run_id:'run'};},finish:async(...args)=>calls.push(['finish',...args]),focusSyncState:async()=>({config:{},cursor_at:'2026-10-24T00:00:00Z'}),focusReceipt:async()=>null,focusSyncStatus:async(o,p,value)=>calls.push(['sync',value]),focusImport:async()=>({added:1,conflicts:0}),focusMarkSync:async(...args)=>calls.push(['mark',...args]),event:async(...args)=>calls.push(['event',...args])};return {store,calls};}
 test('real role tools claim once and finish in review using existing run storage',async()=>{const f=fixture(),r=await focusService(f)('actual-owner',{action:'focus_agent',task_id:id,role:'Project Manager',request_id:id});assert.equal(r.status,'review');assert.equal(r.mode,'free_tools');assert.equal(r.paidApiCalls,0);assert.equal(f.calls[0][1],'actual-owner');assert.equal(f.calls.filter(c=>c[0]==='finish').length,1);assert.match(f.calls.find(c=>c[0]==='finish')[4],/非生成式AI/);});
@@ -11,3 +12,50 @@ test('focus routes use authenticated owner and reject user-editable claims befor
 test('explicit create-and-run option performs free PM analysis only for a current scoped task',async()=>{const f=fixture();f.store.focusImport=async()=>({added:1});f.store.focusExternalTask=async()=>({task_id:id});const r=await focusService(f)('owner',{action:'focus_create_task',project_id:'p',title:'wall',priority:1,auto_run:true,request_id:id});assert.equal(r.status,'review');assert.equal(f.calls[0][3],'Project Manager');});
 test('partially committed batches do not advance the source cursor and remain traceable',async()=>{const f=fixture();let calls=0;f.store.focusImport=async()=>{if(++calls===2)throw Error('database unavailable');return {added:100};};await assert.rejects(focusService({...f,notion:async()=>({tasks:Array.from({length:101},()=>task),cursor:'2026-10-25T00:00:00Z',complete:true})})('owner',{action:'focus_sync',project_id:'p',request_id:id}),{code:'notion_unavailable'});assert.equal(calls,2);assert.ok(!f.calls.some(c=>c[1]?.cursor_at));assert.ok(!f.calls.some(c=>c[0]==='mark'));});
 test('committed synchronization receipt retries status recovery without rereading Notion',async()=>{const f=fixture();f.store.focusReceipt=async()=>({code:'focus_sync_completed',details:{project_id:'p',cursor:'2026-10-25T00:00:00Z',result:{conflicts:0}}});const r=await focusService({...f,notion:()=>assert.fail('should not fetch again')})('owner',{action:'focus_sync',project_id:'p',request_id:id});assert.equal(r.duplicate,true);assert.ok(f.calls.some(c=>c[1]?.cursor_at==='2026-10-25T00:00:00Z'));});
+
+const aiRequest={action:'focus_agent',task_id:id,role:'Brand Strategist',mode:'ai_draft',request_id:id};
+function aiFixture(){
+ const f=fixture();
+ f.store.markFocusAIClaim=async(...args)=>f.calls.push(['ai',...args]);
+ return f;
+}
+test('AI draft requires server activation and configuration before claiming any task',async()=>{
+ const f=fixture();
+ assert.equal(agentProvider({enabled:false,apiKey:'fixture',model:'fixture'}),null);
+ assert.equal(agentProvider({enabled:true,apiKey:'',model:'fixture'}),null);
+ assert.equal(agentProvider({enabled:true,apiKey:'fixture',model:''}),null);
+ await assert.rejects(focusService(f)('owner',aiRequest),{code:'focus_ai_not_configured'});
+ assert.deepEqual(f.calls,[]);
+});
+test('explicit AI run sends only its task and scope, writes a review draft and never repeats an existing claim',async()=>{
+ const f=aiFixture();let calls=0;
+ const generate=agentProvider({enabled:true,apiKey:'fixture-secret',model:'fixture-model',fetcher:async(url,options)=>{
+  calls++;
+  assert.equal(url,'https://api.openai.com/v1/responses');
+  assert.equal(options.headers.Authorization,'Bearer fixture-secret');
+  const payload=JSON.parse(options.body);
+  assert.equal(payload.store,false);
+  assert.match(payload.instructions,/Brand Strategist/);
+  assert.equal(payload.tools,undefined);
+  assert.deepEqual(JSON.parse(payload.input),{project:'fixture',title:'wall',brief:'fixture',version:'V3',included:['wall'],excluded:['packaging']});
+  return Response.json({status:'completed',output:[{type:'message',content:[{type:'output_text',text:'待核對策略'}]}]});
+ }});
+ const run=focusService({...f,generate});
+ assert.equal((await run('owner',{action:'focus_snapshot'})).ai_drafts_available,true);
+ assert.equal((await run('owner',aiRequest)).status,'review');
+ assert.deepEqual(f.calls[1],['ai','owner',id,'run','Brand Strategist']);
+ assert.match(f.calls.find(call=>call[0]==='finish')[4],/待本人審核.*\n待核對策略/);
+ f.store.focusRunStart=async()=>({fresh:false,status:'review'});
+ assert.equal((await run('owner',aiRequest)).duplicate,true);
+ assert.equal(calls,1);
+});
+test('provider timeout records a sanitized failure and automatic PM work stays free',async()=>{
+ const f=aiFixture();let calls=0;
+ f.store.focusImport=async()=>({added:1});
+ f.store.focusExternalTask=async()=>({task_id:id});
+ const run=focusService({...f,generate:async()=>{calls++;throw new DOMException('private','TimeoutError');}});
+ assert.equal((await run('owner',{action:'focus_create_task',project_id:'p',title:'wall',auto_run:true,request_id:id})).paidApiCalls,0);
+ assert.equal(calls,0);
+ await assert.rejects(run('owner',aiRequest),{code:'focus_tool_failed'});
+ assert.deepEqual(f.calls.at(-1),['finish','owner',id,'run',null,'provider_timeout']);
+});

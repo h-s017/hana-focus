@@ -27,10 +27,10 @@ jobs:
       - name: Stage complete public site with no backend reports or secrets
         run: node scripts/build-office-site.mjs
       - name: Install pinned isolated browser test dependency
-        run: |
-          npm install --ignore-scripts --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1
-          npx playwright install --with-deps chromium
+        run: npm install --ignore-scripts --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1
       - name: Browser interaction tests (all API calls mocked)
+        env:
+          HANA_TEST_BROWSER_CHANNEL: chrome
         run: |
           node tests/office/browser.mjs
           node tests/office/focus-browser.mjs
