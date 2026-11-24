@@ -1,6 +1,6 @@
 // Read-only presentation of the existing monthly draft and Reservation aggregates.
 // No second database, copied orders, source mutation, or assumed empty Google calendar.
-export const FOCUS_ROUTES=['work','projects','agents','reviews','activity','church','calendar','orders','materials','settings'];
+export const FOCUS_ROUTES=['business-hq','work','projects','agents','reviews','activity','church','calendar','orders','materials','settings'];
 export function focusDestination(hash='',saved=''){
  const requested=hash.replace(/^#/,'');
  return FOCUS_ROUTES.includes(requested)?requested:FOCUS_ROUTES.includes(saved)?saved:'calendar';

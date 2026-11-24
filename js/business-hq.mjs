@@ -27,14 +27,14 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
  form.append(fields);
  function download(content,name,mime){const url=URL.createObjectURL(new Blob([content],{type:mime})),a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  async function invoke(body){const {data,error}=await db.functions.invoke('hana-automation',{body:{...body,workspace:'work'}});let code=data?.error;try{if(!code&&error)code=(await error.context?.json())?.error;}catch{}if(error||code)throw Object.assign(Error(code||'hq_persistence_uncertain'),{code:code||'hq_persistence_uncertain'});return data;}
- const workVisible=()=>workspace==='work'&&['work','agents'].includes(view);
+ const workVisible=()=>workspace==='work'&&['business-hq','work','agents'].includes(view);
  const pendingKey='hana-hq-request:'+owner;
  function render(){
   if(disposed||!workVisible())return;
   skills.replaceChildren();for(const [id,label] of Object.entries(labels)){const record=catalogue?.skills?.find(s=>s.id===id);skills.append(el('li',label+'｜'+(record?.status==='available'?'已接入・v'+record.version:record?'尚未接入':'連線待確認')));}
   results.replaceChildren();results.append(el('h3','商機與提案'),el('p','所有提案是規則式草稿；核准不會自動寄送，也不會變成「已聯絡」。'));
   const bar=el('div');bar.className='hq-actions';bar.append(button('更新商務紀錄',()=>void operate(refresh)),button('建立新的商務要求',()=>{request=null;try{sessionStorage.removeItem(pendingKey);}catch{}notice.textContent='下次送出會建立新要求；既有商機仍依網域去重。';}),button('匯出有來源商機 CSV',()=>download(exportOpportunities(snapshot.opportunities.filter(o=>o.source_checked_at)),'hana-business-opportunities.csv','text/csv;charset=utf-8')),button('匯出商機與提案 JSON',()=>download(JSON.stringify(snapshot,null,2),'hana-business-review.json','application/json;charset=utf-8')));results.append(bar);
-  if(!snapshot.opportunities.length)results.append(el('p','目前沒有商機紀錄。選擇「業務與行銷」後輸入需求與公司來源。'));
+  if(!snapshot.opportunities.length)results.append(el('p','目前沒有商機紀錄。填寫商機開發需求與公司來源，即可建立第一筆。'));
   for(const o of snapshot.opportunities){
    const card=el('article');card.className='hq-opportunity';card.append(el('h4',o.company_name),el('p',stages[o.stage]||o.stage),el('p','適配度：'+(o.fit_score===null?'待查核':o.fit_score+'/10')+'｜'+o.fit_reason));
    if(o.source_url){const a=el('a','開啟公司來源');try{const u=new URL(o.source_url);if(u.protocol==='https:'){a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';card.append(a);}}catch{}}
@@ -83,7 +83,20 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
    try{sessionStorage.setItem(pendingKey,JSON.stringify(request));}catch{}
    try{await invoke({action:'hq_run',skill_id:'sales-marketing',request_id:request.id,input});await refresh();notice.textContent='執行結果已保存，請查看查核狀態及待審核草稿。';}catch(e){notice.textContent=messages[e.code]||'保存尚未確認，請保留原內容重試。';throw e;}
   },
-  setContext(w,v){const changed=w!==workspace||v!==view;workspace=w;view=v;host.hidden=!workVisible();modeLabel.hidden=w!=='work';if(w!=='work'){epoch++;mode.value='project-work';changeMode();snapshot={opportunities:[],runs:[],reviews:[]};results.replaceChildren();notice.textContent='';}else if(changed&&workVisible())void load();results.hidden=!active||!workVisible();onModeChange(active);},
+  setContext(w,v){
+   const changed=w!==workspace||v!==view,wasDirect=view==='business-hq';
+   workspace=w;view=v;
+   const direct=view==='business-hq';
+   host.hidden=!workVisible();modeLabel.hidden=w!=='work'||direct;
+   if(w!=='work'){
+    epoch++;mode.value='project-work';changeMode();snapshot={opportunities:[],runs:[],reviews:[]};results.replaceChildren();notice.textContent='';
+   }else{
+    const nextMode=direct?'sales-marketing':wasDirect?'project-work':mode.value;
+    if(nextMode!==mode.value){mode.value=nextMode;changeMode();}
+    if(changed&&workVisible())void load();
+   }
+   results.hidden=!active||!workVisible();onModeChange(active);
+  },
   load,
   dispose(){disposed=true;epoch++;snapshot=null;request=null;businessDraft=generalDraft=null;try{sessionStorage.removeItem(pendingKey);}catch{}form.querySelector('[name=hq_skill]')?.closest('label')?.remove();fields.remove();results.remove();host.replaceChildren();}
  };
