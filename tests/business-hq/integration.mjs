@@ -17,11 +17,16 @@ async function call(owner,body,expected=200){const response=await fetch(cfg.url+
 const catalog=await call(a,{action:'hq_catalog'});assert.equal(catalog.skills.length,7);assert.equal(catalog.skills.filter(s=>s.status==='available').length,1);
 const skill=catalog.skills.find(s=>s.id==='sales-marketing');const content=await readFile('business-hq/skills/sales-marketing/SKILL.md','utf8');assert.equal(skill.hash,createHash('sha256').update(content).digest('hex'));
 const input={workspace:'work',goal:'公開公司來源的隔離驗證，不是 HANA 客戶名單',industry:'Internet',region:'全球',services:'品牌研究',limit:3,companies:[{company_name:'Mozilla',website:'https://www.mozilla.org/',source_url:'https://www.mozilla.org/en-US/about/'}]};
+const incompleteId=randomUUID(),incompleteInput={...input,companies:[{...input.companies[0],source_url:null,manual_excerpt:'Synthetic incomplete source, not verified.'}]};
+assert.equal((await call(a,{action:'hq_run',request_id:incompleteId,input:incompleteInput})).status,'blocked');
+const incompleteSnapshot=await call(a,{action:'hq_snapshot'}),unverified=incompleteSnapshot.opportunities.find(o=>o.canonical_domain==='mozilla.org');assert.equal(unverified.stage,'identified');assert.equal(unverified.source_checked_at,null);
 const request=randomUUID();const first=await call(a,{action:'hq_run',request_id:request,skill_id:'sales-marketing',input});
 const snapshot=await call(a,{action:'hq_snapshot'}),run=snapshot.runs.find(r=>r.request_id===request);assert.ok(run);assert.equal(run.skill_id,'sales-marketing');assert.equal(run.skill_version,skill.version);assert.equal(run.skill_hash,skill.hash);
 assert.equal(first.status,'review',JSON.stringify({state:first.status,error:run.skill_error_code,blockers:run.skill_output?.blockers}));
 const opportunity=snapshot.opportunities.find(o=>o.canonical_domain==='mozilla.org');assert.ok(opportunity?.source_checked_at);assert.equal(opportunity.stage,'proposal_draft');assert.ok(opportunity.evidence[0].verified);assert.ok(opportunity.draft.startsWith('規則式提案草稿'));assert.ok(run.skill_sources.length>0);assert.equal(run.skill_output.metrics.external_messages_sent,0);
 pass('T01','Live public company URL fetched; timestamp, excerpt and content hash persisted (verification example, not a HANA customer).');
+assert.equal(opportunity.id,unverified.id);assert.equal(opportunity.linked_task_id,run.task_id);assert.notEqual(opportunity.linked_task_id,unverified.linked_task_id);assert.equal(snapshot.runs.find(r=>r.request_id===incompleteId).skill_state,'blocked');
+pass('T02-corrected-source','Corrected source input upgrades the same unverified opportunity, links the new review task and preserves the original blocked run.');
 pass('T03','Actual server run loaded the versioned sales-marketing resource and persisted its matching SHA-256.');
 await call(a,{action:'hq_run',request_id:request,skill_id:'sales-marketing',input});
 await call(a,{action:'hq_run',request_id:randomUUID(),skill_id:'sales-marketing',input});
@@ -42,6 +47,8 @@ const direct=await fetch(cfg.url+'/rest/v1/rpc/hana_hq_snapshot',{method:'POST',
 pass('T05','Real JWT/RLS isolates owners, rejects editable-metadata escalation, direct privileged RPC and Church business requests.');
 const approved=await call(a,{action:'hq_review',run_id:run.id,decision:'approved',note:'Isolated internal draft review'});assert.equal(approved.contacted,false);
 again=await call(a,{action:'hq_snapshot'});assert.equal(again.opportunities.find(o=>o.id===opportunity.id).stage,'approved');assert.ok(again.reviews.some(v=>v.task_id===run.task_id&&v.decision==='approved'));
+await call(a,{action:'hq_run',request_id:randomUUID(),input});
+const protectedRecord=(await call(a,{action:'hq_snapshot'})).opportunities.find(o=>o.id===opportunity.id);assert.equal(protectedRecord.stage,'approved');assert.equal(protectedRecord.linked_task_id,run.task_id);
 await call(a,{action:'hq_track',opportunity_id:opportunity.id,revision:2,stage:'contacted',manual_confirmation:false,note:'Synthetic attempted automatic contact'},409);
 pass('T06','Existing hana_reviews stores actual internal approval; approval never marks contacted or sends a message.');
 const loggedInAgain=await auth('/token?grant_type=password',{email:a.email,password:a.password},cfg.anon);const afterLogin=await call({...a,access_token:loggedInAgain.access_token},{action:'hq_snapshot'});assert.ok(afterLogin.opportunities.some(o=>o.id===opportunity.id));

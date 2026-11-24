@@ -8,7 +8,7 @@
 - `hana-focus-preview`：`fca4d2daafccc9f42f0aa81929c759e3a28d70ba`。
 - `hana-business-hq-v1`：`0a3c4ae6fcdd3e7cb7ea579fc1bda6eb4f699e05`。
 - `git rev-list --left-right --count preview...hq` 為 **0 / 9**。差異只有 README、CODEX_PHASE1 及七個 SKILL.md，共九個文件；既有正式程式沒有分岔。
-- 實作分支從 HQ 規格分支建立，PR 也以 HQ 分支為 base。沒有改 main／preview。遠端 `feat/pm-material-intake` 另有未整合的素材需求工作；保留該分支，未整批合入、重寫或假稱已完成其功能。
+- 實作分支從 HQ 規格分支建立，PR 最初以 HQ 分支為 base；HANA 核准合併部署後，PR #52 改以既有部署分支 hana-focus-preview 為 base，透過 PR 推進發布，不直接推送正式分支。遠端 `feat/pm-material-intake` 另有未整合的素材需求工作；保留該分支，未整批合入、重寫或假稱已完成其功能。
 - 已讀根目錄 SYSTEM_AUDIT、ops/UNIFIED_FOCUS_RELEASE、現行前端、hana-agent、hana-automation、schema／migration。未發現 AGENTS.md。七項技能均為 1.0.0。
 
 ## 實際架構與資料

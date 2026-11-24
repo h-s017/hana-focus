@@ -91,8 +91,13 @@ begin
   if c->>'stage'<>'identified' and (c->>'source_checked_at' is null or not exists(select 1 from jsonb_array_elements(c->'evidence') e where e->>'verified'='true' and e->>'company_name_confirmed'='true')) then raise exception 'hq_invalid_stage';end if;
   insert into public.hana_business_opportunities as existing(owner_id,company_name,website,canonical_domain,branch_key,branch_reason,public_business_contact,source_url,source_checked_at,evidence_excerpt_or_summary,evidence,fit_reason,fit_score,score_components,stage,draft,next_followup_at,linked_task_id)
   values(p_owner,c->>'company_name',c->>'website',c->>'canonical_domain',coalesce(c->>'branch_key',''),coalesce(c->>'branch_reason',''),c->>'public_business_contact',c->>'source_url',(c->>'source_checked_at')::timestamptz,c->>'evidence_excerpt_or_summary',c->'evidence',c->>'fit_reason',(c->>'fit_score')::integer,c->'score_components',c->>'stage',c->>'draft',null,r.task_id)
-  on conflict(owner_id,canonical_domain,branch_key) do update set public_business_contact=excluded.public_business_contact,source_url=excluded.source_url,source_checked_at=excluded.source_checked_at,evidence_excerpt_or_summary=excluded.evidence_excerpt_or_summary,evidence=excluded.evidence,fit_reason=excluded.fit_reason,fit_score=excluded.fit_score,score_components=excluded.score_components,stage=excluded.stage,draft=excluded.draft,revision=existing.revision+1,updated_at=now()
-  where existing.linked_task_id=r.task_id and existing.stage in ('identified','qualified','proposal_draft') returning id into v_id;
+  on conflict(owner_id,canonical_domain,branch_key) do update set public_business_contact=excluded.public_business_contact,source_url=excluded.source_url,source_checked_at=excluded.source_checked_at,evidence_excerpt_or_summary=excluded.evidence_excerpt_or_summary,evidence=excluded.evidence,fit_reason=excluded.fit_reason,fit_score=excluded.fit_score,score_components=excluded.score_components,stage=excluded.stage,draft=excluded.draft,linked_task_id=excluded.linked_task_id,revision=existing.revision+1,updated_at=now()
+  -- Corrected inputs have a new immutable request/task. Upgrade only a still
+  -- unverified candidate; old runs retain their input/output and evidence.
+  -- Verified or approved records cannot be relinked by unrelated new runs.
+  where (existing.linked_task_id=r.task_id and existing.stage in ('identified','qualified','proposal_draft'))
+     or (existing.stage='identified' and existing.source_checked_at is null and excluded.source_checked_at is not null
+         and exists(select 1 from jsonb_array_elements(excluded.evidence) e where e->>'verified'='true' and e->>'company_name_confirmed'='true')) returning id into v_id;
   if v_id is null then select id into v_id from public.hana_business_opportunities where owner_id=p_owner and canonical_domain=c->>'canonical_domain' and branch_key=coalesce(c->>'branch_key','');end if;
   ids:=ids||jsonb_build_array(v_id);v_id:=null;
  end loop;
