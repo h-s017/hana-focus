@@ -1,13 +1,14 @@
 import {monthBounds} from '../../../js/monthly-calendar.mjs';
 import {busyIntervals} from '../../../js/calendar-availability.mjs';
 import {focusSummary,roleTool,localTask} from '../../../js/focus-domain.mjs';
+import {ROLES,instructions} from '../../../js/office-workflow.mjs';
 import {digest,verifyBackup,localRows} from '../../../js/focus-backup.mjs';
 import {schedule} from './calendar-sync.mjs';
 const fail=code=>Object.assign(Error(code),{code});const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-export function focusService({store,notion,readCalendar,readCalendarEvents,now=Date.now}){
+export function focusService({store,notion,readCalendar,readCalendarEvents,now=Date.now,generate=null}){
  async function snapshot(owner){const value=await store.focusSnapshot(owner);value.tasks=value.tasks.map(t=>({...t,is_current:value.projects.some(p=>p.id===t.project_id&&p.active_version_id===t.version_id)}));value.summary=focusSummary(value.tasks,now());return value;}
  return async function service(owner,body){
-  if(body.action==='focus_snapshot')return snapshot(owner);
+  if(body.action==='focus_snapshot')return {...await snapshot(owner),ai_drafts_available:!!generate};
   if(body.action==='focus_calendar'){
    const bounds=monthBounds(body.month);if(!readCalendarEvents)throw fail('calendar_authorization_required');
    const value=await readCalendarEvents(owner,bounds.start,bounds.end),links=await store.calendarLinks(owner),mapped=new Map(links.map(r=>[r.event_id,r]));
@@ -67,13 +68,28 @@ export function focusService({store,notion,readCalendar,readCalendarEvents,now=D
    }catch(error){const code=['notion_authorization_required','notion_source_required','notion_rate_limited','notion_incomplete','notion_scope_mismatch'].includes(error.code)?error.code:'notion_unavailable';try{await store.focusSyncStatus(owner,body.project_id,{state:'failed',error_code:code});await store.event(owner,project.legacy_name,null,null,'focus_sync_failed',{error_code:code,request_id:body.request_id,external_writes:false});}catch{}throw fail(code);}
   }
   if(body.action==='focus_agent'){
-   if(!UUID.test(body.task_id||''))throw fail('invalid_focus_request');
+   if(!UUID.test(body.task_id||'')||!ROLES.includes(body.role))throw fail('invalid_focus_request');
    const context=await snapshot(owner),task=context.tasks.find(t=>t.id===body.task_id),project=context.projects.find(p=>p.id===task?.project_id),version=context.versions.find(v=>v.id===task?.version_id);
-   if(!task||!task.is_current||task.scope_status!=='in_scope'||project?.workspace!=='work')throw fail('scope_or_version_required');
-   if(body.simulate===true){return {mode:'simulation',persisted:false,result:'模擬預覽，未執行或保存為真實工作。\n'+roleTool(body.role,{project,version,tasks:context.tasks.filter(t=>t.project_id===project.id&&t.version_id===version.id),documents:context.documents.filter(d=>d.version_id===version.id)}),external_writes:false};}
+   if(!task||!task.is_current||!version||task.scope_status!=='in_scope'||project?.workspace!=='work')throw fail('scope_or_version_required');
+   const toolsInput={project,version,tasks:context.tasks.filter(t=>t.project_id===project.id&&t.version_id===version.id),documents:context.documents.filter(d=>d.version_id===version.id),priorVersions:context.versions.filter(v=>v.project_id===project.id&&v.id!==version.id)};
+   if(body.simulate===true){return {mode:'simulation',persisted:false,result:'模擬預覽，未執行或保存為真實工作。\n'+roleTool(body.role,toolsInput),external_writes:false};}
+   const useAI=body.mode==='ai_draft';
+   if(useAI&&!generate)throw fail('focus_ai_not_configured');
    const run=await store.focusRunStart(owner,task.id,body.role,body.request_id);if(!run.fresh)return {duplicate:true,status:run.status,snapshot:await snapshot(owner)};
-   try{const result=roleTool(body.role,{project,version,tasks:context.tasks.filter(t=>t.project_id===project.id&&t.version_id===version.id),documents:context.documents.filter(d=>d.version_id===version.id),priorVersions:context.versions.filter(v=>v.project_id===project.id&&v.id!==version.id)});await store.finish(owner,task.id,run.run_id,result,null);return {mode:'free_tools',status:'review',paidApiCalls:0,snapshot:await snapshot(owner)};
-   }catch{try{await store.finish(owner,task.id,run.run_id,null,'provider_failed');}catch{}throw fail('focus_tool_failed');}
+   let result;
+   try{
+    if(useAI){
+     const input=JSON.stringify({project:project.name,title:task.title,brief:task.brief,version:version.label,included:version.included_terms,excluded:version.excluded_terms});
+     const draft=await generate({instructions:instructions(body.role,task),input});
+     result='AI 草稿｜'+body.role+'（待本人審核）\n'+draft;
+    }else result=roleTool(body.role,toolsInput);
+   }catch(error){
+    const code=['TimeoutError','AbortError'].includes(error?.name)?'provider_timeout':'provider_failed';
+    await store.finish(owner,task.id,run.run_id,null,code);
+    throw fail('focus_tool_failed');
+   }
+   await store.finish(owner,task.id,run.run_id,result,null);
+   return {mode:useAI?'ai_draft':'free_tools',status:'review',paidApiCalls:useAI?1:0,snapshot:await snapshot(owner)};
   }
   throw fail('invalid_focus_action');
  };

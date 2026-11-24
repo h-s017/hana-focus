@@ -5,6 +5,32 @@ test('email validation performs no request',async()=>{let calls=0;const c=loginC
 test('duplicate request suppressed during flight and after reload',async()=>{let resolve,calls=0,time=100;const s=storage(),auth={signInWithOtp:()=>{calls++;return new Promise(r=>resolve=r)}};const c=loginController({auth,storage:s,now:()=>time});const first=c.send('test@example.invalid');assert.equal((await c.send('test@example.invalid')).ok,false);resolve({error:null});await first;const c2=loginController({auth,storage:s,now:()=>time});assert.equal((await c2.send('test@example.invalid')).ok,false);assert.equal(calls,1);assert.equal(c2.remaining(),120000)});
 test('login restricts new users and redirect destination',async()=>{let args;const c=loginController({auth:{signInWithOtp:async a=>(args=a,{})},storage:storage()});assert.equal((await c.send('test@example.invalid')).ok,true);assert.equal(args.options.shouldCreateUser,false);assert.equal(args.options.emailRedirectTo,CALLBACK)});
 test('429 is safe and persisted',async()=>{const c=loginController({auth:{signInWithOtp:async()=>({error:{status:429,message:'secret-raw'}})},storage:storage(),now:()=>100});const r=await c.send('test@example.invalid');assert.match(r.message,/限制/);assert.ok(!r.message.includes('secret-raw'));assert.equal(c.remaining(),300000)});
+test('rate-limit code keeps an in-page cooldown when browser storage is blocked',async()=>{
+ let calls=0;
+ const blockedStorage={getItem(){throw Error('blocked');},setItem(){throw Error('blocked');}};
+ const controller=loginController({storage:blockedStorage,now:()=>100,auth:{signInWithOtp:async()=>{
+  calls++;
+  return {error:{code:'over_email_send_rate_limit'}};
+ }}});
+ assert.match((await controller.send('test@example.invalid')).message,/限制/);
+ assert.equal(controller.remaining(),300000);
+ await controller.send('test@example.invalid');
+ assert.equal(calls,1);
+});
+test('a browser lock failure releases the pending state and does not send mail',async()=>{
+ let locked=false,calls=0;
+ const controller=loginController({storage:storage(),withLock:async run=>{
+  if(!locked)throw Error('private lock failure');
+  return run();
+ },auth:{signInWithOtp:async()=>{calls++;return {};}}});
+ const failure=await controller.send('test@example.invalid');
+ assert.equal(failure.ok,false);
+ assert.ok(!failure.message.includes('private'));
+ assert.equal(calls,0);
+ locked=true;
+ assert.equal((await controller.send('test@example.invalid')).ok,true);
+ assert.equal(calls,1);
+});
 test('network failure releases pending flag but respects cooldown',async()=>{let now=100,calls=0;const c=loginController({auth:{signInWithOtp:async()=>{calls++;throw Error('private')}},storage:storage(),now:()=>now});await c.send('test@example.invalid');now+=121000;await c.send('test@example.invalid');assert.equal(calls,2)});
 test('expired callbacks scrub before reporting error',async()=>{let cleaned;const r=await consumeCallback({auth:{},href:CALLBACK+'#error=access_denied&error_code=otp_expired&error_description=private',replace:x=>cleaned=x});assert.equal(r.ok,false);assert.match(r.message,/過期/);assert.equal(cleaned,'/hana-focus/ai-office.html');assert.ok(!r.message.includes('private'))});
 test('implicit callback scrubs before setSession and supports persisted SDK session',async()=>{let cleaned=false,args;const r=await consumeCallback({auth:{setSession:async a=>{assert.ok(cleaned);args=a;return {error:null}}},href:CALLBACK+'#access_token=fixture&refresh_token=fixture2',replace:()=>cleaned=true});assert.equal(r.ok,true);assert.equal(args.access_token,'fixture')});

@@ -1,16 +1,24 @@
 export const CALLBACK = 'https://h-s017.github.io/hana-focus/ai-office.html';
 const KEY = 'hana-office-login-next-at-v1';
+const isRateLimit = error => error?.status === 429 || ['over_email_send_rate_limit', 'over_request_rate_limit'].includes(error?.code);
 export function authMessage(error) {
   const code = error?.code;
-  if (error?.status === 429 || code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit') return '寄信頻率或額度已達限制，請稍後再試；管理者需檢查 SMTP 額度。';
+  if (isRateLimit(error)) return '寄信頻率或額度已達限制，請稍後再試；管理者需檢查 SMTP 額度。';
   if (['otp_expired', 'access_denied', 'bad_code_verifier', 'flow_state_expired', 'flow_state_not_found'].includes(code)) return '登入連結已過期、已使用或不適用此瀏覽器，請重新索取最新連結。';
   if (code === 'signup_disabled' || code === 'user_not_found') return '此信箱尚未獲邀請，請由管理者確認帳號。';
   return '登入服務暫時無法完成，請稍後重試；未確認郵件已送達。';
 }
 export function loginController({auth, storage, now = Date.now, withLock = async fn => fn()}) {
   let pending = false;
-  const read = () => { try { return Number(storage.getItem(KEY)) || 0; } catch { return 0; } };
-  const write = value => { try { storage.setItem(KEY, String(value)); } catch { /* server rate limit remains authoritative */ } };
+  let nextAt = 0;
+  const read = () => {
+    try { return Math.max(nextAt, Number(storage.getItem(KEY)) || 0); }
+    catch { return nextAt; }
+  };
+  const write = value => {
+    nextAt = value;
+    try { storage.setItem(KEY, String(value)); } catch { /* retain the current page's cooldown */ }
+  };
   return {
     remaining: () => Math.max(0, read() - now()),
     async send(email) {
@@ -22,12 +30,12 @@ export function loginController({auth, storage, now = Date.now, withLock = async
         return await withLock(async () => {
           if (now() < read()) return {ok:false, message:'請等待冷卻時間結束後再索取登入郵件。'};
           write(now() + 120000);
-          try {
-            const {error} = await auth.signInWithOtp({email, options:{emailRedirectTo:CALLBACK, shouldCreateUser:false}});
-            if (error?.status === 429) write(now() + 300000);
-            return error ? {ok:false, message:authMessage(error)} : {ok:true, message:'寄送請求已受理；請查看最新郵件。連結只可使用一次，尚未確認投遞成功。'};
-          } catch { return {ok:false, message:authMessage(null)}; }
+          const {error} = await auth.signInWithOtp({email, options:{emailRedirectTo:CALLBACK, shouldCreateUser:false}});
+          if (isRateLimit(error)) write(now() + 300000);
+          return error ? {ok:false, message:authMessage(error)} : {ok:true, message:'寄送請求已受理；請查看最新郵件。連結只可使用一次，尚未確認投遞成功。'};
         });
+      } catch {
+        return {ok:false, message:authMessage(null)};
       } finally { pending = false; }
     },
   };

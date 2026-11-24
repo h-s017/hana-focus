@@ -2,12 +2,11 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 const read=name=>readFileSync(fileURLToPath(new URL('../../'+name,import.meta.url)),'utf8');
-const paths=['workspace.html','ai-office.html','js/office-app.mjs','js/workspace-navigation.mjs'];
+const paths=['workspace.html','ai-office.html','index.html','js/office-app.mjs','js/workspace-navigation.mjs'];
 const version='office-20261104-unified-calendar';
 const release='office-20261108-archive';
 const refs=[
- 'src="./js/office-app.mjs?v=office-20261108-archive"',
- 'src="./js/office-app.mjs?v=office-20261108-archive"',
+ ...Array(3).fill('src="./js/office-app.mjs?v=office-auth-20261124"'),
  "from './workspace-navigation.mjs?v="+release+"'",
  "from './canva-connect.mjs?v="+version+"'"
 ];
