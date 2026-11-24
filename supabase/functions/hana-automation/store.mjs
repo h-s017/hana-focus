@@ -60,6 +60,12 @@ export function automationStore({url,service,fetcher=fetch}) {
   focusResolve:(owner,c,id)=>rpc('hana_focus_resolve',{p_owner:owner,p_conflict:c.conflict_id,p_task:c.task_id,p_revision:c.revision,p_decision:c.decision,p_request:id}),
   focusActivate:(owner,project,version,id)=>rpc('hana_focus_activate_version',{p_owner:owner,p_project:project,p_version:version,p_request:id}),
   focusRunStart:(owner,task,role,id)=>rpc('hana_focus_run_start',{p_owner:owner,p_task:task,p_role:role,p_request:id}),
+  async markFocusAIClaim(owner,task,run,role){
+   const rows=await request(query('hana_automation_events',{owner_id:'eq.'+owner,task_id:'eq.'+task,run_id:'eq.'+run,code:'eq.focus_agent_started',select:'id'}),'PATCH',{
+    details:{role,mode:'ai_draft',provider_request_intended:true},
+   });
+   if(rows.length!==1)throw Error('database_unavailable');
+  },
   focusIdeas:(owner,workspace,items,backup,id)=>rpc('hana_focus_import_ideas',{p_owner:owner,p_workspace:workspace,p_items:items,p_backup_hash:backup,p_request:id}),
   async focusReceipt(owner,id){const rows=await request(query('hana_automation_events',{owner_id:'eq.'+owner,id:'eq.'+id,select:'code,details,project'}));return rows[0]||null;},
   async focusSyncState(owner,project){const rows=await request(query('hana_sync_state',{owner_id:'eq.'+owner,project_id:'eq.'+project,provider:'eq.notion',select:'*'}));return rows[0]||null;},

@@ -18,12 +18,25 @@ export function compareReservations(events,slots,{start,end}) {
  return {mode:'read_only_preview',timeZone:'Asia/Taipei',busy_count:busy.length,changes,warnings,external_writes:false,note:'只提出關閉建議；不重開既有關閉場次，不自動取消或改期已報名課程。此結果尚未同步正式網站。'};
 }
 export function calendarSources({clientId,clientSecret,seedRefreshToken,ownerId,calendarId='primary',store,encryption,fetcher=fetch,now=Date.now,maxWindowDays=31,includeDetails=false,includeReservations=true}) {
- async function json(url,opts={}){const r=await fetcher(url,{...opts,redirect:'error',signal:AbortSignal.timeout(15000)});if(!r.ok)throw fail(r.status===401||r.status===403?'calendar_authorization_required':'calendar_unavailable');const text=await r.text();if(text.length>2000000)throw fail('calendar_incomplete');return JSON.parse(text);}
+ async function json(url,opts={},source='google'){
+  const r=await fetcher(url,{...opts,redirect:'error',signal:AbortSignal.timeout(15000)});
+  if(!r.ok){
+   if(source==='reservation')throw fail('reservation_unavailable');
+   if(r.status===401||r.status===403)throw fail('calendar_authorization_required');
+   if(source==='refresh'&&r.status===400){
+    const error=await r.json().catch(()=>null);
+    if(error?.error==='invalid_grant')throw fail('calendar_authorization_required');
+   }
+   throw fail('calendar_unavailable');
+  }
+  const text=await r.text();if(text.length>2000000)throw fail(source==='reservation'?'reservation_unavailable':'calendar_incomplete');
+  try{return JSON.parse(text);}catch{throw fail(source==='reservation'?'reservation_unavailable':'calendar_incomplete');}
+ }
  async function token(owner){
   if(owner!==ownerId||!clientId||!clientSecret||!encryption)throw fail('calendar_authorization_required');
   const old=await store.credential(owner,'google');const previous=old?await encryption.open(owner,old.ciphertext):{refresh_token:seedRefreshToken};if(!previous.refresh_token)throw fail('calendar_authorization_required');
   if(previous.expires_at>now()+60000)return previous.access_token;
-  const data=await json('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:clientId,client_secret:clientSecret,refresh_token:previous.refresh_token,grant_type:'refresh_token',scope:'https://www.googleapis.com/auth/calendar.readonly'})});
+  const data=await json('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:clientId,client_secret:clientSecret,refresh_token:previous.refresh_token,grant_type:'refresh_token',scope:'https://www.googleapis.com/auth/calendar.readonly'})},'refresh');
   if(!data.access_token||!String(data.scope||'').split(' ').includes('https://www.googleapis.com/auth/calendar.readonly'))throw fail('calendar_authorization_required');
   const value={access_token:data.access_token,refresh_token:data.refresh_token||previous.refresh_token,expires_at:now()+Math.min(Number(data.expires_in)||3600,86400)*1000};
   await store.saveCredential(owner,'google',await encryption.seal(owner,value),old?.version);
@@ -43,7 +56,7 @@ export function calendarSources({clientId,clientSecret,seedRefreshToken,ownerId,
   }
   if(pageToken)throw fail('calendar_incomplete');
   if(!includeReservations)return {events,slots:[],checked_at:new Date(now()).toISOString()};
-  const data=await json(API+'/api/slots',{method:'GET',headers:{'User-Agent':'HANA-FOCUS-readonly/1.0'}});if(data.ok!==true)throw fail('reservation_unavailable');
+  const data=await json(API+'/api/slots',{method:'GET',headers:{'User-Agent':'HANA-FOCUS-readonly/1.0'}},'reservation');if(data?.ok!==true)throw fail('reservation_unavailable');
   return {events,slots:data.slots,checked_at:new Date(now()).toISOString()};
  };
 }

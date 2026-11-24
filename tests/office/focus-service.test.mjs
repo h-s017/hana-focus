@@ -14,6 +14,11 @@ test('partially committed batches do not advance the source cursor and remain tr
 test('committed synchronization receipt retries status recovery without rereading Notion',async()=>{const f=fixture();f.store.focusReceipt=async()=>({code:'focus_sync_completed',details:{project_id:'p',cursor:'2026-10-25T00:00:00Z',result:{conflicts:0}}});const r=await focusService({...f,notion:()=>assert.fail('should not fetch again')})('owner',{action:'focus_sync',project_id:'p',request_id:id});assert.equal(r.duplicate,true);assert.ok(f.calls.some(c=>c[1]?.cursor_at==='2026-10-25T00:00:00Z'));});
 
 const aiRequest={action:'focus_agent',task_id:id,role:'Brand Strategist',mode:'ai_draft',request_id:id};
+function aiFixture(){
+ const f=fixture();
+ f.store.markFocusAIClaim=async(...args)=>f.calls.push(['ai',...args]);
+ return f;
+}
 test('AI draft requires server activation and configuration before claiming any task',async()=>{
  const f=fixture();
  assert.equal(agentProvider({enabled:false,apiKey:'fixture',model:'fixture'}),null);
@@ -23,7 +28,7 @@ test('AI draft requires server activation and configuration before claiming any 
  assert.deepEqual(f.calls,[]);
 });
 test('explicit AI run sends only its task and scope, writes a review draft and never repeats an existing claim',async()=>{
- const f=fixture();let calls=0;
+ const f=aiFixture();let calls=0;
  const generate=agentProvider({enabled:true,apiKey:'fixture-secret',model:'fixture-model',fetcher:async(url,options)=>{
   calls++;
   assert.equal(url,'https://api.openai.com/v1/responses');
@@ -38,13 +43,14 @@ test('explicit AI run sends only its task and scope, writes a review draft and n
  const run=focusService({...f,generate});
  assert.equal((await run('owner',{action:'focus_snapshot'})).ai_drafts_available,true);
  assert.equal((await run('owner',aiRequest)).status,'review');
+ assert.deepEqual(f.calls[1],['ai','owner',id,'run','Brand Strategist']);
  assert.match(f.calls.find(call=>call[0]==='finish')[4],/待本人審核.*\n待核對策略/);
  f.store.focusRunStart=async()=>({fresh:false,status:'review'});
  assert.equal((await run('owner',aiRequest)).duplicate,true);
  assert.equal(calls,1);
 });
 test('provider timeout records a sanitized failure and automatic PM work stays free',async()=>{
- const f=fixture();let calls=0;
+ const f=aiFixture();let calls=0;
  f.store.focusImport=async()=>({added:1});
  f.store.focusExternalTask=async()=>({task_id:id});
  const run=focusService({...f,generate:async()=>{calls++;throw new DOMException('private','TimeoutError');}});

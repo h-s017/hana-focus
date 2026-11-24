@@ -41,7 +41,16 @@ export function control({authenticate,store,connector,readiness,calendarPreview,
     }
     return response({...publicImportState(row),date,published:false});
    }
-   if(body.action==='calendar_preview'){if(!ready.calendar||!calendarPreview)return response({error:'calendar_authorization_required'},409);try{return response(await calendarPreview(owner,body.start,body.end));}catch(error){try{await store.event(owner,'課程預約',null,null,'calendar_preview_failed',{external_writes:false});}catch{}throw error;}}
+   if(body.action==='calendar_preview'){
+    if(!ready.calendar||!calendarPreview)return response({error:'calendar_authorization_required'},409);
+    try{return response(await calendarPreview(owner,body.start,body.end));}
+    catch(error){
+     const reasons=['calendar_authorization_required','calendar_unavailable','calendar_incomplete','calendar_timezone_required','reservation_unavailable','invalid_window'];
+     const error_code=reasons.includes(error.code)?error.code:'operation_unavailable';
+     try{await store.event(owner,'課程預約',null,null,'calendar_preview_failed',{error_code,external_writes:false});}catch{}
+     throw error;
+    }
+   }
    if(body.action==='configure'){
     const settings=configuration(body);
     if(settings.enabled&&!ready.worker)return response({error:'activation_required'},409);

@@ -5,7 +5,8 @@ import {ROLES,instructions} from '../../../js/office-workflow.mjs';
 import {digest,verifyBackup,localRows} from '../../../js/focus-backup.mjs';
 import {schedule} from './calendar-sync.mjs';
 const fail=code=>Object.assign(Error(code),{code});const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-export function focusService({store,notion,readCalendar,readCalendarEvents,now=Date.now,generate=null}){
+/** @typedef {(request: {instructions: string, input: string}) => Promise<string>} GenerateDraft */
+export function focusService({store,notion,readCalendar,readCalendarEvents,now=Date.now,generate=/** @type {GenerateDraft|null} */ (null)}){
  async function snapshot(owner){const value=await store.focusSnapshot(owner);value.tasks=value.tasks.map(t=>({...t,is_current:value.projects.some(p=>p.id===t.project_id&&p.active_version_id===t.version_id)}));value.summary=focusSummary(value.tasks,now());return value;}
  return async function service(owner,body){
   if(body.action==='focus_snapshot')return {...await snapshot(owner),ai_drafts_available:!!generate};
@@ -80,6 +81,7 @@ export function focusService({store,notion,readCalendar,readCalendarEvents,now=D
    try{
     if(useAI){
      const input=JSON.stringify({project:project.name,title:task.title,brief:task.brief,version:version.label,included:version.included_terms,excluded:version.excluded_terms});
+     await store.markFocusAIClaim(owner,task.id,run.run_id,body.role);
      const draft=await generate({instructions:instructions(body.role,task),input});
      result='AI 草稿｜'+body.role+'（待本人審核）\n'+draft;
     }else result=roleTool(body.role,toolsInput);

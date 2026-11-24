@@ -16,7 +16,7 @@ export function agentProvider({enabled,apiKey,model,fetcher=fetch}) {
    .filter(part=>part.type==='output_text'&&typeof part.text==='string')
    .map(part=>part.text)
    .join('\n').trim();
-  if (!result || result.length>50000) throw Error('provider_failed');
+  if (!result || result.length>49000) throw Error('provider_failed');
   return result;
  };
 }
