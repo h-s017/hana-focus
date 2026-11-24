@@ -2,9 +2,9 @@ import {configuration,priorities} from './runtime.mjs';
 import {publicImportState,lessonDate,checkPublicSource} from './canva-import.mjs';
 const headers={'Access-Control-Allow-Origin':'https://h-s017.github.io','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Cache-Control':'no-store','Vary':'Origin'};
 const response=(body,status=200)=>Response.json(body,{status,headers});
-export function control({authenticate,store,connector,readiness,calendarPreview,booking,reservations,monthly,focus,googleOAuth,googleSyncOAuth,calendarSync,canvaOAuth,canvaSourceStatus=checkPublicSource}) {
+export function control({authenticate,store,connector,readiness,calendarPreview,booking,reservations,monthly,focus,googleOAuth,googleSyncOAuth,calendarSync,canvaOAuth,canvaSourceStatus=checkPublicSource,businessHQ,allowedOrigin='https://h-s017.github.io'}) {
  return async req=>{
-  if(req.headers.get('origin')&&req.headers.get('origin')!=='https://h-s017.github.io')return response({error:'origin_not_allowed'},403);
+  if(req.headers.get('origin')&&req.headers.get('origin')!==allowedOrigin)return response({error:'origin_not_allowed'},403);
   if(req.method==='OPTIONS')return new Response(null,{headers});
   if(req.method!=='POST')return response({error:'method_not_allowed'},405);
   let user;try{const auth=req.headers.get('authorization')||'';if(!auth.startsWith('Bearer '))throw Error();user=await authenticate(auth.slice(7));}catch{return response({error:'login_required'},401);}
@@ -13,6 +13,12 @@ export function control({authenticate,store,connector,readiness,calendarPreview,
   try{
    const text=await req.text();if(text.length>600000)return response({error:'invalid_body'},400);const body=JSON.parse(text);
    if(!body||typeof body!=='object')return response({error:'invalid_body'},400);
+   if(body.action?.startsWith('hq_')){
+    if(!businessHQ)return response({error:'hq_setup_required'},409);
+    if(text.length>60000)return response({error:'hq_invalid_input'},400);
+    try{return response(await businessHQ(owner,body));}
+    catch(error){const codes=['hq_work_only','hq_unknown_skill','hq_invalid_input','hq_invalid_source','hq_branch_reason_required','hq_manual_record_required','hq_owner_required','hq_request_conflict','hq_state_conflict','hq_stale_attempt','hq_invalid_stage','hq_setup_required','hq_database_unavailable','hq_persistence_uncertain','hq_skill_resource_missing'];return response({error:codes.includes(error.code)?error.code:'hq_operation_failed',external_delivery:false},error.code==='hq_owner_required'?403:409);}
+   }
    if(body.action?.startsWith('focus_')){if(!focus)return response({error:'focus_unavailable'},409);return response(await focus(owner,body));}
    if(text.length>6000)return response({error:'invalid_body'},400);
    const ready=readiness();

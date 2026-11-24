@@ -20,4 +20,4 @@
 ## 優先順序
 P0：以可執行 B2B 商務開發垂直流程為首個版本；其次 MY ORGAN→既有報價、現金流。P1：供應商與研發；P2：社群轉換優化。不要先製作所有模組的空殼。
 開發及驗收契約見 CODEX_PHASE1.md。
-此分支只新增規格與技能，不代表新系統已部署。
+原規劃分支只新增規格與技能。後續實作候選 `feature/business-hq-phase1` 沿用這些資源，提供 P0.1 執行引擎及 B2B 垂直流程；正式環境尚未發布。最新程式盤點見 [IMPLEMENTATION_AUDIT.md](IMPLEMENTATION_AUDIT.md)，真實隔離測試見 [ACCEPTANCE.md](ACCEPTANCE.md)，授權與回復見 [RELEASE.md](RELEASE.md)。其餘六項技能仍未接通，不列為已完成。

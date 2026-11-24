@@ -1,0 +1,102 @@
+{
+  "scope": "P0.1 isolated development verification, not production acceptance",
+  "baseline": "0a3c4ae6fcdd3e7cb7ea579fc1bda6eb4f699e05",
+  "stack": {
+    "database": "PostgreSQL 17",
+    "auth": "Supabase GoTrue v2.198.0",
+    "rest": "PostgREST v16.6",
+    "production_accessed": false,
+    "cron_installed": false,
+    "migration_applied_twice": true
+  },
+  "api": {
+    "tested_at": "2026-11-24T12:18:54.372Z",
+    "environment": "isolated PostgreSQL + Supabase Auth + PostgREST",
+    "production_modified": false,
+    "live_public_source": "https://www.mozilla.org/en-US/about/",
+    "source_checked_at": "2026-11-24T12:18:53.19+00:00",
+    "results": [
+      {
+        "id": "T01",
+        "passed": true,
+        "detail": "Live public company URL fetched; timestamp, excerpt and content hash persisted (verification example, not a HANA customer)."
+      },
+      {
+        "id": "T03",
+        "passed": true,
+        "detail": "Actual server run loaded the versioned sales-marketing resource and persisted its matching SHA-256."
+      },
+      {
+        "id": "T04",
+        "passed": true,
+        "detail": "Same request replays one run; a new request for the same owner/domain retains one opportunity."
+      },
+      {
+        "id": "T04-concurrent",
+        "passed": true,
+        "detail": "Three simultaneous API requests claim exactly one run and one attempt."
+      },
+      {
+        "id": "T02",
+        "passed": true,
+        "detail": "Missing source returns blocked/source_unavailable; manual text remains unverified and cannot qualify or override workflow."
+      },
+      {
+        "id": "T05",
+        "passed": true,
+        "detail": "Real JWT/RLS isolates owners, rejects editable-metadata escalation, direct privileged RPC and Church business requests."
+      },
+      {
+        "id": "T06",
+        "passed": true,
+        "detail": "Existing hana_reviews stores actual internal approval; approval never marks contacted or sends a message."
+      },
+      {
+        "id": "T07-API",
+        "passed": true,
+        "detail": "Real Supabase password re-login reads the same persisted PostgreSQL opportunity; browser reload/re-login tested separately."
+      },
+      {
+        "id": "T08",
+        "passed": true,
+        "detail": "A real public HTTP request with a 1ms deadline records timeout; explicit retry succeeds in the same run with preserved attempt history."
+      },
+      {
+        "id": "T10",
+        "passed": true,
+        "detail": "Actual persisted opportunities and source-backed rules drafts export correctly; formula cells escaped, no send path called."
+      }
+    ]
+  },
+  "browser": {
+    "tested_at": "2026-11-24T12:19:02.505Z",
+    "auth": "real isolated Supabase Auth",
+    "persistence": "real PostgreSQL through PostgREST",
+    "business_api_mocked": false,
+    "viewports": [
+      320,
+      390,
+      820
+    ],
+    "checks": [
+      "B2B intake",
+      "actual source read",
+      "single domain record",
+      "download",
+      "reload",
+      "reject and retry with history",
+      "approve without sending",
+      "Church isolation",
+      "logout cleanup",
+      "real re-login"
+    ],
+    "passed": true
+  },
+  "regression": {
+    "node_test_files": 39,
+    "legacy_browser": "controlled mocks passed",
+    "focus_browser": "controlled mocks passed",
+    "postgresql_full_suite": "passed including transaction rollback",
+    "production_external_integrations": "not retested"
+  }
+}
