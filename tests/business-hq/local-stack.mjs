@@ -2,7 +2,7 @@
 import {execFileSync} from 'node:child_process';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {randomBytes,createHmac} from 'node:crypto';
-const docker=(args,input)=>execFileSync('docker',['--host=unix:///var/run/docker.sock',...args],{input,encoding:'utf8',maxBuffer:4e6});
+const docker=(args,input)=>execFileSync('docker',['--host=unix:///var/run/docker.sock',...args],{input,encoding:'utf8',stdio:['pipe','pipe','pipe'],maxBuffer:4e6});
 const root=new URL('../../',import.meta.url).pathname;
 const configFile='/tmp/hana-hq-local-env.json';
 let config;try{config=JSON.parse(await readFile(configFile,'utf8'));}catch{
@@ -20,7 +20,11 @@ async function ensure(name,image,port,vars,args=[]){
  docker(['run','-d','--name',name,'--network','hana-hq-test','-p','127.0.0.1:'+port,'--env-file',env,image,...args]);
 }
 await ensure('hana-hq-test-pg','postgres:17-alpine','55432:5432',{POSTGRES_PASSWORD:config.password,POSTGRES_DB:'hana_hq_test'});
-for(let i=0;i<40;i++){try{docker(['exec','hana-hq-test-pg','pg_isready','-U','postgres','-d','hana_hq_test']);break;}catch{await new Promise(r=>setTimeout(r,500));}}
+// The image's temporary init server accepts Unix sockets before POSTGRES_DB
+// exists. Wait for TCP, which is enabled only on the final initialized server.
+let pgReady=false;
+for(let i=0;i<60;i++){try{docker(['exec','hana-hq-test-pg','pg_isready','-h','127.0.0.1','-U','postgres','-d','hana_hq_test']);pgReady=true;break;}catch{await new Promise(r=>setTimeout(r,500));}}
+if(!pgReady)throw Error('Isolated PostgreSQL did not finish initialization.');
 const sql=value=>docker(['exec','-i','hana-hq-test-pg','psql','-U','postgres','-d','hana_hq_test','-v','ON_ERROR_STOP=1'],value);
 const installed=sql("select to_regclass('public.hana_tasks') is not null;").includes(' t');
 sql(`do $$ begin if not exists(select 1 from pg_roles where rolname='anon') then create role anon nologin;create role authenticated nologin;create role service_role nologin bypassrls;create role authenticator login noinherit password '${config.password}';end if;end $$;
@@ -46,6 +50,9 @@ await ensure('hana-hq-test-rest','public.ecr.aws/supabase/postgrest:v16.6','5543
  PGRST_DB_URI:'postgres://authenticator:'+config.password+'@hana-hq-test-pg:5432/hana_hq_test',PGRST_DB_SCHEMAS:'public',PGRST_DB_ANON_ROLE:'anon',PGRST_JWT_SECRET:config.secret
 });
 sql("notify pgrst,'reload schema';");
+let restReady=false;
+for(let i=0;i<60;i++){try{restReady=(await fetch(config.rest+'/',{headers:{Authorization:'Bearer '+config.anon}})).ok;if(restReady)break;}catch{}await new Promise(r=>setTimeout(r,500));}
+if(!restReady)throw Error('Isolated PostgREST schema cache did not become ready.');
 await mkdir(root+'test-artifacts',{recursive:true});
 await writeFile(root+'test-artifacts/hq-local-stack.json',JSON.stringify({database:'PostgreSQL 17',auth:'Supabase GoTrue v2.198.0',rest:'PostgREST v16.6',production_accessed:false,cron_installed:false,migration_applied_twice:true},null,2));
 console.log('PASS: real isolated PostgreSQL/Auth/REST ready; additive migration applied twice. Credentials remain in /tmp only.');

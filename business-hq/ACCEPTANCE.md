@@ -56,6 +56,7 @@ CI `.github/workflows/office-validation.yml` 五個工作涵蓋 Node／mock 瀏�
 ## 修正及仍未完成
 
 - 真實測試修正：今日待辦 dialog 的操作順序、非同步導航等待、未接通／錯誤快照的 fail-closed 處理、封存工具在 #agents 的可見性。沒有刪除功能來通過測試。
+- CI 揭露並修正：Playwright 1.56.1 與 Ubuntu 26.04 不相容，瀏覽器 jobs 固定 Ubuntu 24.04；Edge 來源設定增加明確型別；PostgreSQL 初始暫存 socket server 尚未建立測試 DB 的啟動競態改以最終 TCP server readiness 判斷，並等待 PostgREST schema cache。
 - 原有社群／日曆／預約回歸保留；不是重新測試真實付款、SMTP 投遞或正式外部寫入。
 - 其餘六項技能未接通、沒有公司自動搜尋、沒有生成式 AI、沒有自動寄信或追蹤排程；對外服務／客戶需求／企業適配仍由 HANA 核對。
 - 尚未做正式環境 migration／Edge／Pages 發布，以及正式上線後的指定帳號 smoke test。須依 RELEASE.md 另取得核准，不能標記為已部署。
