@@ -26,9 +26,9 @@ try{
  await mkdir('test-artifacts',{recursive:true});await page.screenshot({path:'test-artifacts/workspace-redesign-mobile.png',fullPage:true});await page.setViewportSize({width:820,height:900});await page.screenshot({path:'test-artifacts/workspace-redesign-desktop.png',fullPage:true});await page.setViewportSize({width:390,height:844});
  const nav=page.getByRole('navigation',{name:'工作台主要功能'});await root.getByLabel('新增雲端工作',{exact:true}).fill('unsent requirement');
  assert.equal(await nav.locator('a').count(),8);
- const businessEntry=nav.getByRole('link',{name:'Business HQ 商機開發・審核・追蹤',exact:true});
+ const businessEntry=nav.getByRole('link',{name:'Business HQ 商機與提案',exact:true});
  assert.equal(await nav.locator('a').first().getAttribute('href'),'#business-hq');
- await nav.screenshot({path:'test-artifacts/business-hq-entry-mobile.png'});
+ await businessEntry.screenshot({path:'test-artifacts/business-hq-entry-mobile.png'});
  await businessEntry.click();
  await root.getByRole('heading',{name:'HANA BUSINESS HQ｜企業經營總部',exact:true}).waitFor();
  await root.getByRole('button',{name:'核對公司來源並建立商機草稿',exact:true}).waitFor();
