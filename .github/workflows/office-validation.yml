@@ -3,13 +3,14 @@ on:
   push:
     branches: [feature/office-auth-agent-integration]
   pull_request:
-    paths: ['ai-office.html','workspace.html','js/**','supabase/**','scripts/build-office-site.mjs','tests/office/**','social-editor/**','scripts/social-editor.mjs','scripts/social-canva-pptx.py','.github/workflows/social-editor.yml','.github/workflows/office-validation.yml','.github/workflows/hana-focus-preview.yml']
+    paths: ['index.html','ai-office.html','workspace.html','js/**','supabase/**','business-hq/**','scripts/build-business-skills.mjs','scripts/build-office-site.mjs','tests/business-hq/**','tests/office/**','social-editor/**','scripts/social-editor.mjs','scripts/social-canva-pptx.py','.github/workflows/social-editor.yml','.github/workflows/office-validation.yml','.github/workflows/hana-focus-preview.yml']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Keep the OS compatible with the pinned Playwright browser dependency.
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +21,7 @@ jobs:
           node-version: '24'
       - name: Unit and state-machine tests (no credentials)
         run: |
+          node scripts/build-business-skills.mjs --check
           for file in tests/office/*.test.mjs; do node "$file"; done
           for file in js/*.mjs supabase/functions/hana-agent/*.mjs supabase/functions/hana-automation/*.mjs; do node --check "$file"; done
       - name: Stage complete public site with no backend reports or secrets
@@ -86,6 +88,38 @@ jobs:
           PGPASSWORD: ci-fixture-only
           PGDATABASE: hana_test
         run: psql -v ON_ERROR_STOP=1 -f tests/office/db-run.sql
+
+  business-hq-real:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Start real isolated PostgreSQL, Supabase Auth and PostgREST
+        run: node tests/business-hq/local-stack.mjs
+      - name: Install pinned browser dependency
+        run: |
+          npm install --ignore-scripts --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Real source, API, persistence and browser acceptance
+        run: |
+          mkdir -p test-artifacts
+          node tests/business-hq/server.mjs > test-artifacts/hq-server.log 2>&1 &
+          HANA_HQ_SERVER_PID=$!
+          trap 'kill "$HANA_HQ_SERVER_PID" 2>/dev/null || true' EXIT
+          node tests/business-hq/integration.mjs
+          node tests/business-hq/browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: business-hq-real-evidence
+          path: test-artifacts/
+          if-no-files-found: warn
+          retention-days: 7
 
   canva-pptx-check:
     runs-on: ubuntu-latest

@@ -20,6 +20,7 @@ export function handler({authenticate,store,generate,ready=()=>true,authorize=us
   let task;
   try{task=await store.getTask(user.id,body.task_id);}catch{return json({error:'database_unavailable'},503);}
   if(!task)return json({error:'task_not_found'},404);
+  if(task.source_system==='business_hq')return json({error:'use_business_hq'},409);
   try {
    if(body.action==='review') {
     if(!['approved','rejected'].includes(body.decision))return json({error:'invalid_decision'},400);
