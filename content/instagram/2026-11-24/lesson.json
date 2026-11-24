@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-24",
+  "day": 37,
+  "title": "插畫如何保存線索",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "插畫如何保存線索",
+      "body": "HANA 嗅覺微課 · Day 037\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "描繪不必複製現實",
+      "body": "線條能留下創作者選擇重視的部分。"
+    },
+    {
+      "title": "細節也要取捨",
+      "body": "圖畫中每個元素都應能回應主題。"
+    },
+    {
+      "title": "名稱需要核對",
+      "body": "若使用真實植物、器物或香材名稱，應確認來源。"
+    },
+    {
+      "title": "圖像與文字分層",
+      "body": "讓日後修改內容不需要重畫整張圖片。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "選一種日常物件，以五條線描述最想保留的特色。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "植物學圖鑑式插畫",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "037",
+    "DATE": "2026-11-24",
+    "PAGE_01_TITLE": "插畫如何保存線索",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 037\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "描繪不必複製現實",
+    "PAGE_02_BODY": "線條能留下創作者選擇重視的部分。",
+    "PAGE_03_TITLE": "細節也要取捨",
+    "PAGE_03_BODY": "圖畫中每個元素都應能回應主題。",
+    "PAGE_04_TITLE": "名稱需要核對",
+    "PAGE_04_BODY": "若使用真實植物、器物或香材名稱，應確認來源。",
+    "PAGE_05_TITLE": "圖像與文字分層",
+    "PAGE_05_BODY": "讓日後修改內容不需要重畫整張圖片。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "選一種日常物件，以五條線描述最想保留的特色。"
+  },
+  "music": {
+    "composer": "Ludwig van Beethoven",
+    "work": "Piano Sonata No. 14, Op. 27 No. 2: I. Adagio sostenuto",
+    "reason": "理解緩慢展開的設計節奏",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}

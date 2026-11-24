@@ -30,7 +30,7 @@ try{
  for(const [key,id] of [['calendar','hana-month-calendar'],['orders','office-orders']]){await nav.locator('[data-view="'+key+'"]').click();await page.locator('#'+id).waitFor({state:'visible'});assert.equal(await root.isVisible(),false);assert.equal(await nav.locator('[data-view="'+key+'"]').getAttribute('aria-current'),'page');}
  await page.locator('.workspace-settings').click();await page.locator('#office-settings').waitFor({state:'visible'});
  await nav.locator('[data-view="work"]').click();await root.waitFor({state:'visible'});assert.equal(await root.getByLabel('新增雲端工作',{exact:true}).inputValue(),'unsent requirement');assert.equal(await page.locator('#office-orders').isVisible(),false);await root.getByLabel('新增雲端工作',{exact:true}).fill('');
- await root.getByRole('heading',{name:'社群小編',exact:true}).waitFor();
+ await root.getByRole('heading',{name:'HANA BUSINESS HQ｜企業經營總部',exact:true}).waitFor();
  assert.equal(await page.locator('#focus-local-archive').isVisible(),false);
  await page.locator('.workspace-settings').click();await page.locator('#office-settings').waitFor({state:'visible'});assert.equal(await page.getByText('封存與開發工具',{exact:true}).count(),0);assert.equal(await page.locator('#office-agent-archive').isVisible(),false);assert.equal(await page.locator('#office-calendar-demo').isVisible(),false);assert.equal(await page.locator('#office-automation').isVisible(),false);await nav.locator('[data-view=work]').click();await root.waitFor({state:'visible'});
  const top=root.locator('section').filter({has:page.getByRole('heading',{name:'已交辦工作',exact:true})});await top.getByText(/brand wall/).waitFor();assert.ok(!(await top.textContent()).includes('packaging'));assert.equal(await root.getByRole('button',{name:'處理中 0',exact:true}).count(),1);assert.equal(await root.getByRole('button',{name:'等我決定 1',exact:true}).count(),1);await root.screenshot({path:'test-artifacts/focus-work-overview-mobile.png'});await page.setViewportSize({width:1280,height:900});await root.screenshot({path:'test-artifacts/focus-work-overview-desktop.png'});await page.setViewportSize({width:390,height:844});
@@ -54,6 +54,8 @@ try{
 
  // Existing illustrated entries resolve to distinct content, including deep link/reload.
  await page.goto('https://h-s017.github.io/hana-focus/workspace.html#agents');await root.getByRole('heading',{name:'工作總覽',exact:true}).waitFor();
+ assert.equal(await root.locator('.hq-skills li').count(),7);
+ await root.locator('.focus-advanced').evaluate(n=>n.open=true);await root.getByText('封存：舊版工具與執行紀錄',{exact:true}).click();
  const agents=page.locator('#hana-three-agents');
  await agents.getByRole('heading',{name:'社群小編',exact:true}).waitFor();
  assert.equal(await agents.locator('.hana-agent-card').count(),3);
