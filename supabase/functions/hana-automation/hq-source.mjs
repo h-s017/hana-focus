@@ -9,6 +9,7 @@ export function publicUrl(value){
 function plainText(html){return html.replace(/<(script|style|nav|footer)\b[^>]*>[\s\S]*?<\/\1>/gi,' ').replace(/<[^>]*>/g,' ').replace(/&(?:nbsp|amp|quot|lt|gt|#\d+|#x[a-f0-9]+);/gi,x=>{if(x==='&nbsp;')return ' ';if(x==='&amp;')return '&';if(x==='&quot;')return '"';if(x==='&lt;')return '<';if(x==='&gt;')return '>';const n=x.startsWith('&#x')?parseInt(x.slice(3),16):parseInt(x.slice(2),10);return n>0&&n<=0x10ffff?String.fromCodePoint(n):'';}).replace(/\s+/g,' ').trim();}
 // No discovery/search is claimed. Only explicitly configured public hosts can
 // be read; arbitrary caller URLs, redirects, credentials and private hosts fail closed.
+/** @param {{allowedHosts?: string[], fetcher?: typeof fetch, now?: () => Date, timeoutMs?: number}} [options] */
 export function publicSourceReader({allowedHosts=[],fetcher=fetch,now=()=>new Date(),timeoutMs=8000}={}){
  // A malformed HQ setting must not take down existing calendar/Auth routes.
  const hosts=new Set();for(const h of allowedHosts){try{hosts.add(publicUrl('https://'+h).domain);}catch{}}

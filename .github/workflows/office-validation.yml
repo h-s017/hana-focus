@@ -9,7 +9,8 @@ permissions:
   contents: read
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Keep the OS compatible with the pinned Playwright browser dependency.
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -89,7 +90,7 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f tests/office/db-run.sql
 
   business-hq-real:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4

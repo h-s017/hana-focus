@@ -3,7 +3,7 @@
 insert into auth.users(id,raw_app_meta_data) values('10000000-0000-4000-8000-000000000050','{"hana_office_access":true}'),('10000000-0000-4000-8000-000000000051','{"hana_office_access":true}');
 set local role service_role;
 do $$
-declare o uuid:='10000000-0000-4000-8000-000000000050';other uuid:='10000000-0000-4000-8000-000000000051';req uuid:=gen_random_uuid();r jsonb;again jsonb;payload jsonb;skill jsonb;input jsonb;v_run uuid;task uuid;token uuid;next jsonb;
+declare o uuid:='10000000-0000-4000-8000-000000000050';other uuid:='10000000-0000-4000-8000-000000000051';req uuid:=gen_random_uuid();r jsonb;again jsonb;payload jsonb;skill jsonb;input jsonb;v_run uuid;task uuid;token uuid;opp uuid;rev integer;
 begin
  skill:=jsonb_build_object('id','sales-marketing','version','1.0.0','hash',repeat('a',64),'source','business-hq/skills/sales-marketing/SKILL.md');input:='{"workspace":"work","goal":"Synthetic DB test"}';
  r:=public.hana_hq_start(o,req,input,skill);v_run:=(r->>'run_id')::uuid;task:=(r->>'task_id')::uuid;token:=(r->>'attempt_token')::uuid;
@@ -23,6 +23,12 @@ begin
  if exists(select 1 from public.hana_business_opportunities where owner_id=o and stage='contacted') then raise exception 'approval_implies_contact';end if;
  begin perform public.hana_hq_review(other,v_run,'approved','wrong owner');raise exception 'cross_owner_review';exception when others then if SQLERRM='cross_owner_review' then raise;end if;end;
  if not exists(select 1 from public.hana_reviews where task_id=task and owner_id=o and decision='approved') then raise exception 'review_not_reused';end if;
+ select id,revision into opp,rev from public.hana_business_opportunities where owner_id=o;
+ perform public.hana_hq_followup(o,opp,rev,'2030-01-01T00:00:00Z');
+ begin perform public.hana_hq_followup(o,opp,rev,null);raise exception 'stale_followup_overwrite';exception when others then if SQLERRM='stale_followup_overwrite' then raise;end if;end;
+ perform public.hana_hq_track(o,opp,rev+1,'contacted','Synthetic fixture manual contact record, no real recipient or message');
+ if not exists(select 1 from public.hana_business_opportunities where id=opp and stage='contacted' and next_followup_at='2030-01-01T00:00:00Z') then raise exception 'manual_tracking_missing';end if;
+ if not exists(select 1 from public.hana_reviews where task_id=task and decision='comment') then raise exception 'manual_tracking_audit_missing';end if;
  if has_function_privilege('authenticated','public.hana_hq_snapshot(uuid)','execute') then raise exception 'hq_rpc_exposed';end if;
 end $$;
 reset role;
