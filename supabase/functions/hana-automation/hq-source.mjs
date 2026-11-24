@@ -13,7 +13,7 @@ function plainText(html){return html.replace(/<(script|style|nav|footer)\b[^>]*>
 export function publicSourceReader({allowedHosts=[],fetcher=fetch,now=()=>new Date(),timeoutMs=8000}={}){
  // A malformed HQ setting must not take down existing calendar/Auth routes.
  const hosts=new Set();for(const h of allowedHosts){try{hosts.add(publicUrl('https://'+h).domain);}catch{}}
- return {available:hosts.size>0,mode:'public_url_read',discovery:false,
+ return {available:hosts.size>0,mode:'public_url_read',discovery:false,allows:value=>hosts.has(publicUrl(value).domain),
   async read(candidate){
    const source=publicUrl(candidate.source_url),website=publicUrl(candidate.website);
    if(!hosts.has(source.domain)||source.domain!==website.domain)throw hqError('hq_source_not_authorized');

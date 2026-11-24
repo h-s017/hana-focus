@@ -7,6 +7,10 @@ export function createClient(){return {auth:{getSession:async()=>({data:{session
  if(body.action==='google_oauth_start'){const state='70000000-0000-4000-8000-000000000001.'+'a'.repeat(43);const url=new URL('https://accounts.google.com/o/oauth2/v2/auth');url.search=new URLSearchParams({state,scope:'https://www.googleapis.com/auth/calendar.readonly',redirect_uri:'https://h-s017.github.io/hana-focus/google-calendar-callback.html',code_challenge_method:'S256',code_challenge:'synthetic-challenge'});return {data:{authorization_url:url.href,state,expires_at:Date.now()+600000},error:null};}
  if(body.action==='google_oauth_finish'){localStorage.setItem('test-oauth-finished','1');return {data:{status:'connected',monthly_verified:false,audit_recorded:true},error:null};}
  if(body.action==='focus_snapshot')return {data:structuredClone(data),error:null};
+ if(body.action==='hq_catalog')return {data:{research:{available:false,discovery:true},skills:[]},error:null};
+ if(body.action==='hq_snapshot')return {data:{opportunities:[],runs:[],reviews:[]},error:null};
+ if(body.action==='hq_discover'){window.__focusFixture.discovery=body.criteria;return {data:{candidates:[{company_name:'Fixture Hotel',website:'https://fixture-hotel.org/',canonical_domain:'fixture-hotel.org',source_url:'https://fixture-hotel.org/about',source_title:'Fixture Hotel 官方介紹',reason:'搜尋結果提及台北旅宿。',approach:'可評估品牌香氛合作。',excerpt:'台北旅宿搜尋摘要',source_check_available:false}]},error:null};}
+ if(body.action==='hq_run'){window.__focusFixture.savedHQ=true;return {data:{},error:null};}
  if(body.action==='focus_agent'){if(body.simulate){window.__focusFixture.simulations++;return {data:{mode:'simulation',persisted:false,result:'模擬預覽，未執行或保存為真實工作。'},error:null};}window.__focusFixture.runs++;const t=data.tasks.find(t=>t.id===body.task_id);t.status='review';t.result='免費工具分析草稿（非生成式AI）｜待 HANA 內部審核';data.runs.push({task_id:t.id,status:'review'});return {data:{status:'review'},error:null};}
  if(body.action==='focus_update'){const t=data.tasks.find(t=>t.id===body.task_id);Object.assign(t,body.patch);t.record_revision++;return {data:structuredClone(data),error:null};}
  if(body.action==='focus_create_task'){if(window.__focusFixture.failCreate)return {data:{error:'fixture_create_failed'},error:null};data.tasks.push(task(crypto.randomUUID(),body.title,'in_scope'));return {data:structuredClone(data),error:null};}
@@ -40,6 +44,24 @@ try{
  assert.equal(await root.getByLabel('新增雲端工作',{exact:true}).inputValue(),'unsent requirement');
  await businessEntry.click();
  assert.equal(await root.getByLabel('商機開發目標',{exact:true}).inputValue(),'unsent business goal');
+ await root.getByLabel('產業',{exact:true}).fill('旅宿');
+ await root.getByLabel('區域',{exact:true}).fill('台北');
+ await root.getByLabel('希望提供的服務',{exact:true}).fill('品牌香氛合作');
+ await root.getByRole('button',{name:'尋找商機',exact:true}).click();
+ const suggestion=root.locator('.hq-discovery li');
+ await suggestion.getByRole('heading',{name:'Fixture Hotel',exact:true}).waitFor();
+ assert.equal(await suggestion.getByRole('link',{name:'Fixture Hotel 官方介紹',exact:true}).getAttribute('href'),'https://fixture-hotel.org/about');
+ await suggestion.getByText(/尚未授權自動查核/).waitFor();
+ await root.locator('.hq-discovery').screenshot({path:'test-artifacts/business-hq-discovery-mobile.png'});
+ const companies=root.getByLabel('公司來源（每行：公司名稱 | 官網 | 來源網址）',{exact:true});
+ assert.equal(await companies.inputValue(),'');
+ await suggestion.getByRole('button',{name:'加入公司來源',exact:true}).click();
+ await suggestion.getByRole('button',{name:'加入公司來源',exact:true}).click();
+ assert.equal(await companies.inputValue(),'Fixture Hotel | https://fixture-hotel.org/ | https://fixture-hotel.org/about');
+ assert.deepEqual(await page.evaluate(()=>window.__focusFixture.discovery),{industry:'旅宿',region:'台北',services:'品牌香氛合作',limit:5});
+ assert.equal(await page.evaluate(()=>window.__focusFixture.savedHQ),undefined);
+ await root.getByLabel('區域',{exact:true}).fill('新北');
+ assert.equal(await suggestion.count(),0);
  assert.equal(await nav.getByRole('link',{name:'氣味通信 訂閱名單',exact:true}).getAttribute('href'),'./newsletter.html');
  for(const [key,id] of [['calendar','hana-month-calendar'],['orders','office-orders']]){await nav.locator('[data-view="'+key+'"]').click();await page.locator('#'+id).waitFor({state:'visible'});assert.equal(await root.isVisible(),false);assert.equal(await nav.locator('[data-view="'+key+'"]').getAttribute('aria-current'),'page');}
  await page.locator('.workspace-settings').click();await page.locator('#office-settings').waitFor({state:'visible'});
