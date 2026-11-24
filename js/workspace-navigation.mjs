@@ -1,4 +1,4 @@
-import {focusDestination} from './calendar-overview.mjs';
+import {focusDestination} from './calendar-overview.mjs?v=business-hq-entry-20261124';
 import {beginGoogleConnection,googleMessage} from './google-connect.mjs';
 import {beginCanvaConnection,canvaMessage,canvaSetupDiagnostic} from './canva-connect.mjs?v=office-20261104-unified-calendar';
 // Existing icon destinations and compact navigation share one route, including refresh/back.
@@ -75,13 +75,13 @@ export function mountWorkspaceNavigation(host,{db}={}){
  settings.append(legacy);
  const install=document.getElementById('workspace-install');if(install){install.hidden=false;settings.append(install);}
  document.getElementById('office-private').append(settings);
- const routes={work:['工作','office-focus'],projects:['品牌專案','office-focus'],agents:['三大 AI Agent','office-focus'],reviews:['需要我決定','office-focus'],activity:['執行紀錄','office-focus'],church:['教會工作','office-focus'],calendar:['預約與行程月曆','hana-month-calendar'],orders:['預約','office-orders'],materials:['素材','office-materials'],settings:['設定','office-settings']};
+ const routes={'business-hq':['Business HQ','office-focus'],work:['工作','office-focus'],projects:['品牌專案','office-focus'],agents:['三大 AI Agent','office-focus'],reviews:['需要我決定','office-focus'],activity:['執行紀錄','office-focus'],church:['教會工作','office-focus'],calendar:['預約與行程月曆','hana-month-calendar'],orders:['預約','office-orders'],materials:['素材','office-materials'],settings:['設定','office-settings']};
  const parse=()=>{let saved='';try{saved=sessionStorage.getItem('hana-focus-destination')||'';}catch{}return focusDestination(location.hash,saved);};
  let active=parse(),signedIn=false;
  const buttons=new Map();
  function select(key,{focus=false}={}){
   active=Object.hasOwn(routes,key)?key:'calendar';
-  if(signedIn&&['work','projects','agents','church','orders','materials'].includes(active)){
+  if(signedIn&&['business-hq','work','projects','agents','church','orders','materials'].includes(active)){
    const workspace=active==='church'?'church':'work';
    if(localStorage.getItem('hana-focus-active-workspace')!==workspace){
     localStorage.setItem('hana-focus-active-workspace',workspace);document.documentElement.dataset.focusWorkspace=workspace;
@@ -93,14 +93,14 @@ export function mountWorkspaceNavigation(host,{db}={}){
   for(const id of new Set(Object.values(routes).map(v=>v[1]))){const panel=document.getElementById(id);if(panel)panel.hidden=signedIn?id!==selectedId:id!=='hana-month-calendar';}
   for(const [value,b] of buttons)b.setAttribute('aria-current',value===({agents:'work',reviews:'work',activity:'projects',materials:'projects'}[active]||active)?'page':'false');
   try{sessionStorage.setItem('hana-focus-destination',active);}catch{}
-  const accountHeading=host.querySelector('.office-account h2');if(accountHeading)accountHeading.textContent=signedIn?'帳號':'登入以開啟'+routes[active][0];
+  const accountHeading=host.querySelector('.office-account h2');if(accountHeading)accountHeading.textContent=signedIn?'帳號':active==='business-hq'?'登入以開啟 Business HQ':'登入以開啟'+routes[active][0];
   if(!signedIn)googleStatus.textContent='請先登入，再檢查此網站的 Google 連線。';
   host.classList.toggle('is-signed-in',signedIn);host.dataset.destination=active;
   window.dispatchEvent(new CustomEvent('hana-focus-view',{detail:active}));
   if(focus){const panel=signedIn?document.getElementById(selectedId):host.querySelector('.office-account');panel?.setAttribute('tabindex','-1');panel?.focus({preventScroll:true});panel?.scrollIntoView({block:'start',behavior:'smooth'});}
  }
  if(tiles){for(const link of tiles.querySelectorAll('[data-view]'))buttons.set(link.dataset.view,link);}
- else for(const [key,label] of [['work','工作總覽'],['social','社群小編'],['projects','品牌專案'],['calendar','預約與行程'],['orders','預約明細'],['church','教會工作']]){
+ else for(const [key,label] of [['business-hq','Business HQ'],['work','工作總覽'],['social','社群小編'],['projects','品牌專案'],['calendar','預約與行程'],['orders','預約明細'],['church','教會工作']]){
   if(key==='social'){const a=document.createElement('a');a.href='./social-editor.html';a.textContent=label;nav.append(a);continue;}
   const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.view=key;b.setAttribute('aria-controls',routes[key][1]);buttons.set(key,b);nav.append(b);
  }

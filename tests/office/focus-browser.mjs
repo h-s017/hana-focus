@@ -25,7 +25,21 @@ try{
  await page.goto('https://h-s017.github.io/hana-focus/index.html');await page.locator('#hana-month-calendar').waitFor({state:'visible'});assert.equal(await page.locator('[data-view=calendar]').getAttribute('aria-current'),'page');await page.getByRole('button',{name:'調整顏色與字型大小',exact:true}).click();const appearance=page.locator('#focus-appearance-dialog');await appearance.waitFor({state:'visible'});assert.equal(await appearance.getByLabel('背景色',{exact:true}).inputValue(),'#ffffff');assert.equal(await appearance.getByLabel('文字顏色',{exact:true}).inputValue(),'#000000');assert.equal(await appearance.getByLabel('字體大小',{exact:true}).inputValue(),'18');await appearance.getByLabel('品牌色／按鈕色',{exact:true}).evaluate(n=>{n.value='#334455';n.dispatchEvent(new Event('input',{bubbles:true}));});await appearance.getByLabel('字體大小',{exact:true}).press('End');await appearance.getByLabel('字體大小',{exact:true}).press('ArrowLeft');await appearance.getByLabel('字體大小',{exact:true}).press('ArrowLeft');await appearance.getByRole('button',{name:'儲存外觀',exact:true}).click();assert.equal(await page.evaluate(()=>getComputedStyle(document.body).fontSize),'22px');await page.reload();await page.getByRole('button',{name:'調整顏色與字型大小',exact:true}).waitFor();assert.equal(await page.evaluate(()=>getComputedStyle(document.body).fontSize),'22px');await page.getByRole('button',{name:'調整顏色與字型大小',exact:true}).click();await appearance.getByLabel('字體大小',{exact:true}).press('End');await appearance.getByRole('button',{name:'取消',exact:true}).click();assert.equal(await page.evaluate(()=>getComputedStyle(document.body).fontSize),'22px');await page.getByRole('button',{name:'調整顏色與字型大小',exact:true}).click();await appearance.getByRole('button',{name:'恢復純白黑字',exact:true}).click();assert.equal(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),'rgb(255, 255, 255)');assert.equal(await page.evaluate(()=>getComputedStyle(document.body).color),'rgb(0, 0, 0)');assert.equal(await page.evaluate(()=>getComputedStyle(document.body).fontSize),'18px');await page.locator('[data-view=work]').click();const root=page.locator('#office-focus');await root.getByRole('status').filter({hasText:'已更新雲端資料'}).waitFor();
  await mkdir('test-artifacts',{recursive:true});await page.screenshot({path:'test-artifacts/workspace-redesign-mobile.png',fullPage:true});await page.setViewportSize({width:820,height:900});await page.screenshot({path:'test-artifacts/workspace-redesign-desktop.png',fullPage:true});await page.setViewportSize({width:390,height:844});
  const nav=page.getByRole('navigation',{name:'工作台主要功能'});await root.getByLabel('新增雲端工作',{exact:true}).fill('unsent requirement');
- assert.equal(await nav.locator('a').count(),7);
+ assert.equal(await nav.locator('a').count(),8);
+ const businessEntry=nav.getByRole('link',{name:'Business HQ 商機與提案',exact:true});
+ assert.equal(await nav.locator('a').first().getAttribute('href'),'#business-hq');
+ await businessEntry.screenshot({path:'test-artifacts/business-hq-entry-mobile.png'});
+ await businessEntry.click();
+ await root.getByRole('heading',{name:'HANA BUSINESS HQ｜企業經營總部',exact:true}).waitFor();
+ await root.getByRole('button',{name:'核對公司來源並建立商機草稿',exact:true}).waitFor();
+ assert.equal(await businessEntry.getAttribute('aria-current'),'page');
+ assert.equal(await root.getByLabel('處理方式',{exact:true}).isVisible(),false);
+ assert.equal(await root.getByLabel('商機開發目標',{exact:true}).inputValue(),'');
+ await root.getByLabel('商機開發目標',{exact:true}).fill('unsent business goal');
+ await nav.locator('[data-view=work]').click();
+ assert.equal(await root.getByLabel('新增雲端工作',{exact:true}).inputValue(),'unsent requirement');
+ await businessEntry.click();
+ assert.equal(await root.getByLabel('商機開發目標',{exact:true}).inputValue(),'unsent business goal');
  assert.equal(await nav.getByRole('link',{name:'氣味通信 訂閱名單',exact:true}).getAttribute('href'),'./newsletter.html');
  for(const [key,id] of [['calendar','hana-month-calendar'],['orders','office-orders']]){await nav.locator('[data-view="'+key+'"]').click();await page.locator('#'+id).waitFor({state:'visible'});assert.equal(await root.isVisible(),false);assert.equal(await nav.locator('[data-view="'+key+'"]').getAttribute('aria-current'),'page');}
  await page.locator('.workspace-settings').click();await page.locator('#office-settings').waitFor({state:'visible'});
@@ -65,7 +79,7 @@ try{
  await agents.getByRole('button',{name:'更新幫手狀態',exact:true}).click();
  await agents.locator('.hana-agent-card').first().getByRole('status').filter({hasText:/還沒確認|還沒有|已有 Canva|需要補充|目前無法|今天的文案/}).waitFor();
  assert.equal(await root.locator('.focus-composer').isVisible(),true);assert.equal(await root.getByRole('heading',{name:'全部工作與詳細操作',exact:true}).isVisible(),false);
- const icons=page.locator('nav.tiles');assert.equal(await icons.locator('a').count(),7);
+ const icons=page.locator('nav.tiles');assert.equal(await icons.locator('a').count(),8);
  for(const [key,heading] of [['projects','品牌專案'],['reviews','需要我決定'],['activity','執行紀錄']]){await page.evaluate(key=>location.hash=key,key);await root.getByRole('heading',{name:heading,exact:true}).waitFor();assert.equal(await root.locator('.focus-composer').isVisible(),false);}
  await icons.locator('[data-view="church"]').click();await root.getByRole('heading',{name:'教會工作',exact:true}).waitFor();assert.equal(await root.getByLabel('雲端工作區').inputValue(),'church');assert.equal(await root.getByRole('button',{name:'新增教會工作',exact:true}).isDisabled(),true);await icons.locator('[data-view="orders"]').click();await page.locator('#office-orders').waitFor({state:'visible'});assert.equal(await page.locator('#office-orders').isVisible(),true);assert.equal(await page.locator('html').getAttribute('data-focus-workspace'),'work');await icons.locator('[data-view="church"]').click();await root.getByRole('heading',{name:'教會工作',exact:true}).waitFor();
  await icons.locator('[data-view="projects"]').click();await root.getByRole('heading',{name:'品牌專案',exact:true}).waitFor();assert.equal(await root.getByLabel('雲端工作區').inputValue(),'work');await page.reload();await root.getByRole('heading',{name:'品牌專案',exact:true}).waitFor();
@@ -74,5 +88,8 @@ try{
  await icons.locator('[data-view="calendar"]').click();await page.locator('#hana-month-calendar').waitFor({state:'visible'});await icons.locator('[data-view="orders"]').click();await page.locator('#office-orders').waitFor({state:'visible'});
  await page.locator('#office-logout').click();await page.locator('#office-private').waitFor({state:'hidden'});assert.equal(await root.textContent(),'');assert.ok(!JSON.stringify(await page.evaluate(()=>Object.values(localStorage))).includes('免費工具分析草稿'));
  await icons.locator('[data-view="projects"]').click();await page.getByRole('heading',{name:'登入以開啟品牌專案',exact:true}).waitFor();assert.equal(await page.evaluate(()=>sessionStorage.getItem('hana-focus-destination')),'projects');assert.equal(await root.textContent(),'');
+ await icons.locator('[data-view=business-hq]').click();
+ await page.getByRole('heading',{name:'登入以開啟 Business HQ',exact:true}).waitFor();
+ assert.equal(await root.textContent(),'');
  assert.deepEqual(errors,[]);console.log('PASS: unified root dashboard, scope-filtered top3, local backup/import retained, simulation separate from real tool, human review, conflict handling, safe sync errors, private logout cleanup and 320/390/820 layout.');
 }finally{await browser.close();}

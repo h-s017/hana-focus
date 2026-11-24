@@ -59,6 +59,9 @@ nav.tiles .tile{display:flex;align-items:center;flex-direction:column;gap:9px;te
 nav.tiles .tile .ico{width:76px;height:76px;border:1px solid #e3e5e0;background:#fff;border-radius:22px;display:grid;place-items:center}
 nav.tiles .ico img{width:100%;height:100%;object-fit:contain;border-radius:22px}
 nav.tiles .tile strong{font-size:12px;font-weight:600;line-height:1.4}nav.tiles .tile small{font-size:10px;color:#777;line-height:1.4}
+nav.tiles .tile[data-view="business-hq"]{background:#edf2eb;border:1px solid #b5c6b7}
+nav.tiles .tile[data-view="business-hq"] strong{font-size:14px;color:#233d30}
+nav.tiles .tile[data-view="business-hq"] small{color:#42584a}
 #hana-office-root .workspace-nav a{display:flex;justify-content:center;align-items:center;color:#5c645e;text-decoration:none;min-height:44px;font-size:14px}
 #hana-office-root #office-legacy-tools{border-top:1px solid #d9ddd8;margin-top:24px;color:#657168}
 #hana-office-root .focus-context{margin-top:22px}

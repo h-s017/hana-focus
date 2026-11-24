@@ -1,4 +1,4 @@
-import {mountBusinessHQ} from './business-hq.mjs?v=business-hq-v1';
+import {mountBusinessHQ} from './business-hq.mjs?v=business-hq-entry-20261124';
 import {workStages,workStageText} from './work-stage.mjs';
 import {focusSummary,AGENT_ROLES} from './focus-domain.mjs';
 import {makeBackup,restoreBackup} from './focus-backup.mjs';
@@ -98,12 +98,15 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
  }
  function applyView(){
   const views={church:['已交辦工作','處理中','等我決定','全部工作與詳細操作','需要注意的任務衝突','執行與操作紀錄'],work:['已交辦工作','處理中','等我決定','全部工作與詳細操作','需要注意的任務衝突'],projects:['正在執行的專案','全部工作與詳細操作','文件與來源','同步狀態','執行與操作紀錄'],agents:['已交辦工作','處理中','等我決定','全部工作與詳細操作','需要注意的任務衝突'],reviews:['等我決定','日曆同步與課程審核','需要注意的任務衝突'],activity:['執行與操作紀錄'],calendar:['本週行事曆','日曆同步與課程審核']};
-  const names=views[view];
+  const names=views[view],businessPage=view==='business-hq';
+  head.hidden=help.hidden=businessPage;
   head.textContent=({work:'工作總覽',projects:'品牌專案',agents:'工作總覽',reviews:'需要我決定',activity:'執行紀錄',church:'教會工作',calendar:'日曆同步'})[view]||'工作總覽';
   help.textContent=({projects:'查看專案範圍、版本、素材、文件與執行紀錄。',reviews:'需要你決策的成果與衝突集中在這裡。',activity:'目前專案的操作紀錄。',church:'教會專案與商務工作分開保存。',calendar:'核對課程與行程同步狀態。'})[view]||'以經營目標交辦工作，查看實際成果、來源與需要你決定的事項。';
-  const isChurch=workspace==='church';autoLabel.hidden=isChurch||hqController.active;controls.hidden=hqController.active;startLabel.hidden=endLabel.hidden=priorityLabel.hidden=hqController.active;createTask.textContent=hqController.active?'核對公司來源並建立商機草稿':isChurch?'新增教會工作':auto.checked?'加入工作並開始整理':'只記下這件事';title.placeholder=hqController.active?'例如：整理適合企業香氛合作的公司來源':isChurch?'例如：準備領會文稿':'例如：整理文慶雞沿革牆的待確認資料';projectSetup.hidden=hqController.active||!['work','projects','church','agents'].includes(view);projectHint.hidden=Boolean(projectId)||projectSetup.hidden;content.hidden=hqController.active&&['work','agents'].includes(view);legacyTools.hidden=workspace==='church';createTask.disabled=!projectId&&!hqController.active;
+  const isChurch=workspace==='church';autoLabel.hidden=isChurch||hqController.active;controls.hidden=businessPage||hqController.active;startLabel.hidden=endLabel.hidden=priorityLabel.hidden=hqController.active;createTask.textContent=hqController.active?'核對公司來源並建立商機草稿':isChurch?'新增教會工作':auto.checked?'加入工作並開始整理':'只記下這件事';title.placeholder=hqController.active?'例如：整理適合企業香氛合作的公司來源':isChurch?'例如：準備領會文稿':'例如：整理文慶雞沿革牆的待確認資料';projectSetup.hidden=hqController.active||!['work','projects','church','agents'].includes(view);projectHint.hidden=Boolean(projectId)||projectSetup.hidden;content.hidden=businessPage||(hqController.active&&['work','agents'].includes(view));legacyTools.hidden=isChurch;createTask.disabled=!projectId&&!hqController.active;
+  titleLabel.firstChild.textContent=businessPage?'商機開發目標':'交辦什麼事？';
+  title.setAttribute('aria-label',businessPage?'商機開發目標':'新增雲端工作');
   aiStatus.textContent=data?.ai_drafts_available?'已開放逐項確認的 AI 草稿，成果會進入人工審核。':'生成式 AI 尚未啟用。三個角色可使用免費分析工具。';
-  threeAgents.hidden=!['work','agents'].includes(view)||workspace==='church';taskForm.hidden=!['work','agents','church'].includes(view);advanced.hidden=!['work','projects','church','agents'].includes(view);const quick=content.querySelector('[data-focus-quick]');if(quick)quick.hidden=!['work','agents','church'].includes(view);
+  threeAgents.hidden=!['work','agents'].includes(view)||workspace==='church';taskForm.hidden=!['business-hq','work','agents','church'].includes(view);advanced.hidden=!['work','projects','church','agents'].includes(view);const quick=content.querySelector('[data-focus-quick]');if(quick)quick.hidden=!['work','agents','church'].includes(view);
   const project=data?.projects.find(p=>p.id===projectId),summary=data?focusSummary(currentTasks().filter(t=>t.version_id===project?.active_version_id)):null;
   for(const section of content.querySelectorAll('[data-focus-section]')){const name=section.dataset.focusSection;section.hidden=names?!names.includes(name):false;if(name==='需要注意的任務衝突'&&data&&!data.conflicts.some(c=>c.project_id===projectId&&c.state==='pending')&&!summary.overdue.length&&!summary.dependencyConflicts.length)section.hidden=true;if(['projects','reviews','activity'].includes(view)&&section.tagName==='DETAILS'&&!section.hidden)section.open=true;}
  }
@@ -114,7 +117,7 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
  projectSelect.onchange=()=>{projectId=projectSelect.value;if(data)render();};workspaceSelect.onchange=()=>{workspace=workspaceSelect.value;localStorage.setItem('hana-focus-active-workspace',workspace);document.documentElement.dataset.focusWorkspace=workspace;window.dispatchEvent(new CustomEvent('hana-workspace-request',{detail:workspace}));projectId='';hqController.setContext(workspace,view);if(data)render();};
  const change=event=>{workspace=event.detail;workspaceSelect.value=workspace;projectId='';hqController.setContext(workspace,view);if(data)render();};window.addEventListener('hana-workspace-changed',change);
  if(['work','agents'].includes(view)&&workspace==='work')void agentController.load();
- hqController.setContext(workspace,view);if(workspace==='work')void hqController.load();
+ hqController.setContext(workspace,view);if(workspace==='work'&&view==='work')void hqController.load();
  const timer=setInterval(()=>{if(document.visibilityState==='visible'&&!busy&&!(host.contains(document.activeElement)&&['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)))void load();},30000);void load();
  return ()=>{disposed=true;generation++;clearInterval(timer);window.removeEventListener('hana-workspace-changed',change);window.removeEventListener('hana-focus-view',viewChange);data=null;hqController.dispose();agentController.dispose();host.replaceChildren();};
 }
