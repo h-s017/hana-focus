@@ -20,6 +20,7 @@ try{
  assert.equal(new URL(page.url()).hash,'');
  assert.equal(await page.getByText('fixture-private').count(),0);
  await page.evaluate(()=>localStorage.setItem('hana-focus-workspace-v2-church','legacy-kept'));
+ // A mail link can reuse an already open AI OFFICE document and change only its hash.
  await page.goto('https://h-s017.github.io/hana-focus/ai-office.html#access_token=fixture&refresh_token=fixture2');await page.locator('#office-logout').waitFor({state:'visible'});assert.ok(!page.url().includes('token='));
  await page.locator('#hana-daily-agenda').waitFor({state:'visible'});await page.getByRole('button',{name:'關閉今日待辦',exact:true}).click();
  await page.locator('[data-view="orders"]').click();

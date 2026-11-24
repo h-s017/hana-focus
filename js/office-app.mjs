@@ -97,8 +97,12 @@ async function refresh(){if(!current)return;const v=++refreshVersion,owner=curre
  }
  }catch{if(v===refreshVersion)message('無法載入任務，請確認登入與網路；未清除任何資料。');}}
 $('calendar-preview').onclick=()=>{const result=availableSlots([{status:'confirmed',start:{dateTime:'2026-10-26T10:00:00+08:00'},end:{dateTime:'2026-10-26T11:00:00+08:00'}}],{start:'2026-10-26T09:00:00+08:00',end:'2026-10-26T12:00:00+08:00',durationMinutes:60});$('calendar-result').textContent='合成資料測試，非正式預約時段：\n'+result.map(s=>new Date(s.start).toLocaleTimeString('zh-TW',{timeZone:'Asia/Taipei'})+'–'+new Date(s.end).toLocaleTimeString('zh-TW',{timeZone:'Asia/Taipei'})).join('\n');};
-const callback=await consumeCallback({auth:db.auth,href:location.href,replace:path=>history.replaceState(null,'',path)});
-if(callback.handled)$('session').textContent=callback.message;
+async function completeCallback(){
+ const callback=await consumeCallback({auth:db.auth,href:location.href,replace:path=>history.replaceState(null,'',path)});
+ if(callback.handled)$('session').textContent=callback.message;
+ return callback.handled;
+}
+await completeCallback();
 db.auth.onAuthStateChange(event=>{
  if(event==='SIGNED_OUT'){
   const version=++sessionVersion;
@@ -106,6 +110,7 @@ db.auth.onAuthStateChange(event=>{
  }
  else if(event!=='INITIAL_SESSION'&&event!=='TOKEN_REFRESHED')setTimeout(sync,0);
 });
+window.addEventListener('hashchange',async()=>{if(await completeCallback())await sync();});
 await sync();
 
 
