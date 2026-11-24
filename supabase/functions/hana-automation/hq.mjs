@@ -28,10 +28,21 @@ function opportunity(candidate,source,input,skill){
  return {...candidate,public_business_contact:source.public_business_contact,source_url:source.url,source_checked_at:source.checked_at,evidence_excerpt_or_summary:source.excerpt,evidence:[publicEvidence(source)],fit_reason:reasons.join(' '),fit_score:score,score_components:parts,stage:qualifies?'proposal_draft':'identified',draft,next_followup_at:null,stage_history:qualifies?['identified','qualified','proposal_draft']:['identified']};
 }
 function unverified(candidate,reason){return {...candidate,source_checked_at:null,evidence_excerpt_or_summary:candidate.manual_excerpt||null,evidence:candidate.manual_excerpt?[{url:candidate.source_url,excerpt:candidate.manual_excerpt,verified:false,kind:'user_supplied_unverified'}]:[],fit_reason:'來源未經工具查核：'+reason,fit_score:null,score_components:null,stage:'identified',draft:null,public_business_contact:null,next_followup_at:null};}
-export function businessHQ({store,sourceReader,now=()=>new Date()}){
+/** @typedef {ReturnType<typeof import('./hq-discovery.mjs').publicBusinessDiscovery>} PublicBusinessDiscovery */
+export function businessHQ({store,sourceReader,now=()=>new Date(),discovery=/** @type {PublicBusinessDiscovery|null} */ (null)}){
  return async (owner,body)=>{
   if(body.workspace!=='work')throw hqError('hq_work_only');
-  if(body.action==='hq_catalog')return {skills:skillCatalogue(),research:{mode:'public_url_read',available:sourceReader?.available===true,discovery:false},generation:'rules',external_delivery:false};
+  if(body.action==='hq_catalog')return {skills:skillCatalogue(),research:{mode:'public_url_read',available:sourceReader?.available===true,discovery:discovery?.available===true},generation:'rules',external_delivery:false};
+  if(body.action==='hq_discover'){
+   if(!discovery?.available)throw hqError('hq_discovery_not_configured');
+   const {industry,region,services,limit}=body.criteria||{};
+   const criteria={industry:clean(industry,100,true),region:clean(region,100,true),services:clean(services,1000,true),limit};
+   if(!Number.isInteger(limit)||limit<1||limit>10)throw hqError('hq_invalid_input');
+   const snapshot=await store.hqSnapshot(owner);
+   const known=(snapshot.opportunities||[]).map(row=>row.canonical_domain);
+   const candidates=await discovery.find(criteria,known);
+   return {candidates:candidates.map(candidate=>({...candidate,source_check_available:sourceReader?.allows?.(candidate.source_url)===true})),external_delivery:false};
+  }
   if(body.action==='hq_snapshot')return store.hqSnapshot(owner);
   if(body.action==='hq_review'){
    if(!uuid.test(body.run_id||'')||!['approved','rejected'].includes(body.decision))throw hqError('hq_invalid_input');

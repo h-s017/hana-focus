@@ -16,6 +16,7 @@ import {reservationReader} from './reservations.mjs';
 import {bookingService} from './booking.mjs';
 import {control} from './control.mjs';
 import {businessHQ} from './hq.mjs';
+import {publicBusinessDiscovery} from './hq-discovery.mjs';
 import {hqStore} from './hq-store.mjs';
 import {publicSourceReader} from './hq-source.mjs';
 const env=(name:string)=>Deno.env.get(name)||'';
@@ -38,7 +39,7 @@ const canva=canvaOAuth({clientId:env('CANVA_CLIENT_ID'),clientSecret:env('CANVA_
 const syncEnabled=env('HANA_CALENDAR_SYNC_ENABLED')==='true';
 const googleSync=syncEnabled?googleOAuth({...monthlyOptions,sync:true}):null;
 const calendarSync=calendarSyncService({ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),store,enabled:syncEnabled,google:googleSyncApi(monthlyOptions),reservations:reservationSyncApi({token:env('RESERVATION_SYNC_TOKEN')})});
-const hq=businessHQ({store:hqStore({url:env('SUPABASE_URL'),service:env('SUPABASE_SERVICE_ROLE_KEY')}),sourceReader:publicSourceReader({allowedHosts:env('HANA_HQ_SOURCE_HOSTS').split(',').map(s=>s.trim()).filter(Boolean)})});
+const hq=businessHQ({store:hqStore({url:env('SUPABASE_URL'),service:env('SUPABASE_SERVICE_ROLE_KEY')}),sourceReader:publicSourceReader({allowedHosts:env('HANA_HQ_SOURCE_HOSTS').split(',').map(s=>s.trim()).filter(Boolean)}),discovery:publicBusinessDiscovery({enabled:env('HANA_HQ_DISCOVERY_ENABLED')==='true',apiKey:env('BRAVE_SEARCH_API_KEY')})});
 const controls=control({businessHQ:hq,googleSyncOAuth:googleSync,calendarSync,canvaOAuth:canva,googleOAuth:google,store,authenticate,connector,readiness,calendarPreview:calendar,booking:bookingService({store,reservations}),reservations,monthly,focus});
 // This function performs its own per-request Auth validation; the NT$0 cron runs SQL locally.
 // every user action validates the bearer with Supabase Auth and trusted app_metadata.
