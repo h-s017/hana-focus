@@ -12,7 +12,8 @@ export function hqInput(value){
   return {company_name,website:website.url,canonical_domain:website.domain,source_url,manual_excerpt:clean(c.manual_excerpt||'',4000),branch_key:clean(c.branch_key||'',100),branch_reason:clean(c.branch_reason||'',500)};
  });
  if(companies.some(c=>c.branch_key&&!c.branch_reason))throw hqError('hq_branch_reason_required');
- return {workspace:'work',goal,context:clean(value.context||'',12000),industry,region,services,limit:value.limit,companies};
+ if(value.generation_mode!==undefined&&value.generation_mode!=='assisted')throw hqError('hq_invalid_input');
+ return {workspace:'work',goal,context:clean(value.context||'',12000),industry,region,services,limit:value.limit,companies,...(value.generation_mode==='assisted'?{generation_mode:'assisted'}:{})};
 }
 const publicEvidence=e=>({url:e.url,checked_at:e.checked_at,excerpt:e.excerpt,content_hash:e.content_hash,verified:true,company_name_confirmed:true});
 function opportunity(candidate,source,input,skill){
@@ -29,10 +30,11 @@ function opportunity(candidate,source,input,skill){
 }
 function unverified(candidate,reason){return {...candidate,source_checked_at:null,evidence_excerpt_or_summary:candidate.manual_excerpt||null,evidence:candidate.manual_excerpt?[{url:candidate.source_url,excerpt:candidate.manual_excerpt,verified:false,kind:'user_supplied_unverified'}]:[],fit_reason:'來源未經工具查核：'+reason,fit_score:null,score_components:null,stage:'identified',draft:null,public_business_contact:null,next_followup_at:null};}
 /** @typedef {ReturnType<typeof import('./hq-discovery.mjs').publicBusinessDiscovery>} PublicBusinessDiscovery */
-export function businessHQ({store,sourceReader,now=()=>new Date(),discovery=/** @type {PublicBusinessDiscovery|null} */ (null)}){
+/** @typedef {ReturnType<typeof import('./hq-analysis.mjs').businessAnalysis>} BusinessAnalysis */
+export function businessHQ({store,sourceReader,now=()=>new Date(),discovery=/** @type {PublicBusinessDiscovery|null} */ (null),analyze=/** @type {BusinessAnalysis} */ (null),recordDiscovery=/** @type {((owner:string,count:number)=>Promise<void>)|null} */ (null)}){
  return async (owner,body)=>{
   if(body.workspace!=='work')throw hqError('hq_work_only');
-  if(body.action==='hq_catalog')return {skills:skillCatalogue(),research:{mode:'public_url_read',available:sourceReader?.available===true,discovery:discovery?.available===true},generation:'rules',external_delivery:false};
+  if(body.action==='hq_catalog')return {skills:skillCatalogue(),research:{mode:'public_url_read',available:sourceReader?.available===true,discovery:discovery?.available===true},generation:analyze?'optional_assisted':'rules',external_delivery:false};
   if(body.action==='hq_discover'){
    if(!discovery?.available)throw hqError('hq_discovery_not_configured');
    const {industry,region,services,limit}=body.criteria||{};
@@ -41,6 +43,7 @@ export function businessHQ({store,sourceReader,now=()=>new Date(),discovery=/** 
    const snapshot=await store.hqSnapshot(owner);
    const known=(snapshot.opportunities||[]).map(row=>row.canonical_domain);
    const candidates=await discovery.find(criteria,known);
+   if(recordDiscovery)await recordDiscovery(owner,candidates.length);
    return {candidates:candidates.map(candidate=>({...candidate,source_check_available:sourceReader?.allows?.(candidate.source_url)===true})),external_delivery:false};
   }
   if(body.action==='hq_snapshot')return store.hqSnapshot(owner);
@@ -60,12 +63,15 @@ export function businessHQ({store,sourceReader,now=()=>new Date(),discovery=/** 
   }
   if(body.action!=='hq_run'||!uuid.test(body.request_id||''))throw hqError('hq_invalid_input');
   const skill=loadSkill(body.skill_id||'sales-marketing'),input=skill.connected?hqInput(body.input):{workspace:'work',goal:clean(body.input?.goal,1000,true),context:'',industry:'',region:'',services:'',limit:0,companies:[]};
+  const assisted='generation_mode' in input&&input.generation_mode==='assisted';
+  if(assisted&&!analyze)throw hqError('hq_analysis_not_configured');
   const claim=await store.hqStart(owner,body.request_id,input,{id:skill.id,version:skill.version,hash:skill.hash,source:skill.source},body.retry===true);
   if(!claim.claimed)return {status:claim.state,run_id:claim.run_id,replayed:true,external_delivery:false};
   const sources=[],trace=[{tool:'skill-resource',status:'loaded',skill_id:skill.id,version:skill.version,hash:skill.hash,source:skill.source}],candidates=[],blockers=[];
-  let state='review',code=null;
+  const verified=[];
+  let state='review',code=null,analysis=[],modelAttempts=0;
   const finish=async()=>{
-   const output={goal:input.goal,skill_version:skill.version,skill_hash:skill.hash,sources,assumptions:['合作需求、預算、時程與決策者尚未由客戶確認。','所有提案是規則式草稿，沒有使用生成式 AI。'],deliverables:candidates.map(c=>({company_name:c.company_name,canonical_domain:c.canonical_domain,stage:c.stage,draft:c.draft})),metrics:{requested_limit:input.limit,submitted_sources:input.companies.length,verified_sources:sources.length,candidate_count:candidates.length,paid_api_calls:0,external_messages_sent:0},blockers,next_actions:['核對證據與缺漏','審核提案草稿','由 HANA 決定後續聯繫'],approval_required:true,mode:'rules',research_mode:sourceReader?.available?'public_url_read':'manual_source_unverified',discovery_performed:false};
+   const output={goal:input.goal,skill_version:skill.version,skill_hash:skill.hash,sources,assumptions:['合作需求、預算、時程與決策者尚未由客戶確認。'],deliverables:candidates.map(c=>({company_name:c.company_name,canonical_domain:c.canonical_domain,stage:c.stage,draft:assisted?null:c.draft})),analysis,metrics:{requested_limit:input.limit,submitted_sources:input.companies.length,verified_sources:sources.length,candidate_count:candidates.length,paid_api_calls:modelAttempts,external_messages_sent:0},blockers,next_actions:['核對證據與缺漏','審核提案草稿','由 HANA 決定後續聯繫'],approval_required:true,mode:assisted?'assisted':'rules',research_mode:sourceReader?.available?'public_url_read':'manual_source_unverified',discovery_performed:false};
    return store.hqFinish(owner,claim.run_id,claim.attempt_token,{state,error_code:code,sources,tool_results:trace,output,opportunities:candidates});
   };
   try{
@@ -76,13 +82,32 @@ export function businessHQ({store,sourceReader,now=()=>new Date(),discovery=/** 
     try{
      if(!sourceReader?.available||!c.source_url)throw hqError('hq_source_unavailable');
      if(now().getTime()-started>40000)throw hqError('hq_source_timeout');
-     const source=await sourceReader.read(c);sources.push(publicEvidence(source));trace.push({tool:'public-source-read',status:'verified',url:source.url,checked_at:source.checked_at,content_hash:source.content_hash});candidates.push(opportunity(c,source,input,skill));
+     const source=await sourceReader.read(c);sources.push(publicEvidence(source));trace.push({tool:'public-source-read',status:'verified',url:source.url,checked_at:source.checked_at,content_hash:source.content_hash});
+     const result=opportunity(c,source,input,skill);
+     if(assisted){Object.assign(result,{stage:'identified',draft:null,fit_score:null,score_components:null,fit_reason:'已核對公開來源，等待企業分析。'});verified.push({candidate:result,source});}
+     candidates.push(result);
     }catch(e){
      const reason=['hq_source_timeout','hq_source_not_authorized','hq_source_unavailable','hq_source_too_large','hq_source_insufficient','hq_company_unconfirmed'].includes(e.code)?e.code:'hq_source_unavailable';
      trace.push({tool:'public-source-read',status:'blocked',url:c.source_url,error_code:reason});blockers.push(c.company_name+'：'+reason);candidates.push(unverified(c,reason));
     }
    }
    if(!sources.length){state=trace.some(t=>t.error_code==='hq_source_timeout')?'failed':'blocked';code=state==='failed'?'source_timeout':'source_unavailable';}
+   if(analyze&&assisted&&verified.length){
+    try{
+     modelAttempts++;
+     analysis=await analyze({...input,verified});
+     analysis.forEach((row,index)=>{
+      const candidate=verified[index].candidate;
+      candidate.fit_reason='AI 分析｜待人工審核。'+row.offer+' '+row.need_hypothesis;
+      candidate.fit_score=row.fit_score;
+      candidate.score_components={mode:'assisted'};
+      if(row.fit){candidate.stage='proposal_draft';candidate.draft='AI 商務提案草稿｜待 HANA 審核\n來源：'+row.source_url+'\n證據摘錄：'+row.quote+'\n需求假設：'+row.need_hypothesis+'\n合作提案：'+row.proposal+'\n驗證問題：'+row.validation_question;}
+     });
+     trace.push({tool:'generated-business-analysis',status:'validated',source_count:verified.length});
+    }catch{
+     state='failed';code='hq_analysis_unavailable';blockers.push('生成式分析失敗。已核對的來源保留，沒有產生 AI 提案。');trace.push({tool:'generated-business-analysis',status:'failed',error_code:code});
+    }
+   }
    return await finish();
   }catch(e){
    // A DB timeout is an uncertain commit. Do not silently overwrite it with a

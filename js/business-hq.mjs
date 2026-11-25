@@ -26,44 +26,56 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
  const findButton=button('尋找商機',()=>void discover());
  const discoveryStatus=el('p');discoveryStatus.setAttribute('role','status');
  const suggestions=el('ul');
- discovery.append(findButton,discoveryStatus,suggestions);fields.append(discovery);
+ let discovered=[];
+ const selectBatch=button('選入本批候選',()=>{
+  const count=discovered.filter(candidate=>selectCandidate(candidate,true)).length;
+  discoveryStatus.textContent=count?'已選入 '+count+' 家公司。核對後即可送出查核及建檔。':'沒有可再選入的候選。請檢查表單重複項目或數量上限。';
+ });selectBatch.hidden=true;
+ discovery.append(findButton,selectBatch,discoveryStatus,suggestions);fields.append(discovery);
  const companies=field('公司來源（每行：公司名稱 | 官網 | 來源網址）','hq_companies','textarea',16000);companies.rows=4;
  const excerpt=field('人工補充的來源內容（未查核）','hq_excerpt','textarea',4000);excerpt.rows=3;
+ const assisted=el('input');assisted.type='checkbox';assisted.name='hq_assisted';
+ const assistedLabel=el('label','使用 AI 分析已核對的公開來源並草擬個別提案（使用核准的 API 額度）');assistedLabel.prepend(assisted);assistedLabel.hidden=true;fields.append(assistedLabel);
  fields.append(el('p','送出建檔前，請核對公司名稱和官網。網頁查核使用已授權的網域，人工補充內容會標示為未查核。'));
  form.append(fields);
  function download(content,name,mime){const url=URL.createObjectURL(new Blob([content],{type:mime})),a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  async function invoke(body){const {data,error}=await db.functions.invoke('hana-automation',{body:{...body,workspace:'work'}});let code=data?.error;try{if(!code&&error)code=(await error.context?.json())?.error;}catch{}if(error||code)throw Object.assign(Error(code||'hq_persistence_uncertain'),{code:code||'hq_persistence_uncertain'});return data;}
  const workVisible=()=>workspace==='work'&&['business-hq','work','agents'].includes(view);
  const pendingKey='hana-hq-request:'+owner;
+ const confirmAssisted=()=>confirm('使用核准的模型額度，將已核對的公司公開摘錄和本次產業、區域、服務條件交給 OpenAI 進行分析？成果會保存為內部草稿。');
  const searchFields=[industry,region,services,limit];
  function updateDiscovery(){
   const ready=catalogue?.research?.discovery===true;
   findButton.disabled=searching||!ready;
+  selectBatch.hidden=!discovered.length;selectBatch.disabled=searching||!ready;
+  assistedLabel.hidden=catalogue?.generation!=='optional_assisted';
+  if(assistedLabel.hidden)assisted.checked=false;
   if(!ready&&!searching)discoveryStatus.textContent=catalogue?'搜尋服務尚未啟用。你仍可填寫公司來源。':'正在確認搜尋服務設定…';
   else if(ready&&!searching&&!discoveryStatus.textContent)discoveryStatus.textContent='以產業和區域搜尋公開來源。選入的公司會先加入下方表單。';
  }
- function clearDiscovery(){searchVersion++;suggestions.replaceChildren();discoveryStatus.textContent='';updateDiscovery();}
+ function clearDiscovery(){searchVersion++;discovered=[];suggestions.replaceChildren();discoveryStatus.textContent='';updateDiscovery();}
  for(const input of searchFields)input.addEventListener('input',clearDiscovery);
  updateDiscovery();
- function selectCandidate(candidate){
+ function selectCandidate(candidate,batch=false){
   const rows=companies.value.split('\n').filter(row=>row.trim());
   const known=rows.some(row=>{
    try{return new URL(row.split(/[|｜]/)[1]?.trim()).hostname.toLowerCase().replace(/^www\./,'')===candidate.canonical_domain;}
    catch{return false;}
   });
-  if(known){discoveryStatus.textContent='這個網域已在本次表單。';return;}
-  if(rows.length>=Number(limit.value)){discoveryStatus.textContent='已達本次數量上限。可先移除一家公司，再選入。';return;}
+  if(known){if(!batch)discoveryStatus.textContent='這個網域已在本次表單。';return false;}
+  if(rows.length>=Number(limit.value)){if(!batch)discoveryStatus.textContent='已達本次數量上限。可先移除一家公司，再選入。';return false;}
   const source=candidate.source_url.replaceAll('|','%7C').replaceAll('｜','%EF%BD%9C');
   rows.push([candidate.company_name,candidate.website,source].join(' | '));
   companies.value=rows.join('\n');
-  discoveryStatus.textContent='已把「'+candidate.company_name+'」加入表單。核對名稱及官網後再送出。';
+  if(!batch)discoveryStatus.textContent='已把「'+candidate.company_name+'」加入表單。核對名稱及官網後再送出。';
+  return true;
  }
  async function discover(){
   if(searching||disposed||!active||!workVisible()||!catalogue?.research?.discovery)return;
   for(const input of searchFields)if(!input.value.trim()||!input.reportValidity()){
    discoveryStatus.textContent='請填寫產業、區域、希望提供的服務及數量上限。';input.focus();return;
   }
-  searching=true;const version=++searchVersion;suggestions.replaceChildren();
+  searching=true;const version=++searchVersion;discovered=[];suggestions.replaceChildren();
   discoveryStatus.textContent='正在搜尋公開來源…';updateDiscovery();
   try{
    const criteria={industry:industry.value,region:region.value,services:services.value,limit:Number(limit.value)};
@@ -80,7 +92,7 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
      const link=el('a',candidate.source_title);link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';item.append(link);
     }catch{continue;}
     item.append(el('p','待確認公司名稱、官網及合作需求。'+(candidate.source_check_available?'可在送出後查核來源。':'此網域尚未授權自動查核。')),button('加入公司來源',()=>selectCandidate(candidate)));
-    suggestions.append(item);
+    discovered.push(candidate);suggestions.append(item);
    }
    discoveryStatus.textContent=suggestions.children.length?'找到 '+suggestions.children.length+' 筆待查核候選。':'沒有找到新的候選公司。可縮小或調整產業和區域。';
   }catch(error){
@@ -89,16 +101,21 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
  }
  function render(){
   if(disposed||!workVisible())return;
-  skills.replaceChildren();for(const [id,label] of Object.entries(labels)){const record=catalogue?.skills?.find(s=>s.id===id);skills.append(el('li',label+'｜'+(record?.status==='available'?'已接入・v'+record.version:record?'尚未接入':'連線待確認')));}
-  results.replaceChildren();results.append(el('h3','商機與提案'),el('p','所有提案是規則式草稿；核准不會自動寄送，也不會變成「已聯絡」。'));
+  skills.replaceChildren();for(const [id,label] of Object.entries(labels)){
+   const record=catalogue?.skills?.find(s=>s.id===id);
+   const state=record?.status==='available'?'可建檔與審核。搜尋'+(catalogue.research?.discovery?'已設定':'尚未啟用')+'，公開來源查核'+(catalogue.research?.available?'限已授權網域':'尚未接通')+'，生成式分析'+(catalogue.generation==='optional_assisted'?'已設定、可逐批選用':'尚未啟用')+'。':record?'僅有技能文件，執行工具尚未接通。':'連線狀態待確認。';
+   skills.append(el('li',label+'｜'+state));
+  }
+  results.replaceChildren();results.append(el('h3','商機與提案'),el('p','提案先交 HANA 人工審核。實際聯絡與商務進展由你另行記錄。'));
   const bar=el('div');bar.className='hq-actions';bar.append(button('更新商務紀錄',()=>void operate(refresh)),button('建立新的商務要求',()=>{request=null;try{sessionStorage.removeItem(pendingKey);}catch{}notice.textContent='下次送出會建立新要求；既有商機仍依網域去重。';}),button('匯出有來源商機 CSV',()=>download(exportOpportunities(snapshot.opportunities.filter(o=>o.source_checked_at)),'hana-business-opportunities.csv','text/csv;charset=utf-8')),button('匯出商機與提案 JSON',()=>download(JSON.stringify(snapshot,null,2),'hana-business-review.json','application/json;charset=utf-8')));results.append(bar);
   if(!snapshot.opportunities.length)results.append(el('p','目前沒有商機紀錄。填寫商機開發需求與公司來源，即可建立第一筆。'));
   for(const o of snapshot.opportunities){
-   const card=el('article');card.className='hq-opportunity';card.append(el('h4',o.company_name),el('p',stages[o.stage]||o.stage),el('p','適配度：'+(o.fit_score===null?'待查核':o.fit_score+'/10')+'｜'+o.fit_reason));
+   const scoreLabel=o.score_components?.mode==='assisted'?'AI 評估：':'適配度：';
+   const card=el('article');card.className='hq-opportunity';card.append(el('h4',o.company_name),el('p',stages[o.stage]||o.stage),el('p',o.fit_score===null?o.fit_reason:scoreLabel+o.fit_score+'/10｜'+o.fit_reason));
    if(o.source_url){const a=el('a','開啟公司來源');try{const u=new URL(o.source_url);if(u.protocol==='https:'){a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';card.append(a);}}catch{}}
    card.append(el('p','查核時間：'+(o.source_checked_at?new Date(o.source_checked_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):'未由工具查核')));
    const evidence=el('details');evidence.append(el('summary','查看證據與缺漏'),el('p',o.evidence_excerpt_or_summary||'沒有已取得的來源內容。'));card.append(evidence);
-   if(o.draft){const d=el('details');d.append(el('summary','查看規則式提案草稿'),el('pre',o.draft));card.append(d);}
+   if(o.draft){const d=el('details');d.append(el('summary',o.draft.startsWith('AI 商務提案草稿')?'查看 AI 提案草稿':'查看規則式提案草稿'),el('pre',o.draft));card.append(d);}
    const next=el('input');next.type='datetime-local';next.value=taipeiInput(o.next_followup_at);next.setAttribute('aria-label','下次追蹤：'+o.company_name);
    card.append(el('p','下次追蹤（台北時間，只保存日期，不建立排程通知）'),next,button('儲存追蹤日期',()=>void operate(async()=>{await invoke({action:'hq_followup',opportunity_id:o.id,revision:o.revision,next_followup_at:next.value?new Date(next.value+'+08:00').toISOString():null});await refresh();})));
    if(['approved','contacted','negotiating'].includes(o.stage)){
@@ -113,8 +130,9 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
   for(const r of snapshot.runs){
    const card=el('article');card.className='hq-run';card.append(el('h4',r.skill_input?.goal||'技能工作'),el('p','狀態：'+({blocked:'受阻',failed:'失敗',running:'執行中',review:'待 HANA 審核',approved:'內部核准・未寄送',rejected:'已退回'}[r.skill_state]||r.skill_state)),el('p',r.skill_id+'｜版本 '+r.skill_version+'｜嘗試 '+r.skill_attempt));
    if(r.skill_error_code)card.append(el('p','原因：'+r.skill_error_code));for(const b of r.skill_output?.blockers||[])card.append(el('p',b));
+   for(const row of r.skill_output?.analysis||[]){const d=el('details');d.append(el('summary',row.company_name+'｜AI 分析・待人工核對'),el('p','已核對的頁面摘錄：'+row.quote),el('p','業務判讀：'+row.offer),el('p','需求假設：'+row.need_hypothesis),el('p','合作草稿：'+row.proposal),el('p','驗證問題：'+row.validation_question));card.append(d);}
    const details=el('details');details.append(el('summary','來源、工具與版本紀錄'),el('p','內容 SHA-256：'+r.skill_hash),el('p','技能來源：'+r.skill_source));for(const t of r.skill_tool_results||[])details.append(el('p',t.tool+'｜'+(t.status||'')+'｜'+(t.url||t.error_code||t.version||'')));card.append(details);
-   if(['blocked','failed','rejected','running'].includes(r.skill_state)&&r.skill_attempt<5)card.append(button(r.skill_state==='running'?'超過5分鐘後恢復執行':'補齊來源或連線後重試',()=>void operate(async()=>{await invoke({action:'hq_run',skill_id:r.skill_id,request_id:r.request_id,input:r.skill_input,retry:true});await refresh();})));
+   if(['blocked','failed','rejected','running'].includes(r.skill_state)&&r.skill_attempt<5)card.append(button(r.skill_state==='running'?'超過5分鐘後恢復執行':'補齊來源或連線後重試',()=>void operate(async()=>{if(r.skill_input?.generation_mode==='assisted'&&!confirmAssisted())return;await invoke({action:'hq_run',skill_id:r.skill_id,request_id:r.request_id,input:r.skill_input,retry:true});await refresh();})));
    if(r.skill_state==='review'){
     const note=el('textarea');note.maxLength=2000;note.setAttribute('aria-label','審核意見：'+r.skill_input.goal);card.append(note);
     for(const decision of ['approved','rejected'])card.append(button(decision==='approved'?'核准這批內部草稿':'退回這批草稿',()=>void operate(async()=>{if(!confirm('只記錄 HANA 內部審核，不會聯絡客戶或發布。'))return;await invoke({action:'hq_review',run_id:r.id,decision,note:note.value});await refresh();})));
@@ -135,11 +153,12 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
   async submit(){
    if(!active||!workVisible())throw Object.assign(Error(),{code:'hq_work_only'});
    const input={workspace:'work',goal:titleInput.value.trim(),context:briefInput.value.trim(),industry:industry.value.trim(),region:region.value.trim(),services:services.value.trim(),limit:Number(limit.value),companies:companies.value.split('\n').map(s=>s.trim()).filter(Boolean).map(s=>{const parts=s.split(/[|｜]/).map(x=>x.trim());return {company_name:parts[0],website:parts[1],source_url:parts[2]||null,manual_excerpt:excerpt.value};})};
+   if(assisted.checked){if(!confirmAssisted())return;input.generation_mode='assisted';}
    const fingerprint=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(input))))].map(x=>x.toString(16).padStart(2,'0')).join('');
    if(!request)try{request=JSON.parse(sessionStorage.getItem(pendingKey)||'null');}catch{}
    if(!request||request.fingerprint!==fingerprint)request={fingerprint,id:crypto.randomUUID()};
    try{sessionStorage.setItem(pendingKey,JSON.stringify(request));}catch{}
-   try{await invoke({action:'hq_run',skill_id:'sales-marketing',request_id:request.id,input});await refresh();notice.textContent='執行結果已保存，請查看查核狀態及待審核草稿。';}catch(e){notice.textContent=messages[e.code]||'保存尚未確認，請保留原內容重試。';throw e;}
+   try{const outcome=await invoke({action:'hq_run',skill_id:'sales-marketing',request_id:request.id,input});await refresh();notice.textContent=outcome.status==='review'?'執行結果已保存，請查看待審核草稿。':'執行狀態已更新。請查看紀錄中的完成結果或受阻原因。';}catch(e){notice.textContent=messages[e.code]||'保存尚未確認，請保留原內容重試。';throw e;}
   },
   setContext(w,v){
    const changed=w!==workspace||v!==view,wasDirect=view==='business-hq';
