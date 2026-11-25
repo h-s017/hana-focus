@@ -4,7 +4,7 @@ create table if not exists public.hana_hq_profiles (
  positioning text not null check (length(positioning) between 1 and 1000),
  ideal_customer text not null check (length(ideal_customer) between 1 and 1000),
  offer text not null check (length(offer) between 1 and 600),
- district text not null default '' check (length(district)<=30),
+ county text not null default '' check (length(county)<=5),
  signals text not null check (length(signals) between 1 and 240),
  daily_limit integer not null default 3 check (daily_limit between 1 and 5),
  run_at time not null default '08:00',
@@ -34,11 +34,11 @@ language plpgsql security invoker set search_path='' as $$
 begin
  if not public.hana_focus_allowed(p_owner) then raise exception 'hq_owner_required';end if;
  if p_profile is not null then
-  insert into public.hana_hq_profiles(owner_id,positioning,ideal_customer,offer,district,signals,daily_limit,run_at,enabled)
-  values(p_owner,p_profile->>'positioning',p_profile->>'ideal_customer',p_profile->>'offer',p_profile->>'district',p_profile->>'signals',
+  insert into public.hana_hq_profiles(owner_id,positioning,ideal_customer,offer,county,signals,daily_limit,run_at,enabled)
+  values(p_owner,p_profile->>'positioning',p_profile->>'ideal_customer',p_profile->>'offer',p_profile->>'county',p_profile->>'signals',
    (p_profile->>'daily_limit')::integer,(p_profile->>'run_at')::time,(p_profile->>'enabled')::boolean)
   on conflict(owner_id) do update set positioning=excluded.positioning,ideal_customer=excluded.ideal_customer,
-   offer=excluded.offer,district=excluded.district,signals=excluded.signals,daily_limit=excluded.daily_limit,run_at=excluded.run_at,
+   offer=excluded.offer,county=excluded.county,signals=excluded.signals,daily_limit=excluded.daily_limit,run_at=excluded.run_at,
    enabled=excluded.enabled,updated_at=now();
  end if;
  return jsonb_build_object('profile',(select to_jsonb(p)-'owner_id' from public.hana_hq_profiles p where owner_id=p_owner),
@@ -103,7 +103,7 @@ begin
    where owner_id=p_owner and id=opportunity_id and linked_task_id=task_id;
   if found then
    saved:=saved||jsonb_build_array(jsonb_build_object('opportunity_id',opportunity_id,'task_id',task_id,'company_name',c->>'company_name',
-    'fit_score',c->'fit_score','source_url',c->>'source_url','development_rank',jsonb_array_length(saved)+1));
+    'fit_score',c->'fit_score','county',c->'evidence'->0->>'county','source_url',c->>'source_url','development_rank',jsonb_array_length(saved)+1));
   else
    -- Roll back the entire transaction instead of leaving an orphan review task.
    raise exception 'hq_state_conflict';

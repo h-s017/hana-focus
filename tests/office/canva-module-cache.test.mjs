@@ -6,7 +6,7 @@ const paths=['workspace.html','ai-office.html','index.html','js/office-app.mjs',
 const version='office-20261104-unified-calendar';
 const release='business-hq-entry-20261124';
 const refs=[
- ...Array(3).fill('src="./js/office-app.mjs?v=business-hq-proactive-20261126"'),
+ ...Array(3).fill('src="./js/office-app.mjs?v=business-hq-nationwide-20261126"'),
  "from './workspace-navigation.mjs?v="+release+"'",
  "from './canva-connect.mjs?v="+version+"'"
 ];

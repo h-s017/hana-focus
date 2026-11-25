@@ -20,7 +20,8 @@ import {publicBusinessDiscovery} from './hq-discovery.mjs';
 import {businessAnalysis} from './hq-analysis.mjs';
 import {hqStore} from './hq-store.mjs';
 import {publicSourceReader} from './hq-source.mjs';
-import {proactiveHQ,taoyuanResearch} from './hq-proactive.mjs';
+import {proactiveHQ} from './hq-proactive.mjs';
+import {nationwideResearch} from './hq-national-research.mjs';
 const env=(name:string)=>Deno.env.get(name)||'';
 const {store,authenticate}=automationStore({url:env('SUPABASE_URL'),service:env('SUPABASE_SERVICE_ROLE_KEY')});
 let encryption=null;try{if(env('HANA_CONNECTOR_ENCRYPTION_KEY'))encryption=cipher(env('HANA_CONNECTOR_ENCRYPTION_KEY'));}catch{}
@@ -42,7 +43,7 @@ const syncEnabled=env('HANA_CALENDAR_SYNC_ENABLED')==='true';
 const googleSync=syncEnabled?googleOAuth({...monthlyOptions,sync:true}):null;
 const calendarSync=calendarSyncService({ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),store,enabled:syncEnabled,google:googleSyncApi(monthlyOptions),reservations:reservationSyncApi({token:env('RESERVATION_SYNC_TOKEN')})});
 const businessStore=hqStore({url:env('SUPABASE_URL'),service:env('SUPABASE_SERVICE_ROLE_KEY')});
-const proactive=proactiveHQ({store:businessStore,research:taoyuanResearch(),owner:env('HANA_HQ_WORKER_OWNER_ID'),
+const proactive=proactiveHQ({store:businessStore,research:nationwideResearch(),owner:env('HANA_HQ_WORKER_OWNER_ID'),
  enabled:env('HANA_HQ_SCHEDULE_ENABLED')==='true',secret:env('HANA_HQ_WORKER_TOKEN'),
  analyze:businessAnalysis(agentProvider({enabled:env('HANA_HQ_SCHEDULE_AI_ENABLED')==='true',apiKey:env('OPENAI_API_KEY'),model:env('HANA_HQ_ANALYSIS_MODEL')}))});
 const hq=businessHQ({

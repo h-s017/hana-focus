@@ -19,6 +19,12 @@ try{
  const signIn=()=>page.evaluate(async({email,password})=>{const {db}=await import('/js/office-client.mjs');const {error}=await db.auth.signInWithPassword({email,password});if(error)throw Error('Isolated real login failed');},{email:users.a.email,password:users.a.password});
  await signIn();
  const root=page.locator('#office-focus');await root.getByRole('heading',{name:'HANA BUSINESS HQ｜企業經營總部',exact:true}).waitFor();
+ await root.getByRole('heading',{name:'每日商務開發',exact:true}).waitFor();
+ const settings=root.getByText('服務定位、目標客戶與排程',{exact:true});await settings.click();
+ const scope=root.getByRole('combobox',{name:'搜尋範圍',exact:true});
+ assert.equal(await scope.locator('option').count(),23);
+ assert.equal(await scope.locator('option:checked').textContent(),'全臺灣（含離島）');
+ await settings.click();
  const daily=page.locator('#hana-daily-agenda');if(await daily.isVisible())await daily.getByRole('button',{name:'關閉今日待辦',exact:true}).click();
  assert.equal(await root.getByLabel('處理方式',{exact:true}).isVisible(),false);
  await root.getByRole('button',{name:'手動搜尋與建檔',exact:true}).click();

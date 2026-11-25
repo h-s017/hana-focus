@@ -1,4 +1,4 @@
-import {mountBusinessHQ} from './business-hq.mjs?v=business-hq-proactive-20261126';
+import {mountBusinessHQ} from './business-hq.mjs?v=business-hq-nationwide-20261126';
 import {workStages,workStageText} from './work-stage.mjs';
 import {focusSummary,AGENT_ROLES} from './focus-domain.mjs';
 import {makeBackup,restoreBackup} from './focus-backup.mjs';
