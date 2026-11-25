@@ -3,7 +3,7 @@ on:
   push:
     branches: [feature/office-auth-agent-integration]
   pull_request:
-    paths: ['index.html','ai-office.html','workspace.html','js/**','supabase/**','business-hq/**','scripts/build-business-skills.mjs','scripts/build-office-site.mjs','tests/business-hq/**','tests/office/**','social-editor/**','scripts/social-editor.mjs','scripts/social-canva-pptx.py','.github/workflows/social-editor.yml','.github/workflows/office-validation.yml','.github/workflows/hana-focus-preview.yml']
+    paths: ['index.html','ai-office.html','workspace.html','js/**','supabase/**','business-hq/**','scripts/build-business-skills.mjs','scripts/build-office-site.mjs','tests/business-hq/**','tests/office/**','social-editor/**','scripts/social-editor.mjs','scripts/run-editorial-operations.mjs','scripts/social-canva-pptx.py','.github/workflows/social-editor.yml','.github/workflows/office-validation.yml','.github/workflows/hana-focus-preview.yml']
   workflow_dispatch:
 permissions:
   contents: read

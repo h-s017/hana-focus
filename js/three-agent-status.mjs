@@ -10,10 +10,16 @@ export function socialStatus(manifest,day=taipeiDate()){
  if(!manifest||typeof manifest!=='object')return {state:'unverified',detail:'尚未取得每日執行紀錄。',editUrl:null};
  const editUrl=safeCanva(manifest.canvaEditUrl);
  const slides=Number.isInteger(manifest.slideCount)?manifest.slideCount:0;
+ const sensory=manifest.edition==='sensory-v2.1';
  if(manifest.date!==day)return {state:'stale',detail:'最新紀錄：'+String(manifest.date||'日期未知')+'，今天的工作尚未確認。',editUrl:null};
- if(manifest.canvaCreated===true&&slides>=5&&slides<=8&&editUrl)return {state:'delivered_internal',detail:'已有 Canva 內部稿（'+slides+' 頁），視覺仍待 HANA 審核；不代表已發布 Instagram。',editUrl};
+ if(manifest.canvaCreated===true&&(sensory?slides===7:slides>=5&&slides<=8)&&editUrl)return {state:'delivered_internal',detail:'已有 Canva 內部稿（'+slides+' 頁），視覺仍待 HANA 審核；不代表已發布 Instagram。',editUrl};
  if(manifest.status==='needs-lesson')return {state:'blocked',detail:'排程已有執行，但尚未產生今天的課程內容或 Canva 設計。',editUrl:null};
- if(manifest.status==='editorial_ready'&&manifest.plannedSlideCount===6)return {state:'copy_ready',detail:'今日 6 頁文案、貼文與 Canva 匯入欄位已由排程產出；圖片及 Canva 可編輯設計尚未建立。',editUrl:null};
+ if(sensory&&manifest.status==='editorial_ready'&&manifest.plannedSlideCount===7){
+  if(manifest.imagesGenerated===true&&manifest.imageCount===7)return {state:'copy_ready',detail:'7 頁文案與 7 張攝影素材通過檔案檢查，等待 HANA 審核；尚無已核實的 Canva 設計。',editUrl:null};
+  const reason={image_generation_disabled:'圖片生成未啟用',image_provider_not_configured:'圖片服務設定未齊',image_validation_failed:'圖片未通過檔案檢查'}[manifest.visualReason];
+  return {state:'copy_ready',detail:'今日 7 頁文案與拍攝規格已保存。'+(reason?'攝影交付受阻，原因是'+reason+'。':'尚未取得七張經核對的照片。'),editUrl:null};
+ }
+ if(manifest.status==='editorial_ready'&&manifest.plannedSlideCount===6&&!sensory)return {state:'copy_ready',detail:'今日 6 頁文案、貼文與 Canva 匯入欄位已由排程產出；圖片及 Canva 可編輯設計尚未建立。',editUrl:null};
  return {state:'incomplete',detail:'已有每日紀錄，但未確認 5–8 頁可編輯 Canva 成品。',editUrl:null};
 }
 export function secretaryStatus(status){

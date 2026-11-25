@@ -1,4 +1,4 @@
-import {checkPublicSource,publicImportState,lessonDate} from './canva-import.mjs';
+import {checkPublicSource,publicImportState,lessonDate,lessonPageCount} from './canva-import.mjs';
 // Single tenant, fixed current Taiwan date. No caller-supplied URL or arbitrary file.
 export function canvaImportRunner({ownerId,store,api,fetcher=fetch,now=()=>new Date()}){
  const fail=code=>Object.assign(Error(code),{code});
@@ -25,7 +25,7 @@ export function canvaImportRunner({ownerId,store,api,fetcher=fetch,now=()=>new D
    const metadata=await api(owner,'designs/'+encodeURIComponent(design.id));
    if(Number.isInteger(metadata?.design?.page_count))count=metadata.design.page_count;
   }
-  const verified=count===6;
+  const verified=count===lessonPageCount(date);
   const saved=await store.canvaImportUpdate(owner,date,{
    status:verified?'success':'needs_verification',
    design_id:design.id,page_count:count,

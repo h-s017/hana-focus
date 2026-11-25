@@ -8,11 +8,14 @@ import {businessHQ} from '../../supabase/functions/hana-automation/hq.mjs';
 import {hqStore} from '../../supabase/functions/hana-automation/hq-store.mjs';
 import {publicSourceReader} from '../../supabase/functions/hana-automation/hq-source.mjs';
 import {control} from '../../supabase/functions/hana-automation/control.mjs';
+import {proactiveHQ} from '../../supabase/functions/hana-automation/hq-proactive.mjs';
 const cfg=JSON.parse(await readFile('/tmp/hana-hq-local-env.json','utf8'));
 const {authenticate,store}=automationStore({url:cfg.url,service:cfg.service});
 const sourceReader=publicSourceReader({allowedHosts:(process.env.HANA_HQ_TEST_SOURCE_HOSTS||'www.mozilla.org').split(',').filter(Boolean)});
-const hq=businessHQ({store:hqStore({url:cfg.url,service:cfg.service}),sourceReader});
-const controls=control({authenticate,store,allowedOrigin:cfg.url,businessHQ:hq,focus:focusService({store}),readiness:()=>({mode:'rules',paid_calls_enabled:false})});
+const businessStore=hqStore({url:cfg.url,service:cfg.service});
+const proactive=proactiveHQ({store:businessStore,research:null,owner:null,enabled:false,secret:''});
+const hq=businessHQ({store:businessStore,sourceReader});
+const controls=control({authenticate,store,allowedOrigin:cfg.url,businessHQ:(owner,body)=>['hq_profile','hq_profile_save'].includes(body.action)?proactive.account(owner,body):hq(owner,body),focus:focusService({store}),readiness:()=>({mode:'rules',paid_calls_enabled:false})});
 const root=path.resolve('.');
 const types={'.mjs':'text/javascript','.js':'text/javascript','.html':'text/html','.css':'text/css','.json':'application/json','.png':'image/png','.svg':'image/svg+xml','.webmanifest':'application/manifest+json'};
 const server=createServer(async(req,res)=>{
