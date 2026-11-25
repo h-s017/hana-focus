@@ -38,6 +38,7 @@ try{
  await root.getByRole('button',{name:'核對公司來源並建立商機草稿',exact:true}).waitFor();
  assert.equal(await businessEntry.getAttribute('aria-current'),'page');
  assert.equal(await root.getByLabel('處理方式',{exact:true}).isVisible(),false);
+ await root.getByRole('button',{name:'手動搜尋與建檔',exact:true}).click();
  assert.equal(await root.getByLabel('商機開發目標',{exact:true}).inputValue(),'');
  await root.getByLabel('商機開發目標',{exact:true}).fill('unsent business goal');
  await nav.locator('[data-view=work]').click();

@@ -1,5 +1,17 @@
 # HANA BUSINESS HQ 驗收紀錄
 
+## 主動式商務開發
+
+每日研究是 Business HQ 的主要入口。服務定位、ICP、提供的服務、可查核合作訊號、桃園行政區、每日上限與台北執行時間保存在既有 Supabase 專案的資料表。預設 08:00，初始設定暫停。手動搜尋與建檔仍可展開使用。
+
+首批來源是[桃園市政府觀光旅遊局 Open API](https://travel.tycg.gov.tw/open-api)，讀取住宿與新聞，不使用 API 金鑰或將 ICP 傳給資料來源。研究範圍限桃園旅宿與官方觀光消息。掃描頁數、查核候選數與每日入庫數有上限。系統只讀固定政府網址，不向名單所列企業網站或聯絡信箱發送請求。公司名稱由官方詳細頁核對。提案保留公開背景、個別合作訊號、HANA 服務定位與待訪談問題，人工作最後決定。
+
+資料庫每日只允許同一帳號、同一台北日期申領一次，並在同一個交易保存每日報告、去重後的 CRM 候選及各自的審核任務。資料停留在內部待審核；次日追蹤時間只作為工作提醒。報告記錄實際來源、掃描與查核數、推薦順序、建檔 ID、結果與每項失敗原因。逾時工作保留失敗紀錄，不覆寫人工審核。
+
+隔離驗收使用壁鐘定時器、真實政府端點、Supabase Auth、PostgREST 與 PostgreSQL。`hq-proactive-schedule.json` 記錄定時請求、報告、商機與審核任務 ID；測試涵蓋暫停、重複觸發、帳號隔離與重新登入回讀。產線的 Supabase Cron 尚待核准；隔離定時器不代表已在正式專案啟用。免付費模式產生有來源的規則式草稿。逐筆生成式分析另受 `HANA_HQ_SCHEDULE_AI_ENABLED` 保護，須另核准資料範圍及用量；隔離排程驗收不呼叫模型。
+
+正式啟用順序：部署 additive migration 與 Edge，核對 worker 預設停用；由 HANA 確認 ICP 與初始範圍，再設定指定 owner、專用 worker token 與 Vault 同名值。`ops/enable-business-hq-proactive-cron.sql` 只在核准後執行。需從 Cron 記錄及資料庫讀回首次正式執行，核對 `daily_run_id`、`opportunity_id`、`task_id`、來源及審核狀態。停用時可暫停該 Cron、將 `HANA_HQ_SCHEDULE_ENABLED` 設為 `false` 或停用 ICP。
+
 ## 第二輪與正式環境
 
 | 項目 | 版本與驗收狀態 |
