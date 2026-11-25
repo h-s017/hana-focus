@@ -40,7 +40,7 @@ export function mountWorkspaceNavigation(host,{db}={}){
  }catch{canvaStatus.textContent='無法確認 Canva 後端是否已部署；尚未建立授權，不要將此狀態視為成功。';}finally{canvaVerify.disabled=false;}};
  const canvaDailyCheck=document.createElement('button');canvaDailyCheck.type='button';canvaDailyCheck.textContent='查看今日 Canva 自動匯入紀錄';
  const canvaDailyStatus=document.createElement('p');canvaDailyStatus.setAttribute('role','status');canvaDailyStatus.textContent='尚未讀取今日匯入結果。';
- const canvaDailyLink=document.createElement('a');canvaDailyLink.hidden=true;canvaDailyLink.target='_blank';canvaDailyLink.rel='noopener noreferrer';canvaDailyLink.textContent='在 Canva 編輯今日六頁微課';
+ const canvaDailyLink=document.createElement('a');canvaDailyLink.hidden=true;canvaDailyLink.target='_blank';canvaDailyLink.rel='noopener noreferrer';canvaDailyLink.textContent='在 Canva 編輯今日微課';
  canvaDailyCheck.onclick=async()=>{
   if(!signedIn||!db)return;
   canvaDailyCheck.disabled=true;
@@ -49,13 +49,13 @@ export function mountWorkspaceNavigation(host,{db}={}){
    if(error||data?.error)throw Error('unavailable');
    const messages={
     not_started:'今日尚未建立 Canva 自動匯入工作。',
-    source_not_ready:'今日文案或六張原創圖像尚未備齊，不會用佔位圖替代。',
+    source_not_ready:'今日文案或原創圖像尚未齊備。',
     reserved:'今日匯入已保留，尚未送出。',
     submitting:'已開始送出；為避免重複，系統不會再次提交。',
     in_progress:'Canva 正在匯入今日教材，等待下次排程驗證。',
     failed:'今日匯入失敗，請查看後端紀錄；不會自動重複建立。',
-    needs_verification:'需要人工確認設計與六頁完整性，不會自動重新匯入。',
-    success:'今日六頁已匯入 Canva，視覺仍待 HANA 審核；尚未發布 IG／FB。'
+    needs_verification:'需要人工確認設計及頁數，不會自動重新匯入。',
+    success:'今日 '+data.page_count+' 頁已匯入 Canva，視覺仍待 HANA 審核。'
    };
    canvaDailyStatus.textContent=(data.date||'今日')+'｜'+(data.status==='source_not_ready'&&data.reason==='layout_reference_required'?'原 Canva 版型尚未套用／核對，暫停自動匯入；不會用自訂版面替代。':messages[data.status]||'目前狀態尚未確認。');
    canvaDailyLink.hidden=true;

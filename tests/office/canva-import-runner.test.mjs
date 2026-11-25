@@ -67,6 +67,15 @@ assert.equal((await checkPublicSource('2026-10-27',async()=>new Response(null,{s
 assert.equal(publicImportState(null).published,false);
 const placeholder=await checkPublicSource(date,async()=>Response.json({date,status:'editorial_ready',pages:Array(6).fill({title:'copy'}),visuals:{artwork_ready:false}}));
 assert.equal(placeholder.ready,false);assert.equal(placeholder.reason,'original_artwork_required');
+{
+ const date='2026-11-26';
+ const art={...visuals,image_count:7,preset_id:'hana-sensory-editorial-v2.1',style:'HANA Sensory Editorial｜HANA 感官誌',palette:['#AABBCC','#000000','#123456','#EFEFEF'],asset_hashes:Array.from({length:7},(_,i)=>String(i+1).repeat(64))};
+ const source=(pages,visuals)=>async url=>url.endsWith('lesson.json')?Response.json({date,edition:'sensory-v2.1',status:'editorial_ready',pages:Array(pages).fill({title:'copy'}),visuals}):new Response(pptxBytes);
+ assert.equal((await checkPublicSource(date,source(7,art))).pages,7);
+ assert.equal((await checkPublicSource(date,source(6,art))).reason,'lesson_not_validated');
+ assert.equal((await checkPublicSource(date,source(7,{...art,palette:[]}))).reason,'visual_preset_required');
+ assert.equal((await checkPublicSource(date,source(7,{...art,layout_status:'draft_relayout'}))).reason,'layout_reference_required');
+}
 const mismatch=await checkPublicSource(date,async url=>url.endsWith('lesson.json')?Response.json({date,status:'editorial_ready',pages:Array(6).fill({title:'copy'}),visuals}):new Response('changed after visual QA'));
 assert.equal(mismatch.ready,false);assert.equal(mismatch.reason,'powerpoint_revision_mismatch');
 for(const invalid of [{...visuals,layout_status:'draft_relayout'},{...visuals,layout_status:undefined},{...visuals,preset_id:'old-default-watercolor'},{...visuals,layout_reference_design_id:'another-template'}]){
