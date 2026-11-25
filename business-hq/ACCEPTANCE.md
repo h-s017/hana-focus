@@ -8,9 +8,33 @@
 
 資料庫每日只允許同一帳號、同一台北日期申領一次，並在同一個交易保存每日報告、去重後的 CRM 候選及各自的審核任務。資料停留在內部待審核；次日追蹤時間只作為工作提醒。報告記錄實際來源、掃描與查核數、推薦順序、建檔 ID、結果與每項失敗原因。逾時工作保留失敗紀錄，不覆寫人工審核。
 
-隔離驗收使用壁鐘定時器、真實政府端點、Supabase Auth、PostgREST 與 PostgreSQL。`hq-proactive-schedule.json` 記錄定時請求、報告、商機與審核任務 ID；測試涵蓋暫停、重複觸發、帳號隔離與重新登入回讀。產線的 Supabase Cron 尚待核准；隔離定時器不代表已在正式專案啟用。免付費模式產生有來源的規則式草稿。逐筆生成式分析另受 `HANA_HQ_SCHEDULE_AI_ENABLED` 保護，須另核准資料範圍及用量；隔離排程驗收不呼叫模型。
+隔離驗收使用壁鐘定時器、真實政府端點、Supabase Auth、PostgREST 與 PostgreSQL。`hq-proactive-schedule.json` 記錄定時請求、報告、商機與審核任務 ID，涵蓋暫停、重複觸發、帳號隔離與重新登入回讀。旅宿試點使用規則式草稿。正式參數要求跨產業企業搜尋、可查核來源和生成式分析。缺少任一項時，正式 worker 會保存受阻原因，不寫入規則式候選。七個服務方向依官方活動訊號及最近七日的研究紀錄調整。
 
-正式啟用順序：部署 additive migration 與 Edge，核對 worker 預設停用；由 HANA 確認 ICP 與初始範圍，再設定指定 owner、專用 worker token 與 Vault 同名值。`ops/enable-business-hq-proactive-cron.sql` 只在核准後執行。需從 Cron 記錄及資料庫讀回首次正式執行，核對 `daily_run_id`、`opportunity_id`、`task_id`、來源及審核狀態。停用時可暫停該 Cron、將 `HANA_HQ_SCHEDULE_ENABLED` 設為 `false` 或停用 ICP。
+正式核准後，先部署 additive migrations 與 Edge，讀回版本並核對 worker 預設停用。確認 ICP、來源範圍和模型用量後，設定指定 owner、專用 worker token、Vault 同名值，以及 `HANA_HQ_SCHEDULE_DISCOVERY_ENABLED` 和 `HANA_HQ_SCHEDULE_AI_ENABLED` 所需的服務端憑證。`ops/enable-business-hq-proactive-cron.sql` 須另行核准。從 Cron 與資料庫讀回首次正式執行，核對 `daily_run_id`、`opportunity_id`、`task_id`、來源和審核狀態。回復時先暫停 Cron 或將 `HANA_HQ_SCHEDULE_ENABLED` 設為 `false`。可回復上一版 Edge 與 Pages，保留資料及稽核紀錄。
+
+Brave Search 每千次 US$5，官方列有每月 US$5 的 Search 抵用額度。申請時仍需驗卡，可將預收額設為 US$0。必須先確認來源保存條款。全臺旅宿與觀光活動仍可直接讀取政府資料，跨產業覆蓋需依實測結果確認。[Brave 定價](https://brave.com/search/api/) [Brave 抵用額與驗卡](https://api-dashboard.search.brave.com/documentation/resources/help-feedback)
+
+## Social Editor V2.1
+
+GitHub 的 Social Editor 排程在台北時間 08:10 準備到期內容。微課、創業者限動各自每日執行，服務文章每三天執行，四個主題每十二天一輪。只有正式分支在明確啟用後使用專用 token 寫入既有 Supabase 審核紀錄。每日稿件保留於審核帳號，原有公開素材保留，執行回條只含狀態與日期。單日同類版本有唯一識別，部分完成與失敗可排入重試，正式發布需另行核准。
+
+三種稿件的隔離驗收覆蓋實際 Supabase Auth、PostgREST、PostgreSQL、官網 CTA 查核、版本重試和帳號隔離。人工驗收另有實際生成 PNG 與三個 Canva 設計，已讀回頁面尺寸及照片、文字圖層。排程仍缺自動圖片生成、私有素材同步及 Canva 圖層回讀的正式連線，缺件時維持部分完成。[整合驗收](https://github.com/h-s017/hana-focus/actions/runs/45717019797)
+
+| 驗收 | 本次證據 |
+| --- | --- |
+| SOC-01、SYS-01 | GitHub 預設分支為 `hana-focus-preview`。隔離環境已驗證任務時程及資料庫寫入。正式排程未啟用，端到端一致性仍待驗收。 |
+| SOC-02 至 SOC-05 | 人工試作已產出七頁內容、七張獨立 1080×1350 PNG、當期色票、七頁可編輯 Canva。每頁讀回一個照片圖層及六個可編輯文字圖層。尚待排程連續產出與 HANA 審核。 |
+| SOC-06、STORY-04 | 隔離審核入口可讀回實際稿件及缺件狀態。圖片、Canva 與正式 HANA FOCUS 同步仍待驗收。 |
+| BIZ-01、BIZ-02、BIZ-04 | 隔離定時觸發 `115490d6-d1d0-43e2-8384-83516fa18baf`，讀取全臺 22 個縣市，保存 3 筆待審核旅宿與追蹤任務，收錄 5 則官方活動。重新登入回讀、重複時鐘觸發與帳號隔離通過。範圍為旅宿試點。 |
+| BIZ-03 | 跨產業來源及生成式個別提案需要授權後進行真實測試。隔離旅宿試點的草稿使用規則。 |
+| MKT-01、MKT-02 | 四主題、十二日循環及分類已經測試。正式每三天定時記錄尚待驗收。 |
+| MKT-03 | 人工試作已有小量香氛正文、主視覺、可編輯 Canva 與官網 CTA，官網入口由隔離流程驗證。自動素材保存待接通。 |
+| STORY-01 至 STORY-03 | 每日獨立任務識別已測試。人工試作有原創繁中短文、單張 1080×1920 PNG 及可編輯 Canva。正式自動交付待驗收。 |
+| SYS-02、SYS-03 | 隔離測試涵蓋缺件、同日併發去重、版本重試與跨帳號隔離。 |
+| SYS-04、SYS-05 | 320／390／820 px 審核畫面及既有工作台回歸已在受控瀏覽器測試。以現有正式版本服務一般使用者。 |
+| SYS-06 | 受控測試的對外寄送數為 0，正式啟用與社群發布保持停用。 |
+
+人工 Canva 讀回 ID：微課 `DAHb9PqIkns`、創業者限動 `DAHb9G4wH_k`、服務文章 `DAHb9kn2aUA`。生成檔案與圖層紀錄留存在此次工作區的驗收包。
 
 ## 第二輪與正式環境
 
