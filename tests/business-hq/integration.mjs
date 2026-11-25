@@ -5,6 +5,8 @@ import {businessHQ} from '../../supabase/functions/hana-automation/hq.mjs';
 import {hqStore} from '../../supabase/functions/hana-automation/hq-store.mjs';
 import {publicSourceReader} from '../../supabase/functions/hana-automation/hq-source.mjs';
 import {businessAnalysis} from '../../supabase/functions/hana-automation/hq-analysis.mjs';
+import {publicBusinessDiscovery} from '../../supabase/functions/hana-automation/hq-discovery.mjs';
+import {automationStore} from '../../supabase/functions/hana-automation/store.mjs';
 import {exportOpportunities} from '../../js/business-hq.mjs';
 const cfg=JSON.parse(await readFile('/tmp/hana-hq-local-env.json','utf8'));
 for(let n=0;n<50;n++){try{if((await fetch(cfg.url+'/workspace.html')).ok)break;}catch{}if(n===49)throw Error('Isolated application not ready');await new Promise(r=>setTimeout(r,200));}
@@ -66,9 +68,19 @@ const analyze=businessAnalysis(async ({input})=>{
  const company=JSON.parse(input).companies[0];
  return JSON.stringify({companies:[{id:company.id,quote:company.excerpt.slice(0,60),fit:true,offer:'隔離產出範例',need_hypothesis:'測試用途的待驗證假設',proposal:'隔離模型回應範例',validation_question:'是否適合進行隔離流程測試？'}]});
 });
-const assistedEngine=businessHQ({store:assistedStore,sourceReader:publicSourceReader({allowedHosts:['www.mozilla.org']}),analyze});
+const discovery=publicBusinessDiscovery({enabled:true,apiKey:'isolated-search-fixture',fetcher:async()=>Response.json({web:{results:[{title:'Mozilla',url:'https://www.mozilla.org/en-US/about/'}]}})});
+const auditStore=automationStore({url:cfg.url,service:cfg.service}).store;
+const assistedEngine=businessHQ({store:assistedStore,sourceReader:publicSourceReader({allowedHosts:['www.mozilla.org']}),analyze,discovery,
+ recordDiscovery:async(owner,count)=>{await auditStore.event(owner,'Business HQ',null,null,'hq_discovery_completed',{candidate_count:count,provider:'fixture'});}});
+const discovered=await assistedEngine(b.id,{action:'hq_discover',workspace:'work',criteria:{industry:input.industry,region:input.region,services:input.services,limit:1}});
+assert.equal(discovered.candidates.length,1);
+assert.equal(discovered.candidates[0].source_check_available,true);
+const searchAudit=await fetch(cfg.url+'/rest/v1/hana_automation_events?select=details&code=eq.hq_discovery_completed&owner_id=eq.'+b.id,{headers:{Authorization:'Bearer '+cfg.service,apikey:cfg.service}});
+assert.equal(searchAudit.status,200);
+assert.deepEqual(await searchAudit.json(),[{details:{candidate_count:1,provider:'fixture'}}]);
+assert.equal((await call(b,{action:'hq_snapshot'})).opportunities.length,0);
 const assistedId=randomUUID();
-const assisted=await assistedEngine(b.id,{action:'hq_run',workspace:'work',request_id:assistedId,input:{...input,generation_mode:'assisted'}});
+const assisted=await assistedEngine(b.id,{action:'hq_run',workspace:'work',request_id:assistedId,input:{...input,companies:discovered.candidates,generation_mode:'assisted'}});
 assert.equal(assisted.status,'review');
 const assistedSnapshot=await call(b,{action:'hq_snapshot'});
 const assistedRun=assistedSnapshot.runs.find(r=>r.request_id===assistedId);
@@ -78,5 +90,5 @@ assert.equal(assistedRun.skill_output.analysis[0].source_hash,assistedOpportunit
 assert.match(assistedOpportunity.draft,/AI 商務提案草稿/);
 assert.equal((await call(b,{action:'hq_review',run_id:assistedRun.id,decision:'approved'})).contacted,false);
 assert.equal((await call(b,{action:'hq_snapshot'})).opportunities.find(o=>o.id===assistedOpportunity.id).stage,'approved');
-pass('R2-assisted-persistence','Live public source, synthetic model response, persisted analysis and CRM draft, then manual approval and authenticated readback. No live model call.');
+pass('R2-closed-loop','Synthetic search and model responses, real public source, persisted search audit/analysis/CRM draft, manual approval and authenticated readback. No live search or model API call.');
 await mkdir('test-artifacts',{recursive:true});await writeFile('test-artifacts/hq-real-integration.json',JSON.stringify({tested_at:new Date().toISOString(),environment:'isolated PostgreSQL + Supabase Auth + PostgREST',production_modified:false,live_public_source:'https://www.mozilla.org/en-US/about/',source_checked_at:opportunity.source_checked_at,results},null,2));
