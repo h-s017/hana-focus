@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-25",
+  "day": 38,
+  "title": "用地圖敘述場域",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "用地圖敘述場域",
+      "body": "HANA 嗅覺微課 · Day 038\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "地圖是一種編輯",
+      "body": "決定哪些資訊出現，也決定觀眾如何理解場所。"
+    },
+    {
+      "title": "順序會改變故事",
+      "body": "從入口或終點開始，感受可能完全不同。"
+    },
+    {
+      "title": "標示事實與想像",
+      "body": "實際位置、藝術路線與感官聯想需要清楚區分。"
+    },
+    {
+      "title": "體驗需要可到達",
+      "body": "地圖內容應能對應真實、可行的參觀動線。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "為一條三站的空間散策寫出每站一個觀察問題。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "簡約城市地圖",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "038",
+    "DATE": "2026-11-25",
+    "PAGE_01_TITLE": "用地圖敘述場域",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 038\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "地圖是一種編輯",
+    "PAGE_02_BODY": "決定哪些資訊出現，也決定觀眾如何理解場所。",
+    "PAGE_03_TITLE": "順序會改變故事",
+    "PAGE_03_BODY": "從入口或終點開始，感受可能完全不同。",
+    "PAGE_04_TITLE": "標示事實與想像",
+    "PAGE_04_BODY": "實際位置、藝術路線與感官聯想需要清楚區分。",
+    "PAGE_05_TITLE": "體驗需要可到達",
+    "PAGE_05_BODY": "地圖內容應能對應真實、可行的參觀動線。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "為一條三站的空間散策寫出每站一個觀察問題。"
+  },
+  "music": {
+    "composer": "Gabriel Fauré",
+    "work": "Après un rêve, Op. 7 No. 1",
+    "reason": "區分作品故事與感官事實",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
