@@ -33,7 +33,7 @@ jobs:
       - name: Prepare daily HANA editorial copy, palette and shot list
         env:
           LESSON_DATE: ${{ inputs.lesson_date }}
-          HANA_SOCIAL_EDITORIAL_ENABLED: ${{ vars.HANA_SOCIAL_EDITORIAL_ENABLED }}
+          HANA_SOCIAL_EDITORIAL_ENABLED: ${{ github.ref == 'refs/heads/hana-focus-preview' && vars.HANA_SOCIAL_EDITORIAL_ENABLED == '1' && '1' || '0' }}
           HANA_SOCIAL_EDITORIAL_MODEL: ${{ vars.HANA_SOCIAL_EDITORIAL_MODEL }}
           HANA_SOCIAL_EDITORIAL_API_KEY: ${{ secrets.HANA_SOCIAL_EDITORIAL_API_KEY }}
         run: node scripts/social-editor.mjs
@@ -43,7 +43,7 @@ jobs:
         env:
           LESSON_DATE: ${{ inputs.lesson_date }}
           # Generated photos enter a public source repository only if separately approved.
-          HANA_SOCIAL_IMAGE_ENABLED: ${{ vars.HANA_SOCIAL_IMAGE_ENABLED == '1' && vars.HANA_SOCIAL_PUBLIC_SOURCE_APPROVED == '1' && '1' || '0' }}
+          HANA_SOCIAL_IMAGE_ENABLED: ${{ github.ref == 'refs/heads/hana-focus-preview' && vars.HANA_SOCIAL_IMAGE_ENABLED == '1' && vars.HANA_SOCIAL_PUBLIC_SOURCE_APPROVED == '1' && '1' || '0' }}
           HANA_SOCIAL_IMAGE_MODEL: ${{ vars.HANA_SOCIAL_IMAGE_MODEL }}
           HANA_SOCIAL_IMAGE_API_KEY: ${{ secrets.HANA_SOCIAL_IMAGE_API_KEY }}
         run: python scripts/social-canva-pptx.py
