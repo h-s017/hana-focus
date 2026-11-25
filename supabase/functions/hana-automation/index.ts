@@ -52,7 +52,7 @@ const hq=businessHQ({
  analyze:businessAnalysis(agentProvider({enabled:env('HANA_HQ_ANALYSIS_ENABLED')==='true',apiKey:env('OPENAI_API_KEY'),model:env('HANA_HQ_ANALYSIS_MODEL')})),
  recordDiscovery:async(owner,count)=>{await store.event(owner,'Business HQ',null,null,'hq_discovery_completed',{candidate_count:count,provider:'brave',external_delivery:false});},
 });
-const controls=control({businessHQ:(owner,body)=>['hq_profile','hq_profile_save'].includes(body.action)?proactive.account(owner,body):hq(owner,body),googleSyncOAuth:googleSync,calendarSync,canvaOAuth:canva,googleOAuth:google,store,authenticate,connector,readiness,calendarPreview:calendar,booking:bookingService({store,reservations}),reservations,monthly,focus});
+const controls=control({businessHQ:(owner:string,body:{action:string})=>['hq_profile','hq_profile_save'].includes(body.action)?proactive.account(owner,body):hq(owner,body),googleSyncOAuth:googleSync,calendarSync,canvaOAuth:canva,googleOAuth:google,store,authenticate,connector,readiness,calendarPreview:calendar,booking:bookingService({store,reservations}),reservations,monthly,focus});
 // This function performs its own per-request Auth validation; the NT$0 cron runs SQL locally.
 // every user action validates the bearer with Supabase Auth and trusted app_metadata.
 // Existing hana-agent retains verify_jwt=true and its paid-call switch remains off.

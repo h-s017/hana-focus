@@ -33,7 +33,7 @@ export function mountProactiveHQ(invoke){
    else field.value=name==='run_at'?profile.run_at.slice(0,5):profile[name]??'';
   }
   save.disabled=false;
-  status.textContent=!data.scheduler_available?'正式排程尚未啟用。可先儲存 ICP。':profile?.enabled?'排程可執行。每日 '+profile.run_at.slice(0,5)+'（台北）。':'排程已連接，ICP 尚未啟用。';
+  status.textContent=!data.scheduler_available?'排程服務尚未啟用。可先儲存 ICP。':profile?.enabled?'研究時間每日 '+profile.run_at.slice(0,5)+'（台北），實際執行請查看下方紀錄。':'排程服務已啟用，ICP 尚未啟用。';
   reportArea.replaceChildren(el('h4','每日研究報告'));
   if(!data.runs.length)reportArea.append(el('p','尚未有排程執行紀錄。'));
   for(const run of data.runs){

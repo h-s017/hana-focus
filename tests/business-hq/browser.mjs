@@ -21,10 +21,10 @@ try{
  const root=page.locator('#office-focus');await root.getByRole('heading',{name:'HANA BUSINESS HQ｜企業經營總部',exact:true}).waitFor();
  const daily=page.locator('#hana-daily-agenda');if(await daily.isVisible())await daily.getByRole('button',{name:'關閉今日待辦',exact:true}).click();
  assert.equal(await root.getByLabel('處理方式',{exact:true}).isVisible(),false);
+ await root.getByRole('button',{name:'手動搜尋與建檔',exact:true}).click();
  await root.getByRole('button',{name:'核對公司來源並建立商機草稿',exact:true}).waitFor();
  await root.locator('.hq-results').getByRole('heading',{name:'Mozilla',exact:true}).waitFor();
  const goal='瀏覽器實際持久化與審核驗證 '+randomUUID();
- await root.getByRole('button',{name:'手動搜尋與建檔',exact:true}).click();
  await root.getByLabel('商機開發目標',{exact:true}).fill(goal);
  await root.getByLabel('產業',{exact:true}).fill('Internet');await root.getByLabel('區域',{exact:true}).fill('全球');await root.getByLabel('希望提供的服務',{exact:true}).fill('品牌研究');
  await root.getByLabel('公司來源（每行：公司名稱 | 官網 | 來源網址）',{exact:true}).fill('Mozilla | https://www.mozilla.org/ | https://www.mozilla.org/en-US/about/');
