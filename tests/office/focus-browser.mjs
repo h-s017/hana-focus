@@ -55,7 +55,8 @@ try{
  await root.locator('.hq-discovery').screenshot({path:'test-artifacts/business-hq-discovery-mobile.png'});
  const companies=root.getByLabel('公司來源（每行：公司名稱 | 官網 | 來源網址）',{exact:true});
  assert.equal(await companies.inputValue(),'');
- await suggestion.getByRole('button',{name:'加入公司來源',exact:true}).click();
+ await root.getByRole('button',{name:'選入本批候選',exact:true}).click();
+ assert.match(await companies.inputValue(),/^Fixture Hotel/);
  await suggestion.getByRole('button',{name:'加入公司來源',exact:true}).click();
  assert.equal(await companies.inputValue(),'Fixture Hotel | https://fixture-hotel.org/ | https://fixture-hotel.org/about');
  assert.deepEqual(await page.evaluate(()=>window.__focusFixture.discovery),{industry:'旅宿',region:'台北',services:'品牌香氛合作',limit:5});
