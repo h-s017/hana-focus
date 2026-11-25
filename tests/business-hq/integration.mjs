@@ -66,7 +66,7 @@ pass('T10','Actual persisted opportunities and source-backed rules drafts export
 const assistedStore=hqStore({url:cfg.url,service:cfg.service});
 const analyze=businessAnalysis(async ({input})=>{
  const company=JSON.parse(input).companies[0];
- return JSON.stringify({companies:[{id:company.id,quote:company.excerpt.slice(0,60),fit:true,offer:'隔離產出範例',need_hypothesis:'測試用途的待驗證假設',proposal:'隔離模型回應範例',validation_question:'是否適合進行隔離流程測試？'}]});
+ return JSON.stringify({companies:[{id:company.id,quote:company.excerpt.slice(0,60),fit:true,fit_score:7,offer:'隔離產出範例',need_hypothesis:'測試用途的待驗證假設',proposal:'隔離模型回應範例',validation_question:'是否適合進行隔離流程測試？'}]});
 });
 const discovery=publicBusinessDiscovery({enabled:true,apiKey:'isolated-search-fixture',fetcher:async()=>Response.json({web:{results:[{title:'Mozilla',url:'https://www.mozilla.org/en-US/about/'}]}})});
 const auditStore=automationStore({url:cfg.url,service:cfg.service}).store;
@@ -87,6 +87,8 @@ const assistedRun=assistedSnapshot.runs.find(r=>r.request_id===assistedId);
 const assistedOpportunity=assistedSnapshot.opportunities.find(o=>o.linked_task_id===assistedRun.task_id);
 assert.equal(assistedRun.skill_output.mode,'assisted');
 assert.equal(assistedRun.skill_output.analysis[0].source_hash,assistedOpportunity.evidence[0].content_hash);
+assert.equal(assistedOpportunity.fit_score,7);
+assert.equal(assistedOpportunity.score_components.mode,'assisted');
 assert.match(assistedOpportunity.draft,/AI 商務提案草稿/);
 assert.equal((await call(b,{action:'hq_review',run_id:assistedRun.id,decision:'approved'})).contacted,false);
 assert.equal((await call(b,{action:'hq_snapshot'})).opportunities.find(o=>o.id===assistedOpportunity.id).stage,'approved');

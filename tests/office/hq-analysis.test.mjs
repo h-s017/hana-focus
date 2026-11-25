@@ -5,7 +5,7 @@ import {businessHQ} from '../../supabase/functions/hana-automation/hq.mjs';
 
 const candidate={company_name:'Synthetic Company',website:'https://fixture.invalid/'};
 const source={url:'https://fixture.invalid/about',excerpt:'A public fixture for brand workshops.',content_hash:'fixture-hash'};
-const row={id:'1',quote:'public fixture',fit:true,offer:'Sample activity',need_hypothesis:'Training may fit',proposal:'Test a pilot',validation_question:'Is a pilot wanted?'};
+const row={id:'1',quote:'public fixture',fit:true,fit_score:7,offer:'Sample activity',need_hypothesis:'Training may fit',proposal:'Test a pilot',validation_question:'Is a pilot wanted?'};
 
 test('model receives bounded evidence and binds its answer to the same source',async()=>{
  const analyze=businessAnalysis(async request=>{
@@ -23,7 +23,7 @@ test('model receives bounded evidence and binds its answer to the same source',a
 test('invented quotations, missing companies, and disabled provider fail closed',async()=>{
  assert.equal(businessAnalysis(null),null);
  const input={verified:[{candidate,source}],industry:'events',region:'Taipei',services:'scent'};
- for(const companies of [[],[{...row,quote:'An invented quotation'}],[{...row,id:'unexpected'}]]){
+ for(const companies of [[],[{...row,quote:'An invented quotation'}],[{...row,id:'unexpected'}],[{...row,fit_score:11}],[{...row,fit_score:2}]]){
   await assert.rejects(businessAnalysis(async()=>JSON.stringify({companies}))(input),/hq_analysis_unavailable/);
  }
  const store={hqStart:()=>assert.fail('No model authorization must mean no run claim')};

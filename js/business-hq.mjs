@@ -110,7 +110,8 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
   const bar=el('div');bar.className='hq-actions';bar.append(button('更新商務紀錄',()=>void operate(refresh)),button('建立新的商務要求',()=>{request=null;try{sessionStorage.removeItem(pendingKey);}catch{}notice.textContent='下次送出會建立新要求；既有商機仍依網域去重。';}),button('匯出有來源商機 CSV',()=>download(exportOpportunities(snapshot.opportunities.filter(o=>o.source_checked_at)),'hana-business-opportunities.csv','text/csv;charset=utf-8')),button('匯出商機與提案 JSON',()=>download(JSON.stringify(snapshot,null,2),'hana-business-review.json','application/json;charset=utf-8')));results.append(bar);
   if(!snapshot.opportunities.length)results.append(el('p','目前沒有商機紀錄。填寫商機開發需求與公司來源，即可建立第一筆。'));
   for(const o of snapshot.opportunities){
-   const card=el('article');card.className='hq-opportunity';card.append(el('h4',o.company_name),el('p',stages[o.stage]||o.stage),el('p',o.fit_score===null?o.fit_reason:'適配度：'+o.fit_score+'/10｜'+o.fit_reason));
+   const scoreLabel=o.score_components?.mode==='assisted'?'AI 評估：':'適配度：';
+   const card=el('article');card.className='hq-opportunity';card.append(el('h4',o.company_name),el('p',stages[o.stage]||o.stage),el('p',o.fit_score===null?o.fit_reason:scoreLabel+o.fit_score+'/10｜'+o.fit_reason));
    if(o.source_url){const a=el('a','開啟公司來源');try{const u=new URL(o.source_url);if(u.protocol==='https:'){a.href=u.href;a.target='_blank';a.rel='noopener noreferrer';card.append(a);}}catch{}}
    card.append(el('p','查核時間：'+(o.source_checked_at?new Date(o.source_checked_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):'未由工具查核')));
    const evidence=el('details');evidence.append(el('summary','查看證據與缺漏'),el('p',o.evidence_excerpt_or_summary||'沒有已取得的來源內容。'));card.append(evidence);

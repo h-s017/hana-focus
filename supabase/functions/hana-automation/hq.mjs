@@ -99,6 +99,8 @@ export function businessHQ({store,sourceReader,now=()=>new Date(),discovery=/** 
      analysis.forEach((row,index)=>{
       const candidate=verified[index].candidate;
       candidate.fit_reason='AI 分析｜待人工審核。'+row.offer+' '+row.need_hypothesis;
+      candidate.fit_score=row.fit_score;
+      candidate.score_components={mode:'assisted'};
       if(row.fit){candidate.stage='proposal_draft';candidate.draft='AI 商務提案草稿｜待 HANA 審核\n來源：'+row.source_url+'\n證據摘錄：'+row.quote+'\n需求假設：'+row.need_hypothesis+'\n合作提案：'+row.proposal+'\n驗證問題：'+row.validation_question;}
      });
      trace.push({tool:'generated-business-analysis',status:'validated',source_count:verified.length});
