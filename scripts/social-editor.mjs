@@ -7,6 +7,7 @@ import {sensoryStart,selectSensoryLesson} from '../social-editor/sensory-curricu
 import {sensoryVisuals,sensoryVisualBrief} from '../social-editor/sensory-visual.mjs';
 import {writeSensoryLesson} from '../social-editor/sensory-writer.mjs';
 import {agentProvider} from '../supabase/functions/hana-automation/agent-provider.mjs';
+import {sensoryMetadata} from '../social-editor/operations-content.mjs';
 
 const now=new Date();
 const date=process.env.LESSON_DATE||new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
@@ -30,7 +31,9 @@ if(sensory){
   process.exit(0);
  }
  const dates=(await fs.readdir(path.dirname(folder))).filter(value=>/^\d{4}-\d{2}-\d{2}$/.test(value)&&value<date).sort().reverse();
- history=(await Promise.all(dates.map(value=>readJSON(path.join(path.dirname(folder),value,'lesson.json'))))).filter(entry=>entry?.title);
+ const archived=(await Promise.all(dates.map(value=>readJSON(path.join(path.dirname(folder),value,'lesson.json'))))).filter(entry=>entry?.title);
+ const authoritative=process.env.HANA_EDITORIAL_HISTORY_FILE?await readJSON(process.env.HANA_EDITORIAL_HISTORY_FILE):null;
+ history=[...(Array.isArray(authoritative)?authoritative:[]),...archived];
 }
 let lesson=sensory?selectSensoryLesson(history):lessonForDay(day),reason='editorial_queue_exhausted',editorialMode='curated';
 if(!lesson&&sensory){
@@ -63,7 +66,9 @@ if(lesson){
  const visuals=sensory?sensoryVisuals(lesson):dailyVisuals(lesson);
  const data=fields(slides);
  const csv='\uFEFF'+Object.keys(data).map(csvEscape).join(',')+'\r\n'+Object.values(data).map(csvEscape).join(',')+'\r\n';
- const caption=sensory?[lesson.title,'HANA 感官誌',...slides.slice(1).map(p=>p.section+'｜'+p.title+'\n'+p.body),'#HanaScentArtist #嗅覺藝術 #氣味設計'].join('\n\n'):[
+ const metadata=sensory?sensoryMetadata(lesson):null;
+ const caption=sensory?[lesson.title,'HANA 感官誌',...slides.slice(1).map(p=>p.section+'｜'+p.title+'\n'+p.body),
+  '古典聆賞：'+metadata.music.composer+' — '+metadata.music.work,metadata.music.reason,metadata.music.recording_rights,metadata.hashtags.join(' ')].join('\n\n'):[
   lesson.title,'',
   'HANA 嗅覺微課｜Day '+String(day).padStart(3,'0'), '',
   ...slides.slice(1,5).map((p,i)=>String(i+1)+'. '+p.title+'：'+p.body),
@@ -78,7 +83,7 @@ if(lesson){
  const edition=sensory?{edition:'sensory-v2.1',topic_id:lesson.id,category:lesson.category,audience:lesson.audience,history_checked:history.length,editorial_mode:editorialMode}:{};
  await Promise.all([
   fs.writeFile(path.join(folder,'canva-import.html'),canvaImportHtml({title:lesson.title,pages:slides,day,date,sensory})),
-  fs.writeFile(path.join(folder,'lesson.json'),JSON.stringify({date,day,...edition,title:lesson.title,status:'editorial_ready',pages:slides,canvas:{width:1080,height:1350,pages:slides.length},visuals,fields:data,music:lesson.music,claimStatus:lesson.citationStatus},null,2)+'\n'),
+  fs.writeFile(path.join(folder,'lesson.json'),JSON.stringify({date,day,...edition,title:lesson.title,status:'editorial_ready',pages:slides,canvas:{width:1080,height:1350,pages:slides.length},visuals,fields:data,music:lesson.music,...metadata,caption,claimStatus:lesson.citationStatus},null,2)+'\n'),
   fs.writeFile(path.join(folder,dataFile),csv),
   fs.writeFile(path.join(folder,'caption.md'),caption+'\n'),
   fs.writeFile(path.join(folder,'visual-brief.md'),visualBrief+'\n'),

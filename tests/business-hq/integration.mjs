@@ -94,3 +94,5 @@ assert.equal((await call(b,{action:'hq_review',run_id:assistedRun.id,decision:'a
 assert.equal((await call(b,{action:'hq_snapshot'})).opportunities.find(o=>o.id===assistedOpportunity.id).stage,'approved');
 pass('R2-closed-loop','Synthetic search and model responses, real public source, persisted search audit/analysis/CRM draft, manual approval and authenticated readback. No live search or model API call.');
 await mkdir('test-artifacts',{recursive:true});await writeFile('test-artifacts/hq-real-integration.json',JSON.stringify({tested_at:new Date().toISOString(),environment:'isolated PostgreSQL + Supabase Auth + PostgREST',production_modified:false,live_public_source:'https://www.mozilla.org/en-US/about/',source_checked_at:opportunity.source_checked_at,results},null,2));
+await (await import('./editorial-operations.mjs')).testEditorialOperations({cfg,owner:a,other:b});
+await import('./proactive-schedule.mjs');
