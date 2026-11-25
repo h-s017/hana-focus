@@ -20,7 +20,7 @@ concurrency:
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 28
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,15 +30,22 @@ jobs:
         run: |
           node tests/office/social-daily.test.mjs
           node tests/office/three-agent-status.test.mjs
-      - name: Generate 6-page editable-copy source and IG caption
+      - name: Prepare daily HANA editorial copy, palette and shot list
         env:
           LESSON_DATE: ${{ inputs.lesson_date }}
+          HANA_SOCIAL_EDITORIAL_ENABLED: ${{ vars.HANA_SOCIAL_EDITORIAL_ENABLED }}
+          HANA_SOCIAL_EDITORIAL_MODEL: ${{ vars.HANA_SOCIAL_EDITORIAL_MODEL }}
+          HANA_SOCIAL_EDITORIAL_API_KEY: ${{ secrets.HANA_SOCIAL_EDITORIAL_API_KEY }}
         run: node scripts/social-editor.mjs
       - name: Install pinned editable PowerPoint builder
         run: python -m pip install --disable-pip-version-check --no-input python-pptx==1.0.2
       - name: Build Canva Connect-compatible PowerPoint source
         env:
           LESSON_DATE: ${{ inputs.lesson_date }}
+          # Generated photos enter a public source repository only if separately approved.
+          HANA_SOCIAL_IMAGE_ENABLED: ${{ vars.HANA_SOCIAL_IMAGE_ENABLED == '1' && vars.HANA_SOCIAL_PUBLIC_SOURCE_APPROVED == '1' && '1' || '0' }}
+          HANA_SOCIAL_IMAGE_MODEL: ${{ vars.HANA_SOCIAL_IMAGE_MODEL }}
+          HANA_SOCIAL_IMAGE_API_KEY: ${{ secrets.HANA_SOCIAL_IMAGE_API_KEY }}
         run: python scripts/social-canva-pptx.py
       - name: Verify image layers and editable text (not aesthetic approval)
         env:
@@ -57,13 +64,15 @@ jobs:
               print('BLOCKED: original artwork not ready; copy retained, no placeholder design accepted')
           else:
               prs=Presentation(file)
-              assert len(prs.slides)==6
+              expected=7 if lesson.get('edition')=='sensory-v2.1' else 6
+              assert len(prs.slides)==expected==lesson.get('canvas',{}).get('pages')
               assert all(len([s for s in page.shapes if s.shape_type==13])==1 for page in prs.slides)
               assert prs.slide_width*5==prs.slide_height*4
               assert all(len([sh for sh in page.shapes if sh.has_text_frame and sh.text.strip()])>=4 for page in prs.slides)
-              print('PASS: 6 individual image layers and editable text; founder visual review remains pending')
+              print(f'PASS: {expected} individual image layers and editable text; founder visual review remains pending')
           PYTEST
       - name: Commit daily source package (NOT Canva or Instagram publication)
+        if: github.ref == 'refs/heads/hana-focus-preview'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
