@@ -20,6 +20,8 @@ import {publicBusinessDiscovery} from './hq-discovery.mjs';
 import {businessAnalysis} from './hq-analysis.mjs';
 import {hqStore} from './hq-store.mjs';
 import {publicSourceReader} from './hq-source.mjs';
+import {proactiveHQ} from './hq-proactive.mjs';
+import {nationwideResearch} from './hq-national-research.mjs';
 const env=(name:string)=>Deno.env.get(name)||'';
 const {store,authenticate}=automationStore({url:env('SUPABASE_URL'),service:env('SUPABASE_SERVICE_ROLE_KEY')});
 let encryption=null;try{if(env('HANA_CONNECTOR_ENCRYPTION_KEY'))encryption=cipher(env('HANA_CONNECTOR_ENCRYPTION_KEY'));}catch{}
@@ -40,14 +42,18 @@ const canva=canvaOAuth({clientId:env('CANVA_CLIENT_ID'),clientSecret:env('CANVA_
 const syncEnabled=env('HANA_CALENDAR_SYNC_ENABLED')==='true';
 const googleSync=syncEnabled?googleOAuth({...monthlyOptions,sync:true}):null;
 const calendarSync=calendarSyncService({ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),store,enabled:syncEnabled,google:googleSyncApi(monthlyOptions),reservations:reservationSyncApi({token:env('RESERVATION_SYNC_TOKEN')})});
+const businessStore=hqStore({url:env('SUPABASE_URL'),service:env('SUPABASE_SERVICE_ROLE_KEY')});
+const proactive=proactiveHQ({store:businessStore,research:nationwideResearch(),owner:env('HANA_HQ_WORKER_OWNER_ID'),
+ enabled:env('HANA_HQ_SCHEDULE_ENABLED')==='true',secret:env('HANA_HQ_WORKER_TOKEN'),
+ analyze:businessAnalysis(agentProvider({enabled:env('HANA_HQ_SCHEDULE_AI_ENABLED')==='true',apiKey:env('OPENAI_API_KEY'),model:env('HANA_HQ_ANALYSIS_MODEL')}))});
 const hq=businessHQ({
- store:hqStore({url:env('SUPABASE_URL'),service:env('SUPABASE_SERVICE_ROLE_KEY')}),
+ store:businessStore,
  sourceReader:publicSourceReader({allowedHosts:env('HANA_HQ_SOURCE_HOSTS').split(',').map(s=>s.trim()).filter(Boolean)}),
  discovery:publicBusinessDiscovery({enabled:env('HANA_HQ_DISCOVERY_ENABLED')==='true',apiKey:env('BRAVE_SEARCH_API_KEY')}),
  analyze:businessAnalysis(agentProvider({enabled:env('HANA_HQ_ANALYSIS_ENABLED')==='true',apiKey:env('OPENAI_API_KEY'),model:env('HANA_HQ_ANALYSIS_MODEL')})),
  recordDiscovery:async(owner,count)=>{await store.event(owner,'Business HQ',null,null,'hq_discovery_completed',{candidate_count:count,provider:'brave',external_delivery:false});},
 });
-const controls=control({businessHQ:hq,googleSyncOAuth:googleSync,calendarSync,canvaOAuth:canva,googleOAuth:google,store,authenticate,connector,readiness,calendarPreview:calendar,booking:bookingService({store,reservations}),reservations,monthly,focus});
+const controls=control({businessHQ:(owner:string,body:{action:string})=>['hq_profile','hq_profile_save'].includes(body.action)?proactive.account(owner,body):hq(owner,body),googleSyncOAuth:googleSync,calendarSync,canvaOAuth:canva,googleOAuth:google,store,authenticate,connector,readiness,calendarPreview:calendar,booking:bookingService({store,reservations}),reservations,monthly,focus});
 // This function performs its own per-request Auth validation; the NT$0 cron runs SQL locally.
 // every user action validates the bearer with Supabase Auth and trusted app_metadata.
 // Existing hana-agent retains verify_jwt=true and its paid-call switch remains off.
@@ -68,6 +74,7 @@ Deno.serve((req:Request)=>{
  const route=new URL(req.url).pathname;
  if(route.endsWith('/monthly-worker'))return worker(req);
  if(route.endsWith('/canva-worker'))return canvaScheduledRequest(req);
+ if(route.endsWith('/hq-worker'))return proactive.worker(req);
  return controls(req);
 });
 

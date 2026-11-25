@@ -46,6 +46,7 @@ if(!installed){
  for(const file of ['supabase/schema/hana-office-review.sql','supabase/schema/hana-automation.sql','supabase/schema/hana-project-materials.sql','supabase/schema/hana-booking-changes.sql','supabase/schema/hana-free-worker.sql','supabase/schema/hana-monthly-calendar.sql','supabase/migrations/20261025173059_focus_central_workspace.sql','supabase/migrations/20261104180000_intake_receipts.sql'])sql(await readFile(root+file,'utf8'));
 }
 const migration=await readFile(root+'supabase/migrations/20261124114411_business_hq_phase1.sql','utf8');sql('begin;'+migration+'commit;');sql('begin;'+migration+'commit;');
+const proactive=await readFile(root+'supabase/migrations/20261125181132_business_hq_proactive.sql','utf8');sql('begin;'+proactive+'commit;');sql('begin;'+proactive+'commit;');
 await ensure('hana-hq-test-rest','public.ecr.aws/supabase/postgrest:v16.6','55433:3000',{
  PGRST_DB_URI:'postgres://authenticator:'+config.password+'@hana-hq-test-pg:5432/hana_hq_test',PGRST_DB_SCHEMAS:'public',PGRST_DB_ANON_ROLE:'anon',PGRST_JWT_SECRET:config.secret
 });

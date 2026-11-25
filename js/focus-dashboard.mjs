@@ -1,4 +1,4 @@
-import {mountBusinessHQ} from './business-hq.mjs?v=business-hq-review2-20261126';
+import {mountBusinessHQ} from './business-hq.mjs?v=business-hq-nationwide-20261126';
 import {workStages,workStageText} from './work-stage.mjs';
 import {focusSummary,AGENT_ROLES} from './focus-domain.mjs';
 import {makeBackup,restoreBackup} from './focus-backup.mjs';
@@ -34,7 +34,9 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
  const settingsLink=el('a','開啟 Supabase 安全服務端設定');settingsLink.href='https://supabase.com/dashboard/project/ihmvziqisputjnjkuhvm/functions';settingsLink.target='_blank';settingsLink.rel='noopener noreferrer';settings.append(settingsLink);
  const advanced=el('details');advanced.className='focus-advanced';advanced.append(el('summary','資料管理與進階設定'),migration,sourceBundle,settings);const threeAgents=el('div');threeAgents.id='hana-three-agents';threeAgents.hidden=!['work','agents'].includes(view);
  const hqHost=el('section'),legacyTools=el('details');legacyTools.append(el('summary','封存：舊版工具與執行紀錄'),threeAgents);advanced.append(legacyTools);
- host.replaceChildren(head,help,hqHost,controls,projectHint,projectSetup,status,taskForm,content,advanced);
+ const manualHQ=button('手動搜尋與建檔',()=>{manualHQ.setAttribute('aria-expanded',String(manualHQ.getAttribute('aria-expanded')!=='true'));applyView();});
+ manualHQ.hidden=true;manualHQ.setAttribute('aria-expanded','false');
+ host.replaceChildren(head,help,hqHost,controls,projectHint,projectSetup,status,manualHQ,taskForm,content,advanced);
  hqController=mountBusinessHQ(hqHost,{db,owner,form:taskForm,titleInput:title,briefInput:brief,onModeChange:()=>{if(hqController)applyView();}});
  const agentController=mountThreeAgentConsole(threeAgents,{db});
  function download(text,name,mime='application/json;charset=utf-8'){const url=URL.createObjectURL(new Blob([text],{type:mime})),a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
@@ -106,7 +108,8 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
   titleLabel.firstChild.textContent=businessPage?'商機開發目標':'交辦什麼事？';
   title.setAttribute('aria-label',businessPage?'商機開發目標':'新增雲端工作');
   aiStatus.textContent=data?.ai_drafts_available?'已開放逐項確認的 AI 草稿，成果會進入人工審核。':'生成式 AI 尚未啟用。三個角色可使用免費分析工具。';
-  threeAgents.hidden=!['work','agents'].includes(view)||workspace==='church';taskForm.hidden=!['business-hq','work','agents','church'].includes(view);advanced.hidden=!['work','projects','church','agents'].includes(view);const quick=content.querySelector('[data-focus-quick]');if(quick)quick.hidden=!['work','agents','church'].includes(view);
+  manualHQ.hidden=!businessPage||isChurch;
+  threeAgents.hidden=!['work','agents'].includes(view)||workspace==='church';taskForm.hidden=!['business-hq','work','agents','church'].includes(view)||(businessPage&&manualHQ.getAttribute('aria-expanded')!=='true');advanced.hidden=!['work','projects','church','agents'].includes(view);const quick=content.querySelector('[data-focus-quick]');if(quick)quick.hidden=!['work','agents','church'].includes(view);
   const project=data?.projects.find(p=>p.id===projectId),summary=data?focusSummary(currentTasks().filter(t=>t.version_id===project?.active_version_id)):null;
   for(const section of content.querySelectorAll('[data-focus-section]')){const name=section.dataset.focusSection;section.hidden=names?!names.includes(name):false;if(name==='需要注意的任務衝突'&&data&&!data.conflicts.some(c=>c.project_id===projectId&&c.state==='pending')&&!summary.overdue.length&&!summary.dependencyConflicts.length)section.hidden=true;if(['projects','reviews','activity'].includes(view)&&section.tagName==='DETAILS'&&!section.hidden)section.open=true;}
  }

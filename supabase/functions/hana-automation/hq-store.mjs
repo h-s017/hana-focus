@@ -7,6 +7,9 @@ export function hqStore({url,service,fetcher=fetch}){
   return data;
  };
  return {
+  hqProfile:(o,p)=>rpc('hana_hq_profile',{p_owner:o,p_profile:p}),
+  hqDailyClaim:o=>rpc('hana_hq_daily_claim',{p_owner:o}),
+  hqDailyFinish:(o,id,status,report,candidates,skill)=>rpc('hana_hq_daily_finish',{p_owner:o,p_id:id,p_status:status,p_report:report,p_candidates:candidates,p_skill:skill}),
   hqStart:(o,r,input,skill,retry)=>rpc('hana_hq_start',{p_owner:o,p_request:r,p_input:input,p_skill:skill,p_retry:retry}),
   hqFinish:(o,r,token,payload)=>rpc('hana_hq_finish',{p_owner:o,p_run:r,p_attempt:token,p_payload:payload}),
   hqSnapshot:o=>rpc('hana_hq_snapshot',{p_owner:o}),
