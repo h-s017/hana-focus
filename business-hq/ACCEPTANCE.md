@@ -4,12 +4,12 @@
 
 | 項目 | 版本與驗收狀態 |
 |---|---|
-| GitHub Pages | [PR #54](https://github.com/h-s017/hana-focus/pull/54) 已發布。正式介面顯示「尋找商機」，按鈕由服務端可用狀態控制。[發布紀錄](https://github.com/h-s017/hana-focus/actions/runs/45422028210) |
-| 正式 Edge | 依第二輪獨立驗收，`hana-automation` v31 未包含 `hq-discovery.mjs`。本次可確認端點拒絕未登入請求。部署連接器未提供有效的專案連線，因此尚未更新或以管理權限重新讀取版本。 |
+| GitHub Pages | 第二輪由 [PR #55](https://github.com/h-s017/hana-focus/pull/55) 同步發布。正式資產以 `business-hq-review2-20261126` 識別。[Pages 部署紀錄](https://github.com/h-s017/hana-focus/deployments/github-pages) |
+| 正式 Edge | 2026-11-26 已恢復既有 `hana-ai-office` 部署存取，確認 v31 缺少 `hq-discovery.mjs`，更新至 `hana-automation` v32。從 Supabase 管理端讀回 34 個檔案，比對內容一致，包含 `hq-discovery.mjs` 與 `hq-analysis.mjs`。部署雜湊為 `4df4799bfae10ed068797289347f016b6a389908d727c94561e1736ea32c8e08`。正式端點拒絕未登入請求（`401 login_required`）。 |
 | 商務流程 | 既有規則式流程可批次選入候選、送出來源查核並保存 CRM。生成式分析為逐批選用。只使用通過白名單及公司名稱查核的公開頁面，並核對模型所引原文。具體需求仍列為待訪談假設。 |
 | 紀錄與審核 | 搜尋完成只留下供應商與候選筆數。建檔記錄來源、引文、內容雜湊、分析成果與人工審核。CRM 的 AI 草稿及分析報告可分別從商機和執行紀錄回讀。原有一般工作列表沿用舊版摘要，AI 報告位於 Business HQ。 |
 | 技能接通 | 「業務與行銷」有建檔和審核流程，其搜尋、公開來源與生成式分析各自顯示設定狀態。其他六項只有文件。已設定代表工具有足夠設定啟動，成功與否以執行紀錄為準。 |
-| 真實端到端 | 正式帳號可以開啟 Business HQ，畫面顯示搜尋服務尚未啟用、沒有商機紀錄。正式搜尋、分析、儲存、審核及重新登入回讀待驗收。隔離測試使用真實 Auth、資料庫及公開來源，搜尋與模型回應使用標示的測試資料。 |
+| 真實端到端 | 正式搜尋與生成式分析維持停用。正式搜尋、分析、儲存、審核及重新登入回讀待驗收。[隔離測試](https://github.com/h-s017/hana-focus/actions/runs/45668141868/job/139395789972) 使用真實 Auth、資料庫及公開來源，搜尋與模型回應使用標示的測試資料。 |
 
 ### 搜尋和模型費用
 
@@ -19,7 +19,7 @@
 
 ### 正式驗收條件
 
-1. 恢復 `hana-ai-office` 既有專案部署權限。先比對現行正式檔案，再部署已審核的 Edge 並讀回版本與執行檔。正式更新可先維持搜尋和模型停用。
+1. `hana-ai-office` 既有專案部署權限已恢復，Edge v32 版本與執行檔已讀回比對。正式發布時維持搜尋和模型停用。
 2. 確認 Brave 帳號、儲存條款與免費額度後，於 Supabase Secrets 設定 `BRAVE_SEARCH_API_KEY` 和 `HANA_HQ_DISCOVERY_ENABLED=true`。模型另需核准 `HANA_HQ_ANALYSIS_MODEL` 與用量，再安全設定 `OPENAI_API_KEY` 及 `HANA_HQ_ANALYSIS_ENABLED=true`。正式來源白名單仍以 `HANA_HQ_SOURCE_HOSTS` 管理。
 3. 以指定的授權帳號尋找一批候選，人工選入測試樣本，核對實際搜尋筆數、公開來源、模型引文與 CRM 草稿。內部審核後重新登入讀回相同紀錄並核對無重複保存。將測試樣本明確標示為測試，保留資料供驗收。
 
