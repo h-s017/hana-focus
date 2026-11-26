@@ -16,7 +16,7 @@ concurrency:
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 28
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,6 +26,9 @@ jobs:
           node-version: '22'
       - name: Check the editorial content and state rules
         run: node --test tests/office/social-daily.test.mjs tests/office/three-agent-status.test.mjs
+      - name: Install the existing photo and editable-deck builder
+        if: github.ref == 'refs/heads/hana-focus-preview' && vars.HANA_EDITORIAL_SYNC_ENABLED == '1' && vars.HANA_SOCIAL_PRIVATE_IMAGE_APPROVED == '1'
+        run: python -m pip install --disable-pip-version-check --no-input python-pptx==1.0.2
       - name: Prepare and reconcile due editorial tasks
         env:
           LESSON_DATE: ${{ inputs.lesson_date }}
@@ -34,6 +37,9 @@ jobs:
           HANA_SOCIAL_EDITORIAL_ENABLED: ${{ github.ref == 'refs/heads/hana-focus-preview' && vars.HANA_SOCIAL_EDITORIAL_ENABLED == '1' && '1' || '0' }}
           HANA_SOCIAL_EDITORIAL_MODEL: ${{ vars.HANA_SOCIAL_EDITORIAL_MODEL }}
           HANA_SOCIAL_EDITORIAL_API_KEY: ${{ github.ref == 'refs/heads/hana-focus-preview' && secrets.HANA_SOCIAL_EDITORIAL_API_KEY || '' }}
+          HANA_SOCIAL_IMAGE_ENABLED: ${{ github.ref == 'refs/heads/hana-focus-preview' && vars.HANA_EDITORIAL_SYNC_ENABLED == '1' && vars.HANA_SOCIAL_PRIVATE_IMAGE_APPROVED == '1' && '1' || '0' }}
+          HANA_SOCIAL_IMAGE_MODEL: ${{ vars.HANA_SOCIAL_IMAGE_MODEL }}
+          HANA_SOCIAL_IMAGE_API_KEY: ${{ github.ref == 'refs/heads/hana-focus-preview' && vars.HANA_SOCIAL_PRIVATE_IMAGE_APPROVED == '1' && secrets.HANA_SOCIAL_IMAGE_API_KEY || '' }}
         run: node scripts/run-editorial-operations.mjs
       - uses: actions/upload-artifact@v4
         if: always()

@@ -51,8 +51,8 @@ export function editorialAssessment(kind,content,proof={}){
  return missing;
 }
 
-/** @param {{store:any,owner:string,token:string,enabled:boolean,verify?:(owner:string,kind:string,content:any,proof:any)=>Promise<Record<string,any>>,now?:()=>Date}} options */
-export function editorialDelivery({store,owner,token,enabled,verify,now=()=>new Date()}){
+/** @param {{store:any,owner:string,token:string,enabled:boolean,verify?:(owner:string,kind:string,content:any,proof:any)=>Promise<Record<string,any>>,media?:ReturnType<typeof import('./editorial-media.mjs').editorialMedia>,now?:()=>Date}} options */
+export function editorialDelivery({store,owner,token,enabled,verify,media,now=()=>new Date()}){
  const authorized=async supplied=>{
   if(!enabled||!owner||token.length<32||supplied.length!==token.length)return false;
   const [left,right]=await Promise.all([timeDigest(supplied),timeDigest(token)]);
@@ -63,6 +63,19 @@ export function editorialDelivery({store,owner,token,enabled,verify,now=()=>new 
   if(req.method!=='POST')return json({error:'method_not_allowed'},405);
   if(!await authorized(req.headers.get('x-hana-editorial-worker')||''))return json({error:'unauthorized'},401);
   try{
+   const query=new URL(req.url).searchParams;
+   if(query.has('asset')){
+    const id=query.get('id')||'';
+    if(!media||!idPattern.test(id))return json({error:'editorial_invalid'},400);
+    const record=await store.editorialGet(owner,id);
+    if(record?.state!=='running')return json({error:'editorial_conflict'},409);
+    try{return json(await media.upload(owner,record,query.get('asset'),req));}
+    catch(error){
+     const code=error.code;
+     const statuses={editorial_media_invalid_slot:400,editorial_media_invalid_png:400,editorial_media_wrong_dimensions:400,editorial_media_too_large:413,editorial_media_slot_conflict:409};
+     return json({error:statuses[code]?code:'editorial_media_storage_unavailable'},statuses[code]||503);
+    }
+   }
    const text=await req.text();if(text.length>115000)return json({error:'editorial_input_too_large'},413);
    const body=JSON.parse(text||'{}');
    if(body.action==='history')return json({entries:await store.editorialList(owner)});
@@ -73,6 +86,7 @@ export function editorialDelivery({store,owner,token,enabled,verify,now=()=>new 
    if(record?.kind!==body.kind||record.local_day!==body.date||record.state!=='running')return json({error:'editorial_conflict'},409);
    const content=body.content;
    const proof=verify?await verify(owner,body.kind,content,body.evidence):{};
+   if(media)Object.assign(proof,await media.assess(owner,record));
    const missing=editorialAssessment(body.kind,content,proof);
    const stage=body.failed===true?'failed':body.blocked===true||!valid(content.title)?'blocked':missing.length?'partial':'ready_for_review';
    const reason=/^[a-z][a-z_0-9]{1,60}$/.test(body.reason||'')?body.reason:null;
@@ -82,6 +96,12 @@ export function editorialDelivery({store,owner,token,enabled,verify,now=()=>new 
  async function account(owner,body){
   if(body.workspace!=='work')throw Error('editorial_work_only');
   if(body.action==='editorial_snapshot')return {entries:await store.editorialList(owner)};
+  if(body.action==='editorial_asset'){
+   if(!media||!idPattern.test(body.id||'')||typeof body.slot!=='string')throw Error('editorial_invalid');
+   const record=await store.editorialGet(owner,body.id);
+   if(!record)throw Error('editorial_invalid');
+   return media.open(owner,record,body.slot);
+  }
   if(body.action!=='editorial_decide'||!idPattern.test(body.id||'')||!['approve','revise','retry'].includes(body.decision)||typeof (body.note??'')!=='string'||(body.note||'').length>2000)throw Error('editorial_invalid');
   return store.editorialDecide(owner,body.id,body.decision,body.note||'');
  }

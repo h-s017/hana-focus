@@ -9,7 +9,7 @@ export function automationStore({url,service,fetcher=fetch}) {
  const store={...base.store,
   editorialList:owner=>rpc('hana_editorial_list',{p_owner:owner}),
   editorialClaim:(owner,day,kind)=>rpc('hana_editorial_claim',{p_owner:owner,p_day:day,p_kind:kind}),
-  async editorialGet(owner,id){return (await request(query('hana_editorial_versions',{owner_id:'eq.'+owner,id:'eq.'+id,select:'kind,local_day,state'})))[0]||null;},
+  async editorialGet(owner,id){return (await request(query('hana_editorial_versions',{owner_id:'eq.'+owner,id:'eq.'+id,select:'id,kind,local_day,state,evidence'})))[0]||null;},
   editorialFinish:(owner,id,state,payload,evidence,missing,error)=>rpc('hana_editorial_finish',{p_owner:owner,p_id:id,p_state:state,p_payload:payload,p_evidence:evidence,p_missing:missing,p_error:error}),
   editorialDecide:(owner,id,action,note)=>rpc('hana_editorial_decide',{p_owner:owner,p_id:id,p_action:action,p_note:note}),
   calendarLock:(owner,token)=>rpc('hana_calendar_sync_lock',{p_owner:owner,p_token:token}),

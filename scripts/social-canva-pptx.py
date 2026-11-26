@@ -148,7 +148,8 @@ def main():
     date=os.getenv("LESSON_DATE") or datetime.now(ZoneInfo("Asia/Taipei")).strftime("%Y-%m-%d")
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}",date):
         raise SystemExit("Invalid LESSON_DATE")
-    path=ROOT / "content" / "instagram" / date / "lesson.json"
+    output_root=Path(os.environ["HANA_SOCIAL_OUTPUT_ROOT"]).resolve() if os.getenv("HANA_SOCIAL_OUTPUT_ROOT") else ROOT
+    path=output_root / "content" / "instagram" / date / "lesson.json"
     lesson=json.loads(path.read_text(encoding="utf-8"))
     if lesson.get("status")!="editorial_ready" or lesson.get("date")!=date:
         print("SKIP: no validated editorial for "+date+"; no fake Canva design created")
@@ -182,7 +183,7 @@ def main():
     atomic_json(path,lesson)
     if sensory:
         record_visual_stage(path,lesson,'visual_human_review_pending')
-    print(f"PASS: editable {count}-page Canva PowerPoint source: "+str(output.relative_to(ROOT)))
+    print(f"PASS: editable {count}-page Canva PowerPoint source: "+str(output.relative_to(output_root)))
     print("DRAFT: custom PowerPoint typography is not verified against the native Canva reference")
 if __name__=="__main__":
     main()

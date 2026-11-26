@@ -13,7 +13,7 @@ export function control({authenticate,store,connector,readiness,calendarPreview,
   try{
    const text=await req.text();if(text.length>600000)return response({error:'invalid_body'},400);const body=JSON.parse(text);
    if(!body||typeof body!=='object')return response({error:'invalid_body'},400);
-   if(['editorial_snapshot','editorial_decide'].includes(body.action)){
+   if(['editorial_snapshot','editorial_decide','editorial_asset'].includes(body.action)){
     if(!editorial)return response({error:'editorial_setup_required'},409);
     try{return response(await editorial(owner,body));}catch{return response({error:'editorial_operation_unconfirmed'},409);}
    }

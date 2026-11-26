@@ -1,5 +1,22 @@
 -- Versioned assets and review receipts for the existing HANA FOCUS.
 -- Scheduling, provider authorization and publication are outside this migration.
+insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
+values ('hana-editorial-private','hana-editorial-private',false,8388608,array['image/png'])
+on conflict(id) do nothing;
+
+do $$
+begin
+ if not exists(select 1 from storage.buckets where id='hana-editorial-private' and not public
+  and file_size_limit=8388608 and allowed_mime_types=array['image/png']) then
+  raise exception 'editorial_storage_bucket_conflict';
+ end if;
+ if not exists(select 1 from pg_catalog.pg_policies where schemaname='storage' and tablename='objects'
+  and policyname='hana_editorial_private_service_only') then
+  create policy hana_editorial_private_service_only on storage.objects as restrictive for all to anon,authenticated
+   using (bucket_id<>'hana-editorial-private') with check (bucket_id<>'hana-editorial-private');
+ end if;
+end $$;
+
 create table if not exists public.hana_editorial_versions (
  id uuid primary key default gen_random_uuid(),
  owner_id uuid not null references auth.users(id),

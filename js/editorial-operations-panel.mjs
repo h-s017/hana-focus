@@ -29,7 +29,28 @@ export function mountEditorialOperations(invoke){
   if(p.hashtags?.length)details.append(el('p',p.hashtags.join(' ')));
   const edit=link('開啟已核實的 Canva 編輯稿',e.canva?.editUrl,['www.canva.com']);if(edit)details.append(edit);
   const service=link('核對 HANA 官網入口',e.service_url,['hanascent.com']);if(service)details.append(service);
-  for(const pic of e.images||[]){const asset=link('原始攝影 '+pic.page,pic.viewUrl,['ihmvziqisputjnjkuhvm.supabase.co']);if(asset)details.append(asset);}
+  for(const asset of e.mediaReceipts||[]){
+   const name=asset.slot==='story'?'完整限動':'照片 '+asset.slot.replace('photo-','');
+   const preview=el('div'),previewStatus=el('p');previewStatus.setAttribute('role','status');
+   const show=button('預覽 '+name,async event=>{
+    const trigger=event.currentTarget;
+    if(preview.childElementCount){preview.replaceChildren();return;}
+    trigger.disabled=true;previewStatus.textContent='正在讀取私有素材…';
+    try{
+     const result=await invoke({action:'editorial_asset',workspace:'work',id:row.id,slot:asset.slot});
+     const signed=link('開啟原始 PNG',result.url,['ihmvziqisputjnjkuhvm.supabase.co']);
+     if(!signed)throw Error('editorial_media_invalid_url');
+     const img=el('img');
+     img.alt=name;img.width=asset.width;img.height=asset.height;img.style.cssText='max-width:100%;height:auto';
+     img.referrerPolicy='no-referrer';signed.referrerPolicy='no-referrer';img.src=signed.href;
+     img.onerror=()=>{preview.replaceChildren();previewStatus.textContent='圖片讀取失敗，請重新預覽。';};
+     preview.append(img,signed);previewStatus.textContent='';
+    }catch{previewStatus.textContent='無法讀取私有素材，請稍後重試。';}
+    finally{trigger.disabled=false;}
+   });
+   details.append(show,previewStatus,preview);
+  }
+  if(e.mediaReadFailures?.length)details.append(el('p','素材讀取失敗｜'+e.mediaReadFailures.join('、')));
   if(row.missing?.length)details.append(el('p','缺件｜'+row.missing.map(key=>missingNames[key]||key).join('、')));
   if(row.error_code)details.append(el('p','失敗原因｜'+row.error_code));
   details.append(el('p','執行｜'+time(row.started_at)+' → '+time(row.finished_at)),el('p','紀錄 ID '+row.id));

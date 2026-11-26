@@ -18,7 +18,11 @@ Brave Search 每千次 US$5，官方列有每月 US$5 的 Search 抵用額度。
 
 GitHub 的 Social Editor 排程在台北時間 08:10 準備到期內容。微課、創業者限動各自每日執行，服務文章每三天執行，四個主題每十二天一輪。只有正式分支在明確啟用後使用專用 token 寫入既有 Supabase 審核紀錄。每日稿件保留於審核帳號，原有公開素材保留，執行回條只含狀態與日期。單日同類版本有唯一識別，部分完成與失敗可排入重試，正式發布需另行核准。
 
-三種稿件的隔離驗收覆蓋實際 Supabase Auth、PostgREST、PostgreSQL、官網 CTA 查核、版本重試和帳號隔離。人工驗收另有實際生成 PNG 與三個 Canva 設計，已讀回頁面尺寸及照片、文字圖層。排程仍缺自動圖片生成、私有素材同步及 Canva 圖層回讀的正式連線，缺件時維持部分完成。[整合驗收](https://github.com/h-s017/hana-focus/actions/runs/45717019797)
+三種稿件的隔離驗收覆蓋實際 Supabase Auth、PostgREST、PostgreSQL、官網 CTA 查核、版本重試和帳號隔離。人工驗收另有實際生成 PNG 與三個 Canva 設計，已讀回頁面尺寸及照片、文字圖層。[整合驗收](https://github.com/h-s017/hana-focus/actions/runs/45717019797)
+
+素材由既有 Edge Function 上傳至同專案的私有 Storage bucket。每一版本有獨立目錄和固定檔位。Edge 驗證 PNG 結構、尺寸及 SHA-256，從 Storage 讀回後寫入該版本的素材紀錄。相同內容可確認重送，已存在的檔案不可覆蓋。登入的擁有人可從 HANA FOCUS 取得 120 秒預覽網址。私有預覽和寫入由 `HANA_EDITORIAL_PRIVATE_MEDIA_ENABLED` 保護，停用時保留素材。
+
+已有素材的流程可從 `HANA_EDITORIAL_MEDIA_ROOT/YYYY-MM-DD/<kind>/v<version>/` 提供 `manifest.json` 的 `topic_id` 及同目錄的 `photo-1.png` 等檔案。微課可在核准圖片服務與額度後由 `HANA_SOCIAL_PRIVATE_IMAGE_APPROVED` 啟動既有產圖器，素材留在私有流程。檔案讀回只證明所存檔案，原創、視覺品質與 Canva 圖層需獨立核實。正式服務目前未開啟。
 
 | 驗收 | 本次證據 |
 | --- | --- |

@@ -21,8 +21,9 @@ const types={'.mjs':'text/javascript','.js':'text/javascript','.html':'text/html
 const server=createServer(async(req,res)=>{
  try{
   const u=new URL(req.url,cfg.url);let response;
-  if(u.pathname.startsWith('/auth/v1/')||u.pathname.startsWith('/rest/v1/')){
-   const target=u.pathname.startsWith('/auth/v1/')?cfg.auth+u.pathname.slice('/auth/v1'.length):cfg.rest+u.pathname.slice('/rest/v1'.length);
+  const backend=Object.entries({'/auth/v1':cfg.auth,'/rest/v1':cfg.rest,'/storage/v1':cfg.storage}).find(([prefix])=>u.pathname.startsWith(prefix+'/'));
+  if(backend){
+   const [prefix,origin]=backend,target=origin+u.pathname.slice(prefix.length);
    const body=[];for await(const c of req)body.push(c);const headers={...req.headers};delete headers.host;delete headers['content-length'];delete headers.connection;
    response=await fetch(target+u.search,{method:req.method,headers,body:['GET','HEAD'].includes(req.method)?undefined:Buffer.concat(body)});
   }else if(u.pathname==='/functions/v1/hana-automation'){

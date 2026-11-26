@@ -21,6 +21,7 @@ import {businessAnalysis} from './hq-analysis.mjs';
 import {hqStore} from './hq-store.mjs';
 import {publicSourceReader} from './hq-source.mjs';
 import {checkEditorialSources,editorialDelivery} from './editorial-delivery.mjs';
+import {editorialMedia} from './editorial-media.mjs';
 import {proactiveHQ} from './hq-proactive.mjs';
 import {nationwideResearch} from './hq-national-research.mjs';
 const env=(name:string)=>Deno.env.get(name)||'';
@@ -58,6 +59,7 @@ const hq=businessHQ({
  recordDiscovery:async(owner,count)=>{await store.event(owner,'Business HQ',null,null,'hq_discovery_completed',{candidate_count:count,provider:'brave',external_delivery:false});},
 });
 const editorial=editorialDelivery({store,owner:env('HANA_EDITORIAL_OWNER_ID'),token:env('HANA_EDITORIAL_WORKER_TOKEN'),enabled:env('HANA_EDITORIAL_WORKER_ENABLED')==='true',
+ media:env('HANA_EDITORIAL_PRIVATE_MEDIA_ENABLED')==='true'?editorialMedia({url:env('SUPABASE_URL'),service:env('SUPABASE_SERVICE_ROLE_KEY')}):undefined,
  verify:(owner,kind,content)=>checkEditorialSources(owner,kind,content)});
 const controls=control({businessHQ:(owner:string,body:{action:string})=>['hq_profile','hq_profile_save'].includes(body.action)?proactive.account(owner,body):hq(owner,body),editorial:editorial.account,googleSyncOAuth:googleSync,calendarSync,canvaOAuth:canva,googleOAuth:google,store,authenticate,connector,readiness,calendarPreview:calendar,booking:bookingService({store,reservations}),reservations,monthly,focus});
 // This function performs its own per-request Auth validation; the NT$0 cron runs SQL locally.
