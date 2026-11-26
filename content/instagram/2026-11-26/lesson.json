@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-26",
+  "day": 39,
+  "title": "概念試作的必要性",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "概念試作的必要性",
+      "body": "HANA 嗅覺微課 · Day 039\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "先做小規模驗證",
+      "body": "概念模型能幫助發現原本忽略的問題。"
+    },
+    {
+      "title": "分開美感與功能",
+      "body": "看起來合適，不代表實際使用就一定適合。"
+    },
+    {
+      "title": "保留版本差異",
+      "body": "每次只改一個主要條件，較容易理解變化來源。"
+    },
+    {
+      "title": "先定義完成條件",
+      "body": "明確知道什麼情況下需要繼續修訂。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "為一份提案訂一個可觀察的成功條件與一個待確認項目。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "工作室紙樣桌面",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "039",
+    "DATE": "2026-11-26",
+    "PAGE_01_TITLE": "概念試作的必要性",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 039\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "先做小規模驗證",
+    "PAGE_02_BODY": "概念模型能幫助發現原本忽略的問題。",
+    "PAGE_03_TITLE": "分開美感與功能",
+    "PAGE_03_BODY": "看起來合適，不代表實際使用就一定適合。",
+    "PAGE_04_TITLE": "保留版本差異",
+    "PAGE_04_BODY": "每次只改一個主要條件，較容易理解變化來源。",
+    "PAGE_05_TITLE": "先定義完成條件",
+    "PAGE_05_BODY": "明確知道什麼情況下需要繼續修訂。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "為一份提案訂一個可觀察的成功條件與一個待確認項目。"
+  },
+  "music": {
+    "composer": "J. S. Bach",
+    "work": "The Well-Tempered Clavier, Book I: Prelude in C major, BWV 846",
+    "reason": "以結構整理感受",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
