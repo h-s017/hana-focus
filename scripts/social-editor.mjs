@@ -39,6 +39,9 @@ if(lesson){
  const slides=lesson.pages;
  if(slides.length!==6||slides.some(s=>!s.title||!s.body||s.title.length>60||s.body.length>180))throw Error('Micro-lesson QA failed');
  const data=fields(slides);
+ // Weekly candidate: one existing lesson, no extra filming, no automatic publishing.
+ const reels={status:'storyboard_only',weeklyCandidate:day%7===0,durationSeconds:24,width:1080,height:1920,requiresFilming:false,rendered:false,published:false,founderApprovalRequired:true,recordingRights:'未確認；使用已授權錄音或靜音',visualDirection:'沿用當日獨立原創圖片及統一色調；無人物、器官、柑橘、燒杯、試紙、配方紙；緩慢推移、淡入淡出；不重複素材',scenes:slides.map((p,i)=>({startSeconds:i*4,endSeconds:(i+1)*4,sourceSlide:i+1,caption:p.title,detail:p.body}))};
+ await fs.writeFile(path.join(folder,'reels-brief.json'),JSON.stringify(reels,null,2)+'\n');
  const csv='\uFEFF'+Object.keys(data).map(csvEscape).join(',')+'\r\n'+Object.values(data).map(csvEscape).join(',')+'\r\n';
  const caption=[
   lesson.title,'',
@@ -65,7 +68,7 @@ if(lesson){
  manifest={
   lastRunAt:now.toISOString(),date,day,status:design.canvaCreated?'canva_logged':'editorial_ready',topic:lesson.title,
   ...design,plannedSlideCount:slides.length,imagesGenerated:false,reviewStatus:'internal_automated_checks_passed',published:false,
-  captionPath:folder+'/caption.md',canvaCsvPath:folder+'/'+dataFile,canvaImportPath:folder+'/canva-import.html',lessonPath:folder+'/lesson.json',
+  reelsBriefPath:folder+'/reels-brief.json',reelsStatus:reels.status,reelsWeeklyCandidate:reels.weeklyCandidate,captionPath:folder+'/caption.md',canvaCsvPath:folder+'/'+dataFile,canvaImportPath:folder+'/canva-import.html',lessonPath:folder+'/lesson.json',
   notes:design.canvaCreated?'Preserved separately confirmed Canva result; Instagram not published.':'Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.',
   manualCanvaUploadHelp:site+'/'+folder+'/'+dataFile
  };
