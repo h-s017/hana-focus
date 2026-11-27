@@ -1,7 +1,7 @@
 import {mountDailyAgenda} from './daily-agenda.mjs?v=shared-calendar-20261104b';
 import {mountWorkspaceNavigation} from './workspace-navigation.mjs?v=business-hq-entry-20261124';
 document.documentElement.dataset.focusWorkspace=localStorage.getItem('hana-focus-active-workspace')==='church'?'church':'work';
-import {mountFocusDashboard} from './focus-dashboard.mjs?v=business-hq-review2-20261126';
+import {mountFocusDashboard} from './focus-dashboard.mjs?v=hq-private-strategy-20261127';
 import {mountMonthlyCalendar} from './monthly-calendar-app.mjs?v=compact-calendar-20261104';
 import {mountReservationOrders} from './reservation-orders.mjs?v=intake-history-20261104';
 import {db} from './office-client.mjs';

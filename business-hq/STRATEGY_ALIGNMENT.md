@@ -1,6 +1,14 @@
 # Business HQ — strategy-driven operations contract (v2 proposal)
 
-Status: design contract; not a deployed feature. Extend existing HANA AI OFFICE / HANA FOCUS / Business HQ, not a second Agent, workspace or database. Preserve existing Social Editor, reviews, schedules, CRM and data. Read current code before implementation.
+Status: draft implementation and acceptance contract. The same HANA FOCUS, Business HQ database and Social Editor remain the integration points. Production activation is gated.
+
+## Draft implementation
+
+- Private strategy: the authenticated work route saves owner-approved, append-only revisions. Replaying the same revision is safe and conflicting writes require reload. The public project has no strategy seed. An approved profile supplies its own business lines, operating limits, planning horizon and public-safe research fields.
+- Financial reporting: verified owner records track contracted, invoiced, received and recognized stages independently, in ISO minor units. Each line keeps the same business, payer market, channel and currency across stages. Partner sales remain included in their payer market. Rollups display the scope of known entries, with unknown costs and unsupported metrics left blank. Corporate Strategy and Financial Management reports return the skill version/hash and tool receipt.
+- Sales scheduler: derives priority from an effective private revision, opportunity history and available recorded margin. A run records all configured sales lanes, including lanes blocked by a missing authorized data source. External discovery and analysis receive only the explicitly approved public query and offer. Strategy assumptions, financial records, and targets stay in the project.
+- Data and approvals: owner-confirmed finance records can be imported through the existing HANA FOCUS login. No accounting, enrollment, procurement, manufacturing or MY ORGAN connector is assumed active. Production migration, worker and provider changes remain separate gated steps.
+- Integration verification uses synthesized finance values and a separate isolated database with real authentication and RPC storage. The private business setting is provisioned separately.
 
 ## 1. Private strategy profile
 Persist one owner-scoped, versioned strategy profile in the existing authenticated work workspace. Never store the actual owner financial targets, starting capital, product strategy, customer details or credentials in public GitHub, browser bundles, logs or public latest.json. Profile values are supplied privately by the owner; schema below is illustrative and has no business-specific defaults.

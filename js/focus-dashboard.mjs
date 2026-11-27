@@ -1,4 +1,6 @@
-import {mountBusinessHQ} from './business-hq.mjs?v=business-hq-review2-20261126';
+import {mountBusinessHQ} from './business-hq.mjs?v=business-hq-nationwide-20261126';
+import {mountEditorialOperations} from './editorial-operations-panel.mjs';
+import {mountHQStrategy} from './hq-strategy-panel.mjs';
 import {workStages,workStageText} from './work-stage.mjs';
 import {focusSummary,AGENT_ROLES} from './focus-domain.mjs';
 import {makeBackup,restoreBackup} from './focus-backup.mjs';
@@ -34,7 +36,11 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
  const settingsLink=el('a','開啟 Supabase 安全服務端設定');settingsLink.href='https://supabase.com/dashboard/project/ihmvziqisputjnjkuhvm/functions';settingsLink.target='_blank';settingsLink.rel='noopener noreferrer';settings.append(settingsLink);
  const advanced=el('details');advanced.className='focus-advanced';advanced.append(el('summary','資料管理與進階設定'),migration,sourceBundle,settings);const threeAgents=el('div');threeAgents.id='hana-three-agents';threeAgents.hidden=!['work','agents'].includes(view);
  const hqHost=el('section'),legacyTools=el('details');legacyTools.append(el('summary','封存：舊版工具與執行紀錄'),threeAgents);advanced.append(legacyTools);
- host.replaceChildren(head,help,hqHost,controls,projectHint,projectSetup,status,taskForm,content,advanced);
+ const editorialOperations=mountEditorialOperations(body=>invoke(body));editorialOperations.element.hidden=true;
+ const strategy=mountHQStrategy(body=>invoke(body));
+ const manualHQ=button('手動搜尋與建檔',()=>{manualHQ.setAttribute('aria-expanded',String(manualHQ.getAttribute('aria-expanded')!=='true'));applyView();});
+ manualHQ.hidden=true;manualHQ.setAttribute('aria-expanded','false');
+ host.replaceChildren(head,help,strategy.element,editorialOperations.element,hqHost,controls,projectHint,projectSetup,status,manualHQ,taskForm,content,advanced);
  hqController=mountBusinessHQ(hqHost,{db,owner,form:taskForm,titleInput:title,briefInput:brief,onModeChange:()=>{if(hqController)applyView();}});
  const agentController=mountThreeAgentConsole(threeAgents,{db});
  function download(text,name,mime='application/json;charset=utf-8'){const url=URL.createObjectURL(new Blob([text],{type:mime})),a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
@@ -99,6 +105,8 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
  function applyView(){
   const views={church:['已交辦工作','處理中','等我決定','全部工作與詳細操作','需要注意的任務衝突','執行與操作紀錄'],work:['已交辦工作','處理中','等我決定','全部工作與詳細操作','需要注意的任務衝突'],projects:['正在執行的專案','全部工作與詳細操作','文件與來源','同步狀態','執行與操作紀錄'],agents:['已交辦工作','處理中','等我決定','全部工作與詳細操作','需要注意的任務衝突'],reviews:['等我決定','日曆同步與課程審核','需要注意的任務衝突'],activity:['執行與操作紀錄'],calendar:['本週行事曆','日曆同步與課程審核']};
   const names=views[view],businessPage=view==='business-hq';
+  editorialOperations.setVisible(workspace==='work'&&['work','reviews'].includes(view));
+  strategy.setVisible(workspace==='work'&&['work','business-hq'].includes(view));
   head.hidden=help.hidden=businessPage;
   head.textContent=({work:'工作總覽',projects:'品牌專案',agents:'工作總覽',reviews:'需要我決定',activity:'執行紀錄',church:'教會工作',calendar:'日曆同步'})[view]||'工作總覽';
   help.textContent=({projects:'查看專案範圍、版本、素材、文件與執行紀錄。',reviews:'需要你決策的成果與衝突集中在這裡。',activity:'目前專案的操作紀錄。',church:'教會專案與商務工作分開保存。',calendar:'核對課程與行程同步狀態。'})[view]||'以經營目標交辦工作，查看實際成果、來源與需要你決定的事項。';
@@ -106,7 +114,8 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
   titleLabel.firstChild.textContent=businessPage?'商機開發目標':'交辦什麼事？';
   title.setAttribute('aria-label',businessPage?'商機開發目標':'新增雲端工作');
   aiStatus.textContent=data?.ai_drafts_available?'已開放逐項確認的 AI 草稿，成果會進入人工審核。':'生成式 AI 尚未啟用。三個角色可使用免費分析工具。';
-  threeAgents.hidden=!['work','agents'].includes(view)||workspace==='church';taskForm.hidden=!['business-hq','work','agents','church'].includes(view);advanced.hidden=!['work','projects','church','agents'].includes(view);const quick=content.querySelector('[data-focus-quick]');if(quick)quick.hidden=!['work','agents','church'].includes(view);
+  manualHQ.hidden=!businessPage||isChurch;
+  threeAgents.hidden=!['work','agents'].includes(view)||workspace==='church';taskForm.hidden=!['business-hq','work','agents','church'].includes(view)||(businessPage&&manualHQ.getAttribute('aria-expanded')!=='true');advanced.hidden=!['work','projects','church','agents'].includes(view);const quick=content.querySelector('[data-focus-quick]');if(quick)quick.hidden=!['work','agents','church'].includes(view);
   const project=data?.projects.find(p=>p.id===projectId),summary=data?focusSummary(currentTasks().filter(t=>t.version_id===project?.active_version_id)):null;
   for(const section of content.querySelectorAll('[data-focus-section]')){const name=section.dataset.focusSection;section.hidden=names?!names.includes(name):false;if(name==='需要注意的任務衝突'&&data&&!data.conflicts.some(c=>c.project_id===projectId&&c.state==='pending')&&!summary.overdue.length&&!summary.dependencyConflicts.length)section.hidden=true;if(['projects','reviews','activity'].includes(view)&&section.tagName==='DETAILS'&&!section.hidden)section.open=true;}
  }
@@ -119,6 +128,6 @@ export function mountFocusDashboard(host,{db,owner,onRefresh=()=>{}}){
  if(['work','agents'].includes(view)&&workspace==='work')void agentController.load();
  hqController.setContext(workspace,view);if(workspace==='work'&&view==='work')void hqController.load();
  const timer=setInterval(()=>{if(document.visibilityState==='visible'&&!busy&&!(host.contains(document.activeElement)&&['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)))void load();},30000);void load();
- return ()=>{disposed=true;generation++;clearInterval(timer);window.removeEventListener('hana-workspace-changed',change);window.removeEventListener('hana-focus-view',viewChange);data=null;hqController.dispose();agentController.dispose();host.replaceChildren();};
+ return ()=>{disposed=true;generation++;clearInterval(timer);window.removeEventListener('hana-workspace-changed',change);window.removeEventListener('hana-focus-view',viewChange);data=null;strategy.dispose();editorialOperations.dispose();hqController.dispose();agentController.dispose();host.replaceChildren();};
 }
 

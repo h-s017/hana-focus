@@ -8,18 +8,22 @@ import {businessHQ} from '../../supabase/functions/hana-automation/hq.mjs';
 import {hqStore} from '../../supabase/functions/hana-automation/hq-store.mjs';
 import {publicSourceReader} from '../../supabase/functions/hana-automation/hq-source.mjs';
 import {control} from '../../supabase/functions/hana-automation/control.mjs';
+import {proactiveHQ} from '../../supabase/functions/hana-automation/hq-proactive.mjs';
 const cfg=JSON.parse(await readFile('/tmp/hana-hq-local-env.json','utf8'));
 const {authenticate,store}=automationStore({url:cfg.url,service:cfg.service});
 const sourceReader=publicSourceReader({allowedHosts:(process.env.HANA_HQ_TEST_SOURCE_HOSTS||'www.mozilla.org').split(',').filter(Boolean)});
-const hq=businessHQ({store:hqStore({url:cfg.url,service:cfg.service}),sourceReader});
-const controls=control({authenticate,store,allowedOrigin:cfg.url,businessHQ:hq,focus:focusService({store}),readiness:()=>({mode:'rules',paid_calls_enabled:false})});
+const businessStore=hqStore({url:cfg.url,service:cfg.service});
+const proactive=proactiveHQ({store:businessStore,research:null,owner:null,enabled:false,secret:''});
+const hq=businessHQ({store:businessStore,sourceReader});
+const controls=control({authenticate,store,allowedOrigin:cfg.url,businessHQ:(owner,body)=>['hq_profile','hq_profile_save'].includes(body.action)?proactive.account(owner,body):hq(owner,body),focus:focusService({store}),readiness:()=>({mode:'rules',paid_calls_enabled:false})});
 const root=path.resolve('.');
 const types={'.mjs':'text/javascript','.js':'text/javascript','.html':'text/html','.css':'text/css','.json':'application/json','.png':'image/png','.svg':'image/svg+xml','.webmanifest':'application/manifest+json'};
 const server=createServer(async(req,res)=>{
  try{
   const u=new URL(req.url,cfg.url);let response;
-  if(u.pathname.startsWith('/auth/v1/')||u.pathname.startsWith('/rest/v1/')){
-   const target=u.pathname.startsWith('/auth/v1/')?cfg.auth+u.pathname.slice('/auth/v1'.length):cfg.rest+u.pathname.slice('/rest/v1'.length);
+  const backend=Object.entries({'/auth/v1':cfg.auth,'/rest/v1':cfg.rest,'/storage/v1':cfg.storage}).find(([prefix])=>u.pathname.startsWith(prefix+'/'));
+  if(backend){
+   const [prefix,origin]=backend,target=origin+u.pathname.slice(prefix.length);
    const body=[];for await(const c of req)body.push(c);const headers={...req.headers};delete headers.host;delete headers['content-length'];delete headers.connection;
    response=await fetch(target+u.search,{method:req.method,headers,body:['GET','HEAD'].includes(req.method)?undefined:Buffer.concat(body)});
   }else if(u.pathname==='/functions/v1/hana-automation'){

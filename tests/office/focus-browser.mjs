@@ -7,6 +7,16 @@ export function createClient(){return {auth:{getSession:async()=>({data:{session
  if(body.action==='google_oauth_start'){const state='70000000-0000-4000-8000-000000000001.'+'a'.repeat(43);const url=new URL('https://accounts.google.com/o/oauth2/v2/auth');url.search=new URLSearchParams({state,scope:'https://www.googleapis.com/auth/calendar.readonly',redirect_uri:'https://h-s017.github.io/hana-focus/google-calendar-callback.html',code_challenge_method:'S256',code_challenge:'synthetic-challenge'});return {data:{authorization_url:url.href,state,expires_at:Date.now()+600000},error:null};}
  if(body.action==='google_oauth_finish'){localStorage.setItem('test-oauth-finished','1');return {data:{status:'connected',monthly_verified:false,audit_recorded:true},error:null};}
  if(body.action==='focus_snapshot')return {data:structuredClone(data),error:null};
+ if(body.action==='hq_strategy_snapshot')return {data:{profile:null},error:null};
+ if(body.action==='hq_strategy_report'){
+   window.__focusFixture.reportPeriod=body.period;
+   return {data:{start:'2026-10-25',through:'2026-10-25',currency:null,financial_rows:[],crm_rows:[],unmeasured:['cash_flow']},error:null};
+ }
+ if(body.action==='editorial_snapshot')return {data:{entries:[{id:'editorial-fixture',local_day:'2026-10-25',kind:'founder_story',version:1,state:'partial',payload:{title:'限動驗收樣本',body:'這段文字供手機版審核流程測試。'},evidence:{mediaReceipts:[{slot:'photo-1',width:1080,height:1920,readback:true}]},missing:['verified_original_png','verified_canva_design']}]},error:null};
+ if(body.action==='editorial_asset'){
+   window.__focusFixture.previewRequested=body;
+   return {data:{url:'https://ihmvziqisputjnjkuhvm.supabase.co/storage/v1/object/sign/hana-editorial-private/fixture.png?token=browser-fixture'},error:null};
+ }
  if(body.action==='hq_catalog')return {data:{research:{available:false,discovery:true},skills:[]},error:null};
  if(body.action==='hq_snapshot')return {data:{opportunities:[],runs:[],reviews:[]},error:null};
  if(body.action==='hq_discover'){window.__focusFixture.discovery=body.criteria;return {data:{candidates:[{company_name:'Fixture Hotel',website:'https://fixture-hotel.org/',canonical_domain:'fixture-hotel.org',source_url:'https://fixture-hotel.org/about',source_title:'Fixture Hotel 官方介紹',reason:'搜尋結果提及台北旅宿。',approach:'可評估品牌香氛合作。',excerpt:'台北旅宿搜尋摘要',source_check_available:false}]},error:null};}
@@ -26,8 +36,38 @@ export function createClient(){return {auth:{getSession:async()=>({data:{session
 await page.addInitScript(()=>{localStorage.setItem('focus-test-session','1');const value=JSON.stringify({tasks:[{id:'legacy',title:'kept local',project:'Fixture',status:'進行中',role:'管理',importance:'3',due:'',owner:'yes'}],ideas:['kept idea']});localStorage.setItem('hana-focus-workspace-v2-work',value);localStorage.setItem('hana-focus-workspace-v2-church',JSON.stringify({tasks:[],ideas:['church idea']}));localStorage.setItem('hana-focus-active-workspace','work');for(const key of ['hana-focus-v2-migrated','hana-focus-work-items-20261020-v1','hana-focus-qipao-campaign-20261024-v1'])localStorage.setItem(key,'1');});
 await page.route('**/*',async route=>{const url=new URL(route.request().url());if(url.hostname==='accounts.google.com'){const callback='https://h-s017.github.io/hana-focus/google-calendar-callback.html?code=synthetic-google-code&state='+encodeURIComponent(url.searchParams.get('state'));return route.fulfill({contentType:'text/html',body:'<a href="'+callback.replace(/&/g,'&amp;')+'">Synthetic consent only</a>'});}if(url.hostname==='esm.sh')return route.fulfill({contentType:'application/javascript',body:mock});if(url.hostname!=='h-s017.github.io')return route.abort();let rel=decodeURIComponent(url.pathname).replace(/^\/hana-focus\//,'');if(!rel)rel='index.html';if(rel.includes('..'))return route.abort();try{const body=await readFile(path.resolve(rel));await route.fulfill({contentType:rel.endsWith('.mjs')?'application/javascript':rel.endsWith('.css')?'text/css':rel.endsWith('.html')?'text/html':'application/octet-stream',body});}catch{await route.fulfill({status:204,body:''});}});
 try{
+ await page.route('https://ihmvziqisputjnjkuhvm.supabase.co/storage/v1/object/sign/hana-editorial-private/fixture.png?token=browser-fixture',route=>route.fulfill({
+  contentType:'image/png',body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aR5sAAAAASUVORK5CYII=','base64')
+ }));
  await page.goto('https://h-s017.github.io/hana-focus/index.html');await page.locator('#hana-month-calendar').waitFor({state:'visible'});assert.equal(await page.locator('[data-view=calendar]').getAttribute('aria-current'),'page');await page.getByRole('button',{name:'調整顏色與字型大小',exact:true}).click();const appearance=page.locator('#focus-appearance-dialog');await appearance.waitFor({state:'visible'});assert.equal(await appearance.getByLabel('背景色',{exact:true}).inputValue(),'#ffffff');assert.equal(await appearance.getByLabel('文字顏色',{exact:true}).inputValue(),'#000000');assert.equal(await appearance.getByLabel('字體大小',{exact:true}).inputValue(),'18');await appearance.getByLabel('品牌色／按鈕色',{exact:true}).evaluate(n=>{n.value='#334455';n.dispatchEvent(new Event('input',{bubbles:true}));});await appearance.getByLabel('字體大小',{exact:true}).press('End');await appearance.getByLabel('字體大小',{exact:true}).press('ArrowLeft');await appearance.getByLabel('字體大小',{exact:true}).press('ArrowLeft');await appearance.getByRole('button',{name:'儲存外觀',exact:true}).click();assert.equal(await page.evaluate(()=>getComputedStyle(document.body).fontSize),'22px');await page.reload();await page.getByRole('button',{name:'調整顏色與字型大小',exact:true}).waitFor();assert.equal(await page.evaluate(()=>getComputedStyle(document.body).fontSize),'22px');await page.getByRole('button',{name:'調整顏色與字型大小',exact:true}).click();await appearance.getByLabel('字體大小',{exact:true}).press('End');await appearance.getByRole('button',{name:'取消',exact:true}).click();assert.equal(await page.evaluate(()=>getComputedStyle(document.body).fontSize),'22px');await page.getByRole('button',{name:'調整顏色與字型大小',exact:true}).click();await appearance.getByRole('button',{name:'恢復純白黑字',exact:true}).click();assert.equal(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor),'rgb(255, 255, 255)');assert.equal(await page.evaluate(()=>getComputedStyle(document.body).color),'rgb(0, 0, 0)');assert.equal(await page.evaluate(()=>getComputedStyle(document.body).fontSize),'18px');await page.locator('[data-view=work]').click();const root=page.locator('#office-focus');await root.getByRole('status').filter({hasText:'已更新雲端資料'}).waitFor();
  await mkdir('test-artifacts',{recursive:true});await page.screenshot({path:'test-artifacts/workspace-redesign-mobile.png',fullPage:true});await page.setViewportSize({width:820,height:900});await page.screenshot({path:'test-artifacts/workspace-redesign-desktop.png',fullPage:true});await page.setViewportSize({width:390,height:844});
+ const operating=root.getByRole('heading',{name:'每日營運審核',exact:true}).locator('..');
+ await operating.locator('summary').filter({hasText:'限動驗收樣本'}).first().click();
+ await operating.getByText(/缺件｜原始攝影 PNG、可編輯 Canva 設計/).first().waitFor();
+ const strategy=root.getByRole('heading',{name:'企業經營總覽',exact:true}).locator('..');
+ await strategy.getByText('營收實績未知',{exact:true}).first().waitFor();
+ await strategy.getByLabel('經營報告期間').selectOption('weekly');
+ await page.waitForFunction(()=>window.__focusFixture.reportPeriod==='weekly');
+ assert.equal(await strategy.getByText(/待接入資料.*現金流/).count(),1);
+ assert.equal(await operating.getByRole('button',{name:'核准',exact:true}).count(),0);
+ const currentEdition=operating.locator('summary').filter({hasText:'限動驗收樣本'}).first().locator('..');
+ assert.equal(await page.evaluate(()=>window.__focusFixture.previewRequested),undefined);
+ await currentEdition.getByRole('button',{name:'預覽 照片 1',exact:true}).click();
+ const previewImage=currentEdition.getByRole('img',{name:'照片 1',exact:true});
+ await previewImage.waitFor();
+ await page.waitForFunction(()=>document.querySelector('img[alt="照片 1"]')?.naturalWidth===1);
+ const {request_id,...previewRequest}=await page.evaluate(()=>window.__focusFixture.previewRequested);
+ assert.match(request_id,/^[\da-f-]{36}$/);
+ assert.deepEqual(previewRequest,{action:'editorial_asset',workspace:'work',id:'editorial-fixture',slot:'photo-1'});
+ await currentEdition.getByRole('button',{name:'預覽 照片 1',exact:true}).click();
+ assert.equal(await previewImage.count(),0);
+ for(const width of [320,390,820]){
+  await page.setViewportSize({width,height:900});
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'editorial panel overflow '+width);
+  await operating.screenshot({path:'test-artifacts/editorial-review-'+width+'.png'});
+  await strategy.screenshot({path:'test-artifacts/strategy-review-'+width+'.png'});
+ }
+ await page.setViewportSize({width:390,height:844});
  const nav=page.getByRole('navigation',{name:'工作台主要功能'});await root.getByLabel('新增雲端工作',{exact:true}).fill('unsent requirement');
  assert.equal(await nav.locator('a').count(),8);
  const businessEntry=nav.getByRole('link',{name:'Business HQ 商機與提案',exact:true});
@@ -35,6 +75,9 @@ try{
  await businessEntry.screenshot({path:'test-artifacts/business-hq-entry-mobile.png'});
  await businessEntry.click();
  await root.getByRole('heading',{name:'HANA BUSINESS HQ｜企業經營總部',exact:true}).waitFor();
+ await root.getByRole('heading',{name:'每日商務開發',exact:true}).waitFor();
+ assert.equal(await root.getByLabel('商機開發目標',{exact:true}).isVisible(),false);
+ await root.getByRole('button',{name:'手動搜尋與建檔',exact:true}).click();
  await root.getByRole('button',{name:'核對公司來源並建立商機草稿',exact:true}).waitFor();
  assert.equal(await businessEntry.getAttribute('aria-current'),'page');
  assert.equal(await root.getByLabel('處理方式',{exact:true}).isVisible(),false);
