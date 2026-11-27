@@ -41,11 +41,31 @@ if(!healthy)throw Error('Isolated Auth did not become healthy; inspect local Doc
 sql(`create or replace function auth.uid() returns uuid language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claim.sub',true),''),nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub')::uuid$$;
 create or replace function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),'')::jsonb,'{}'::jsonb)$$;
 grant usage on schema public,auth to anon,authenticated,service_role;`);
+const storagePort=59998;
+await ensure('hana-hq-test-storage','supabase/storage-api:v1.98.6',storagePort+':5000',{
+ ANON_KEY:config.anon,SERVICE_KEY:config.service,AUTH_JWT_SECRET:config.secret,
+ DATABASE_URL:'postgres://postgres:'+config.password+'@hana-hq-test-pg:5432/hana_hq_test',
+ DB_INSTALL_ROLES:'true',
+ STORAGE_BACKEND:'file',FILE_STORAGE_BACKEND_PATH:'/var/lib/storage',FILE_SIZE_LIMIT:'8388608',
+ GLOBAL_S3_BUCKET:'hana-isolated',TENANT_ID:'hana-isolated',REGION:'local',
+ STORAGE_PUBLIC_URL:config.url,REQUEST_ALLOW_X_FORWARDED_PATH:'true',ENABLE_IMAGE_TRANSFORMATION:'false'
+});
+config.storage='http://127.0.0.1:'+storagePort;
+let storageReady=false;
+for(let i=0;i<60;i++){
+ try{storageReady=(await fetch(config.storage+'/status')).ok;if(storageReady)break;}catch{}
+ await new Promise(r=>setTimeout(r,500));
+}
+if(!storageReady)throw Error('Isolated Storage did not become healthy; inspect local Docker logs (no hosted service used).');
+await writeFile(configFile,JSON.stringify(config),{mode:0o600});
 if(!installed){
  const fixture=await readFile(root+'tests/office/db-fixture.sql','utf8');sql(fixture.slice(fixture.indexOf('create table public.hana_tasks')));
  for(const file of ['supabase/schema/hana-office-review.sql','supabase/schema/hana-automation.sql','supabase/schema/hana-project-materials.sql','supabase/schema/hana-booking-changes.sql','supabase/schema/hana-free-worker.sql','supabase/schema/hana-monthly-calendar.sql','supabase/migrations/20261025173059_focus_central_workspace.sql','supabase/migrations/20261104180000_intake_receipts.sql'])sql(await readFile(root+file,'utf8'));
 }
 const migration=await readFile(root+'supabase/migrations/20261124114411_business_hq_phase1.sql','utf8');sql('begin;'+migration+'commit;');sql('begin;'+migration+'commit;');
+const proactive=await readFile(root+'supabase/migrations/20261125181132_business_hq_proactive.sql','utf8');sql('begin;'+proactive+'commit;');sql('begin;'+proactive+'commit;');
+const editorial=await readFile(root+'supabase/migrations/20261125202952_hana_editorial_delivery_history.sql','utf8');sql('begin;'+editorial+'commit;');sql('begin;'+editorial+'commit;');
+const strategy=await readFile(root+'supabase/migrations/20261126182953_hana_hq_private_strategy.sql','utf8');sql('begin;'+strategy+'commit;');sql('begin;'+strategy+'commit;');
 await ensure('hana-hq-test-rest','public.ecr.aws/supabase/postgrest:v16.6','55433:3000',{
  PGRST_DB_URI:'postgres://authenticator:'+config.password+'@hana-hq-test-pg:5432/hana_hq_test',PGRST_DB_SCHEMAS:'public',PGRST_DB_ANON_ROLE:'anon',PGRST_JWT_SECRET:config.secret
 });
@@ -54,5 +74,5 @@ let restReady=false;
 for(let i=0;i<60;i++){try{restReady=(await fetch(config.rest+'/',{headers:{Authorization:'Bearer '+config.anon}})).ok;if(restReady)break;}catch{}await new Promise(r=>setTimeout(r,500));}
 if(!restReady)throw Error('Isolated PostgREST schema cache did not become ready.');
 await mkdir(root+'test-artifacts',{recursive:true});
-await writeFile(root+'test-artifacts/hq-local-stack.json',JSON.stringify({database:'PostgreSQL 17',auth:'Supabase GoTrue v2.198.0',rest:'PostgREST v16.6',production_accessed:false,cron_installed:false,migration_applied_twice:true},null,2));
-console.log('PASS: real isolated PostgreSQL/Auth/REST ready; additive migration applied twice. Credentials remain in /tmp only.');
+await writeFile(root+'test-artifacts/hq-local-stack.json',JSON.stringify({database:'PostgreSQL 17',auth:'Supabase GoTrue v2.198.0',rest:'PostgREST v16.6',storage:'Supabase Storage v1.98.6',production_accessed:false,cron_installed:false,migration_applied_twice:true},null,2));
+console.log('PASS: real isolated PostgreSQL/Auth/REST/Storage ready; additive migration applied twice. Credentials remain in /tmp only.');

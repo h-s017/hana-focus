@@ -9,6 +9,7 @@
   "generation_mode": "individual_images",
   "allow_contact_sheet_slicing": false,
   "default_pages": 6,
+  "sensory_editorial": {"id":"hana-sensory-editorial-v2.1","style":"HANA Sensory Editorial｜HANA 感官誌","pages":7,"starts_on":"2026-11-26"},
   "canvas": {"width": 1080, "height": 1350},
   "requires_founder_review": true,
   "prohibited_visuals": ["humans", "body_parts", "human_organs", "citrus", "excessive_leaf_shadows", "repeated_perfume_bottles", "unlicensed_reuse", "baked_in_text"],

@@ -9,6 +9,9 @@ const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({viewport:{width:390,height:844},serviceWorkers:'block'}),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
+ await page.addLocatorHandler(page.locator('#hana-daily-agenda[open]'),async agenda=>{
+  await agenda.getByRole('button',{name:'關閉今日待辦',exact:true}).click();
+ });
  const cache=new Map();
  // Actual pinned Supabase SDK over verified TLS; no mocked Auth, RPC or HQ API.
  await page.route('https://cdn.jsdelivr.net/**',async route=>{const url=route.request().url();if(!cache.has(url)){const r=await transport.get(url);assert.equal(r.status(),200);cache.set(url,{body:await r.body(),headers:r.headers(),status:r.status()});}await route.fulfill(cache.get(url));});
@@ -19,8 +22,18 @@ try{
  const signIn=()=>page.evaluate(async({email,password})=>{const {db}=await import('/js/office-client.mjs');const {error}=await db.auth.signInWithPassword({email,password});if(error)throw Error('Isolated real login failed');},{email:users.a.email,password:users.a.password});
  await signIn();
  const root=page.locator('#office-focus');await root.getByRole('heading',{name:'HANA BUSINESS HQ｜企業經營總部',exact:true}).waitFor();
- const daily=page.locator('#hana-daily-agenda');if(await daily.isVisible())await daily.getByRole('button',{name:'關閉今日待辦',exact:true}).click();
+ const strategy=root.getByRole('heading',{name:'企業經營總覽',exact:true}).locator('..');
+ await strategy.getByLabel('經營報告期間').selectOption('monthly');
+ await strategy.getByText(/認列 TWD 21\.00/).waitFor();
+ await strategy.getByText(/收款 TWD 21\.00/).waitFor();
+ await root.getByRole('heading',{name:'每日商務開發',exact:true}).waitFor();
+ const settings=root.getByText('服務定位、目標客戶與排程',{exact:true});await settings.click();
+ const scope=root.getByRole('combobox',{name:'搜尋範圍',exact:true});
+ assert.equal(await scope.locator('option').count(),23);
+ assert.equal(await scope.locator('option:checked').textContent(),'全臺灣（含離島）');
+ await settings.click();
  assert.equal(await root.getByLabel('處理方式',{exact:true}).isVisible(),false);
+ await root.getByRole('button',{name:'手動搜尋與建檔',exact:true}).click();
  await root.getByRole('button',{name:'核對公司來源並建立商機草稿',exact:true}).waitFor();
  await root.locator('.hq-results').getByRole('heading',{name:'Mozilla',exact:true}).waitFor();
  const goal='瀏覽器實際持久化與審核驗證 '+randomUUID();
@@ -43,7 +56,7 @@ try{
  page.once('dialog',d=>d.accept());await row.getByRole('button',{name:'退回這批草稿',exact:true}).click();await row.getByText('狀態：已退回',{exact:true}).waitFor();
  await row.getByRole('button',{name:'補齊來源或連線後重試',exact:true}).click();await row.getByText('狀態：待 HANA 審核',{exact:true}).waitFor({timeout:30000});
  page.once('dialog',d=>d.accept());await row.getByRole('button',{name:'核准這批內部草稿',exact:true}).click();await row.getByText('狀態：內部核准・未寄送',{exact:true}).waitFor();
- await page.locator('nav.tiles [data-view=church]').click();await root.getByRole('heading',{name:'教會工作',exact:true}).waitFor();assert.equal(await root.locator('.business-hq').isVisible(),false);assert.equal(await root.locator('.hq-results').isVisible(),false);assert.equal(await root.getByLabel('新增雲端工作',{exact:true}).inputValue(),'');
+ await page.locator('nav.tiles [data-view=church]').click();await root.getByRole('heading',{name:'教會工作',exact:true}).waitFor();assert.equal(await root.locator('.business-hq').isVisible(),false);assert.equal(await root.locator('.hq-results').isVisible(),false);assert.equal(await strategy.isVisible(),false);assert.equal(await root.getByLabel('新增雲端工作',{exact:true}).inputValue(),'');
  await entry.click();await root.locator('.hq-results').getByRole('heading',{name:'Mozilla',exact:true}).waitFor();
  await page.locator('#office-logout').click();await page.locator('#office-private').waitFor({state:'hidden'});assert.equal(await root.textContent(),'');assert.equal(await page.evaluate(()=>Object.keys(sessionStorage).some(k=>k.startsWith('hana-hq-request:'))),false);
  await signIn();await root.locator('.hq-results').getByRole('heading',{name:'Mozilla',exact:true}).waitFor();await row.getByText('狀態：內部核准・未寄送',{exact:true}).waitFor();

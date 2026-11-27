@@ -18,7 +18,7 @@ const a=await user(),b=await user(),denied=await user(false);
 await writeFile('/tmp/hana-hq-local-users.json',JSON.stringify({a,b,denied}),{mode:0o600});
 async function call(owner,body,expected=200){const response=await fetch(cfg.url+'/functions/v1/hana-automation',{method:'POST',headers:{Authorization:'Bearer '+owner.access_token,'Content-Type':'application/json'},body:JSON.stringify({workspace:'work',...body})});const data=await response.json();assert.equal(response.status,expected,JSON.stringify(data));return data;}
 const catalog=await call(a,{action:'hq_catalog'});assert.equal(catalog.skills.length,7);assert.equal(catalog.skills.filter(s=>s.status==='available').length,1);
-const skill=catalog.skills.find(s=>s.id==='sales-marketing');const content=await readFile('business-hq/skills/sales-marketing/SKILL.md','utf8');assert.equal(skill.hash,createHash('sha256').update(content).digest('hex'));
+const skill=catalog.skills.find(s=>s.id==='sales-marketing');const content=(await readFile('business-hq/skills/sales-marketing/SKILL.md','utf8')).replace(/\r\n/g,'\n');assert.equal(skill.hash,createHash('sha256').update(content).digest('hex'));
 const input={workspace:'work',goal:'公開公司來源的隔離驗證，不是 HANA 客戶名單',industry:'Internet',region:'全球',services:'品牌研究',limit:3,companies:[{company_name:'Mozilla',website:'https://www.mozilla.org/',source_url:'https://www.mozilla.org/en-US/about/'}]};
 const incompleteId=randomUUID(),incompleteInput={...input,companies:[{...input.companies[0],source_url:null,manual_excerpt:'Synthetic incomplete source, not verified.'}]};
 assert.equal((await call(a,{action:'hq_run',request_id:incompleteId,input:incompleteInput})).status,'blocked');
@@ -94,3 +94,6 @@ assert.equal((await call(b,{action:'hq_review',run_id:assistedRun.id,decision:'a
 assert.equal((await call(b,{action:'hq_snapshot'})).opportunities.find(o=>o.id===assistedOpportunity.id).stage,'approved');
 pass('R2-closed-loop','Synthetic search and model responses, real public source, persisted search audit/analysis/CRM draft, manual approval and authenticated readback. No live search or model API call.');
 await mkdir('test-artifacts',{recursive:true});await writeFile('test-artifacts/hq-real-integration.json',JSON.stringify({tested_at:new Date().toISOString(),environment:'isolated PostgreSQL + Supabase Auth + PostgREST',production_modified:false,live_public_source:'https://www.mozilla.org/en-US/about/',source_checked_at:opportunity.source_checked_at,results},null,2));
+await (await import('./editorial-operations.mjs')).testEditorialOperations({cfg,owner:a,other:b});
+await (await import('./strategy-operations.mjs')).testStrategyOperations({cfg,owner:a,other:b});
+await import('./proactive-schedule.mjs');

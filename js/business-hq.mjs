@@ -1,5 +1,6 @@
 // HANA BUSINESS HQ is part of the existing signed-in composer, not another board.
 import {taipeiInput} from './calendar-sync-app.mjs';
+import {mountProactiveHQ} from './business-hq-proactive.mjs';
 const labels={'corporate-strategy':'企業策略','operations-management':'營運管理','sales-marketing':'業務與行銷','people-management':'人才與合作','research-development':'研究與開發','financial-management':'財務管理','business-systemization':'經營系統化'};
 const stages={identified:'已識別・待查核',qualified:'已篩選',proposal_draft:'提案草稿',approved:'內部核准・未聯絡',contacted:'已聯絡・人工紀錄',negotiating:'洽談中',won:'成交・人工紀錄',lost:'未成交・人工紀錄'};
 const messages={hq_invalid_input:'請填寫工作目標、產業、區域、服務及1–10的數量上限，並核對每行公司格式。',hq_invalid_source:'來源須為公司公開 HTTPS 網址，且與官網同網域。',hq_manual_record_required:'請確認已實際聯絡，並填寫至少10字的人工紀錄。',hq_setup_required:'商務服務或資料庫尚未接通。',hq_work_only:'商務資料僅限 HANA WORK。',hq_request_conflict:'這個要求的內容或技能版本已改變，請建立新要求。',hq_persistence_uncertain:'保存結果尚未確認。請保持原要求重試，或更新紀錄核對；不會重複建立。',hq_state_conflict:'紀錄已改變，請更新後再試。',hq_source_unavailable:'來源工具尚未接通，人工內容仍未查核。',hq_database_unavailable:'資料庫未能確認成功，請更新並核對原要求。'};
@@ -40,6 +41,7 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
  form.append(fields);
  function download(content,name,mime){const url=URL.createObjectURL(new Blob([content],{type:mime})),a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  async function invoke(body){const {data,error}=await db.functions.invoke('hana-automation',{body:{...body,workspace:'work'}});let code=data?.error;try{if(!code&&error)code=(await error.context?.json())?.error;}catch{}if(error||code)throw Object.assign(Error(code||'hq_persistence_uncertain'),{code:code||'hq_persistence_uncertain'});return data;}
+ const proactive=mountProactiveHQ(invoke);
  const workVisible=()=>workspace==='work'&&['business-hq','work','agents'].includes(view);
  const pendingKey='hana-hq-request:'+owner;
  const confirmAssisted=()=>confirm('使用核准的模型額度，將已核對的公司公開摘錄和本次產業、區域、服務條件交給 OpenAI 進行分析？成果會保存為內部草稿。');
@@ -108,7 +110,7 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
   }
   results.replaceChildren();results.append(el('h3','商機與提案'),el('p','提案先交 HANA 人工審核。實際聯絡與商務進展由你另行記錄。'));
   const bar=el('div');bar.className='hq-actions';bar.append(button('更新商務紀錄',()=>void operate(refresh)),button('建立新的商務要求',()=>{request=null;try{sessionStorage.removeItem(pendingKey);}catch{}notice.textContent='下次送出會建立新要求；既有商機仍依網域去重。';}),button('匯出有來源商機 CSV',()=>download(exportOpportunities(snapshot.opportunities.filter(o=>o.source_checked_at)),'hana-business-opportunities.csv','text/csv;charset=utf-8')),button('匯出商機與提案 JSON',()=>download(JSON.stringify(snapshot,null,2),'hana-business-review.json','application/json;charset=utf-8')));results.append(bar);
-  if(!snapshot.opportunities.length)results.append(el('p','目前沒有商機紀錄。填寫商機開發需求與公司來源，即可建立第一筆。'));
+  if(!snapshot.opportunities.length)results.append(el('p','目前沒有商機紀錄。每日研究產生的候選會出現在這裡，也可使用手動輔助。'));
   for(const o of snapshot.opportunities){
    const scoreLabel=o.score_components?.mode==='assisted'?'AI 評估：':'適配度：';
    const card=el('article');card.className='hq-opportunity';card.append(el('h4',o.company_name),el('p',stages[o.stage]||o.stage),el('p',o.fit_score===null?o.fit_reason:scoreLabel+o.fit_score+'/10｜'+o.fit_reason));
@@ -143,11 +145,11 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
   results.append(runs);
  }
  async function refresh(){const version=epoch;if(!workVisible())return;const value=await invoke({action:'hq_snapshot'});if(!value||!['opportunities','runs','reviews'].every(k=>Array.isArray(value[k])))throw Object.assign(Error(),{code:'hq_setup_required'});if(disposed||version!==epoch||!workVisible())return;snapshot=value;render();}
- async function load(){if(!workVisible())return;const version=epoch;try{const c=await invoke({action:'hq_catalog'});if(disposed||version!==epoch||!workVisible())return;catalogue=c;discoveryStatus.textContent='';updateDiscovery();render();await refresh();notice.textContent=c.research.available?'可查核已授權的公開網址。':'來源工具尚未接通。可保存人工來源，但會標為受阻、未查核。';}catch(e){if(!disposed&&version===epoch){notice.textContent=messages[e.code]||'商務服務尚無法確認，原有工作仍保留。';render();}}}
+ async function load(){if(!workVisible())return;const version=epoch;if(view==='business-hq')void proactive.load();try{const c=await invoke({action:'hq_catalog'});if(disposed||version!==epoch||!workVisible())return;catalogue=c;discoveryStatus.textContent='';updateDiscovery();render();await refresh();notice.textContent=c.research.available?'手動輔助可查核已授權的公開網址。':'手動輔助的來源工具尚未接通。';}catch(e){if(!disposed&&version===epoch){notice.textContent=messages[e.code]||'商務服務尚無法確認，原有工作仍保留。';render();}}}
  async function operate(fn){if(busy||disposed||!workVisible())return;busy=true;const v=epoch;for(const b of host.querySelectorAll('button'))b.disabled=true;try{await fn();}catch(e){if(!disposed&&v===epoch)notice.textContent=messages[e.code]||'操作未確認成功，請更新紀錄並以原要求重試。';}finally{busy=false;if(!disposed&&v===epoch)for(const b of host.querySelectorAll('button'))b.disabled=false;}}
  function changeMode(){const next=mode.value==='sales-marketing'&&workspace==='work';if(next&&!active){generalDraft={title:titleInput.value,brief:briefInput.value};titleInput.value=businessDraft?.title||'';briefInput.value=businessDraft?.brief||'';}if(!next&&active){businessDraft={title:titleInput.value,brief:briefInput.value};titleInput.value=generalDraft?.title||'';briefInput.value=generalDraft?.brief||'';}active=next;fields.hidden=!active;fields.disabled=!active;for(const f of [industry,region,services,limit])f.required=active;results.hidden=!active||!workVisible();onModeChange(active);}
  mode.onchange=changeMode;
- const skillDetails=el('details');skillDetails.append(el('summary','七項專業技能與接入狀態'),skills);host.className='business-hq';host.append(heading,intro,skillDetails,notice);results.hidden=true;form.after(results);
+ const skillDetails=el('details');skillDetails.append(el('summary','七項專業技能與接入狀態'),skills);host.className='business-hq';host.append(heading,intro,proactive.root,skillDetails,notice);proactive.root.hidden=true;results.hidden=true;form.after(results);
  return {
   get active(){return active;},
   async submit(){
@@ -165,7 +167,7 @@ export function mountBusinessHQ(host,{db,owner,form,titleInput,briefInput,onMode
    workspace=w;view=v;
    if(changed&&!workVisible())clearDiscovery();
    const direct=view==='business-hq';
-   host.hidden=!workVisible();modeLabel.hidden=w!=='work'||direct;
+   host.hidden=!workVisible();proactive.root.hidden=!direct||w!=='work';modeLabel.hidden=w!=='work'||direct;
    if(w!=='work'){
     epoch++;mode.value='project-work';changeMode();snapshot={opportunities:[],runs:[],reviews:[]};results.replaceChildren();notice.textContent='';
    }else{

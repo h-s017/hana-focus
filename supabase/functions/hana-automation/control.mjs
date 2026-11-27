@@ -2,7 +2,7 @@ import {configuration,priorities} from './runtime.mjs';
 import {publicImportState,lessonDate,checkPublicSource} from './canva-import.mjs';
 const headers={'Access-Control-Allow-Origin':'https://h-s017.github.io','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS','Cache-Control':'no-store','Vary':'Origin'};
 const response=(body,status=200)=>Response.json(body,{status,headers});
-export function control({authenticate,store,connector,readiness,calendarPreview,booking,reservations,monthly,focus,googleOAuth,googleSyncOAuth,calendarSync,canvaOAuth,canvaSourceStatus=checkPublicSource,businessHQ,allowedOrigin='https://h-s017.github.io'}) {
+export function control({authenticate,store,connector,readiness,calendarPreview,booking,reservations,monthly,focus,googleOAuth,googleSyncOAuth,calendarSync,canvaOAuth,canvaSourceStatus=checkPublicSource,businessHQ,editorial,allowedOrigin='https://h-s017.github.io'}) {
  return async req=>{
   if(req.headers.get('origin')&&req.headers.get('origin')!==allowedOrigin)return response({error:'origin_not_allowed'},403);
   if(req.method==='OPTIONS')return new Response(null,{headers});
@@ -13,11 +13,15 @@ export function control({authenticate,store,connector,readiness,calendarPreview,
   try{
    const text=await req.text();if(text.length>600000)return response({error:'invalid_body'},400);const body=JSON.parse(text);
    if(!body||typeof body!=='object')return response({error:'invalid_body'},400);
+   if(['editorial_snapshot','editorial_decide','editorial_asset'].includes(body.action)){
+    if(!editorial)return response({error:'editorial_setup_required'},409);
+    try{return response(await editorial(owner,body));}catch{return response({error:'editorial_operation_unconfirmed'},409);}
+   }
    if(body.action?.startsWith('hq_')){
     if(!businessHQ)return response({error:'hq_setup_required'},409);
     if(text.length>60000)return response({error:'hq_invalid_input'},400);
     try{return response(await businessHQ(owner,body));}
-    catch(error){const codes=['hq_work_only','hq_unknown_skill','hq_invalid_input','hq_invalid_source','hq_branch_reason_required','hq_manual_record_required','hq_owner_required','hq_request_conflict','hq_state_conflict','hq_stale_attempt','hq_invalid_stage','hq_setup_required','hq_database_unavailable','hq_persistence_uncertain','hq_skill_resource_missing','hq_discovery_not_configured','hq_discovery_rate_limited','hq_discovery_unavailable','hq_analysis_not_configured'];return response({error:codes.includes(error.code)?error.code:'hq_operation_failed',external_delivery:false},error.code==='hq_owner_required'?403:error.code==='hq_discovery_rate_limited'?429:409);}
+    catch(error){const codes=['hq_work_only','hq_unknown_skill','hq_invalid_input','hq_invalid_source','hq_branch_reason_required','hq_manual_record_required','hq_owner_required','hq_request_conflict','hq_state_conflict','hq_stale_attempt','hq_invalid_stage','hq_setup_required','hq_database_unavailable','hq_persistence_uncertain','hq_skill_resource_missing','hq_discovery_not_configured','hq_discovery_rate_limited','hq_discovery_unavailable','hq_analysis_not_configured','hq_strategy_invalid','hq_strategy_conflict'];return response({error:codes.includes(error.code)?error.code:'hq_operation_failed',external_delivery:false},error.code==='hq_owner_required'?403:error.code==='hq_discovery_rate_limited'?429:409);}
    }
    if(body.action?.startsWith('focus_')){if(!focus)return response({error:'focus_unavailable'},409);return response(await focus(owner,body));}
    if(text.length>6000)return response({error:'invalid_body'},400);
