@@ -10,6 +10,7 @@
 - corporate-strategy
 - operations-management
 - sales-marketing
+- market-intelligence
 - people-management
 - research-development
 - financial-management
@@ -21,3 +22,9 @@
 P0：以可執行 B2B 商務開發垂直流程為首個版本；其次 MY ORGAN→既有報價、現金流。P1：供應商與研發；P2：社群轉換優化。不要先製作所有模組的空殼。
 開發及驗收契約見 CODEX_PHASE1.md。
 原規劃分支只新增規格與技能。後續實作候選 `feature/business-hq-phase1` 沿用這些資源，提供 P0.1 執行引擎及 B2B 垂直流程；正式環境尚未發布。最新程式盤點見 [IMPLEMENTATION_AUDIT.md](IMPLEMENTATION_AUDIT.md)，真實隔離測試見 [ACCEPTANCE.md](ACCEPTANCE.md)，授權與回復見 [RELEASE.md](RELEASE.md)。其餘六項技能仍未接通，不列為已完成。
+
+## 市場商機研究中心（2026-11-27）
+新增 [market-intelligence](skills/market-intelligence/SKILL.md)，作為銷售中心與 P0 B2B 流程的上游研究能力，銜接 B2B/B2G/B2C/B2B2C、研發、生產與財務。規格已納入；前端、排程與執行引擎尚待接通及驗收。
+
+## 統一商業決策規範
+[DECISION_PLAYBOOK.md](DECISION_PLAYBOOK.md) 為跨技能共同入口：六關、痛點驗證、四道賽道門、三層業務與持續收入。執行端須載入此規範及相應技能版本；優先在 P0 B2B 流程驗收，避免重複模組。規範已寫入，尚未驗證執行引擎載入或正式部署。

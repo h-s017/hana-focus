@@ -18,7 +18,7 @@ const a=await user(),b=await user(),denied=await user(false);
 await writeFile('/tmp/hana-hq-local-users.json',JSON.stringify({a,b,denied}),{mode:0o600});
 async function call(owner,body,expected=200){const response=await fetch(cfg.url+'/functions/v1/hana-automation',{method:'POST',headers:{Authorization:'Bearer '+owner.access_token,'Content-Type':'application/json'},body:JSON.stringify({workspace:'work',...body})});const data=await response.json();assert.equal(response.status,expected,JSON.stringify(data));return data;}
 const catalog=await call(a,{action:'hq_catalog'});assert.equal(catalog.skills.length,7);assert.equal(catalog.skills.filter(s=>s.status==='available').length,1);
-const skill=catalog.skills.find(s=>s.id==='sales-marketing');const content=await readFile('business-hq/skills/sales-marketing/SKILL.md','utf8');assert.equal(skill.hash,createHash('sha256').update(content).digest('hex'));
+const skill=catalog.skills.find(s=>s.id==='sales-marketing');const content=(await readFile('business-hq/skills/sales-marketing/SKILL.md','utf8')).replace(/\r\n/g,'\n');assert.equal(skill.hash,createHash('sha256').update(content).digest('hex'));
 const input={workspace:'work',goal:'公開公司來源的隔離驗證，不是 HANA 客戶名單',industry:'Internet',region:'全球',services:'品牌研究',limit:3,companies:[{company_name:'Mozilla',website:'https://www.mozilla.org/',source_url:'https://www.mozilla.org/en-US/about/'}]};
 const incompleteId=randomUUID(),incompleteInput={...input,companies:[{...input.companies[0],source_url:null,manual_excerpt:'Synthetic incomplete source, not verified.'}]};
 assert.equal((await call(a,{action:'hq_run',request_id:incompleteId,input:incompleteInput})).status,'blocked');
