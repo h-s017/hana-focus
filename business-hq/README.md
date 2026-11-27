@@ -10,6 +10,7 @@
 - corporate-strategy
 - operations-management
 - sales-marketing
+- market-intelligence
 - people-management
 - research-development
 - financial-management
@@ -24,3 +25,6 @@ P0：以可執行 B2B 商務開發垂直流程為首個版本；其次 MY ORGAN�
 
 ## 市場商機研究中心（2026-11-27）
 新增 [market-intelligence](skills/market-intelligence/SKILL.md)，作為銷售中心與 P0 B2B 流程的上游研究能力，銜接 B2B/B2G/B2C/B2B2C、研發、生產與財務。規格已納入；前端、排程與執行引擎尚待接通及驗收。
+
+## 統一商業決策規範
+[DECISION_PLAYBOOK.md](DECISION_PLAYBOOK.md) 為跨技能共同入口：六關、痛點驗證、四道賽道門、三層業務與持續收入。執行端須載入此規範及相應技能版本；優先在 P0 B2B 流程驗收，避免重複模組。規範已寫入，尚未驗證執行引擎載入或正式部署。
