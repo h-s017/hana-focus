@@ -1,0 +1,57 @@
+{
+  "status": "storyboard_only",
+  "weeklyCandidate": false,
+  "durationSeconds": 24,
+  "width": 1080,
+  "height": 1920,
+  "requiresFilming": false,
+  "rendered": false,
+  "published": false,
+  "founderApprovalRequired": true,
+  "recordingRights": "未確認；使用已授權錄音或靜音",
+  "visualDirection": "沿用當日獨立原創圖片及統一色調；無人物、器官、柑橘、燒杯、試紙、配方紙；緩慢推移、淡入淡出；不重複素材",
+  "scenes": [
+    {
+      "startSeconds": 0,
+      "endSeconds": 4,
+      "sourceSlide": 1,
+      "caption": "如何接收設計回饋",
+      "detail": "HANA 嗅覺微課 · Day 040\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "startSeconds": 4,
+      "endSeconds": 8,
+      "sourceSlide": 2,
+      "caption": "先聽具體情境",
+      "detail": "把抽象評語轉成可以檢查的使用問題。"
+    },
+    {
+      "startSeconds": 8,
+      "endSeconds": 12,
+      "sourceSlide": 3,
+      "caption": "區分偏好與限制",
+      "detail": "喜不喜歡和是否符合需求，是不同類型的回饋。"
+    },
+    {
+      "startSeconds": 12,
+      "endSeconds": 16,
+      "sourceSlide": 4,
+      "caption": "不要急著反駁",
+      "detail": "先請對方指出感受最明顯的部分。"
+    },
+    {
+      "startSeconds": 16,
+      "endSeconds": 20,
+      "sourceSlide": 5,
+      "caption": "把變更留成紀錄",
+      "detail": "版本、日期和修改原因都值得保留。"
+    },
+    {
+      "startSeconds": 20,
+      "endSeconds": 24,
+      "sourceSlide": 6,
+      "caption": "今天的觀察練習",
+      "detail": "將「不夠有質感」改寫成兩個可討論的具體問題。"
+    }
+  ]
+}

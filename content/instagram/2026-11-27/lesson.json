@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-27",
+  "day": 40,
+  "title": "如何接收設計回饋",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "如何接收設計回饋",
+      "body": "HANA 嗅覺微課 · Day 040\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "先聽具體情境",
+      "body": "把抽象評語轉成可以檢查的使用問題。"
+    },
+    {
+      "title": "區分偏好與限制",
+      "body": "喜不喜歡和是否符合需求，是不同類型的回饋。"
+    },
+    {
+      "title": "不要急著反駁",
+      "body": "先請對方指出感受最明顯的部分。"
+    },
+    {
+      "title": "把變更留成紀錄",
+      "body": "版本、日期和修改原因都值得保留。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "將「不夠有質感」改寫成兩個可討論的具體問題。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "創作便條紙拼貼",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "040",
+    "DATE": "2026-11-27",
+    "PAGE_01_TITLE": "如何接收設計回饋",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 040\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "先聽具體情境",
+    "PAGE_02_BODY": "把抽象評語轉成可以檢查的使用問題。",
+    "PAGE_03_TITLE": "區分偏好與限制",
+    "PAGE_03_BODY": "喜不喜歡和是否符合需求，是不同類型的回饋。",
+    "PAGE_04_TITLE": "不要急著反駁",
+    "PAGE_04_BODY": "先請對方指出感受最明顯的部分。",
+    "PAGE_05_TITLE": "把變更留成紀錄",
+    "PAGE_05_BODY": "版本、日期和修改原因都值得保留。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "將「不夠有質感」改寫成兩個可討論的具體問題。"
+  },
+  "music": {
+    "composer": "Franz Schubert",
+    "work": "Impromptu in G-flat major, D 899 No. 3",
+    "reason": "比較記憶中的相似與差異",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}

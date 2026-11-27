@@ -1,9 +1,9 @@
 {
-  "lastRunAt": "2026-11-26T08:07:51.823Z",
-  "date": "2026-11-26",
-  "day": 39,
+  "lastRunAt": "2026-11-27T08:18:00.872Z",
+  "date": "2026-11-27",
+  "day": 40,
   "status": "editorial_ready",
-  "topic": "概念試作的必要性",
+  "topic": "如何接收設計回饋",
   "canvaCreated": false,
   "canvaDesignId": null,
   "canvaEditUrl": null,
@@ -12,10 +12,13 @@
   "imagesGenerated": false,
   "reviewStatus": "internal_automated_checks_passed",
   "published": false,
-  "captionPath": "content/instagram/2026-11-26/caption.md",
-  "canvaCsvPath": "content/instagram/2026-11-26/canva-autofill.csv",
-  "canvaImportPath": "content/instagram/2026-11-26/canva-import.html",
-  "lessonPath": "content/instagram/2026-11-26/lesson.json",
+  "reelsBriefPath": "content/instagram/2026-11-27/reels-brief.json",
+  "reelsStatus": "storyboard_only",
+  "reelsWeeklyCandidate": false,
+  "captionPath": "content/instagram/2026-11-27/caption.md",
+  "canvaCsvPath": "content/instagram/2026-11-27/canva-autofill.csv",
+  "canvaImportPath": "content/instagram/2026-11-27/canva-import.html",
+  "lessonPath": "content/instagram/2026-11-27/lesson.json",
   "notes": "Six-page copy and Canva field CSV prepared. No image generation or Canva API execution.",
-  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-26/canva-autofill.csv"
+  "manualCanvaUploadHelp": "https://github.com/h-s017/hana-focus/tree/hana-focus-preview/content/instagram/2026-11-27/canva-autofill.csv"
 }
