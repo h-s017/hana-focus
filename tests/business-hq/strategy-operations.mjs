@@ -5,12 +5,12 @@ import {automationStore} from '../../supabase/functions/hana-automation/store.mj
 import {hqStore} from '../../supabase/functions/hana-automation/hq-store.mjs';
 import {prioritizeStrategySales,strategyBusinessHQ,strategyMarginEvidence} from '../../supabase/functions/hana-automation/hq-strategy.mjs';
 
-const date='2026-11-26';
+const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const business=['education','product_development','core_product'];
 const sample={
  effective_from:date,currency:'TWD',core_product:'Fixture ingredient',core_unit:'kg',initial_capital_minor:12345,
  founder_independence_target_year:2028,automation_target_pct:42,market_mix:{B2B:34,B2G:33,B2C:33},
- years:[{year:2026,core_target_minor:88888,milestone:'Fixture milestone',allocation:{education:35,product_development:38,core_product:27}}],
+ years:[{year:Number(date.slice(0,4)),core_target_minor:88888,milestone:'Fixture milestone',allocation:{education:35,product_development:38,core_product:27}}],
  business_lines:Object.fromEntries(business.map(id=>[id,{label:id,purpose:'Fixture scope',offerings:['Fixture offer']} ])),
  cash_guardrail:'Fixture constraint',
  sales_lanes:Array.from({length:7},(_,i)=>({
