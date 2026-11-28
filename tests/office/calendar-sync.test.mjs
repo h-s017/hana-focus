@@ -5,7 +5,7 @@ import {inputWindow} from '../../js/calendar-sync-app.mjs';
 const owner='10000000-0000-4000-8000-000000000001',taskId='20000000-0000-4000-8000-000000000002';
 const original=()=>({id:'slot',course:'合成課程',variant:'',date:'2099-12-01',time:'09:00–11:00',status:'OPEN',capacity:5,booked:1,enabled:1,blocked:0});
 const gEvent=(v,id='managed')=>({id,etag:'"v1"',status:'confirmed',summary:v.title,start:{dateTime:v.start},end:{dateTime:v.end},extendedProperties:{private:{hana_owner:owner}}});
-function fixture({enrolled=1,enabled=true}={}){
+function fixture({enrolled=1,enabled=true,background=false}={}){
  let slot=original();slot.booked=enrolled;let google=gEvent({...sourceEvent('slot',slot),start:'2099-12-02T01:00:00.000Z',end:'2099-12-02T03:00:00.000Z'});
  const row={id:'row',kind:'slot',source_id:'slot',month:'2099-12',event_id:'managed',base_source:sourceEvent('slot',slot),base_google:sourceEvent('slot',slot),status:'ready',revision:1};
  let locked=false;const writes=[],rows=[row],clone=v=>structuredClone(v);
@@ -13,7 +13,7 @@ function fixture({enrolled=1,enabled=true}={}){
   calendarTasks:async()=>[],calendarLinks:async()=>clone(rows),calendarLink:async()=>clone(rows[0]),calendarLinkSave:async(o,id,rev,patch)=>{assert.equal(rev,row.revision);Object.assign(row,clone(patch));return clone(row);},event:async()=>writes.push('approval')};
  const api={list:async()=>[clone(google)],get:async()=>clone(google),put:async()=>writes.push('google-write'),remove:async()=>writes.push('google-delete')};
  const reservations=async b=>{if(b.action==='snapshot')return {slots:[clone(slot)]};if(b.action==='get')return {slot:clone(slot)};writes.push('reservation-write');Object.assign(slot,b.patch);return {slot:clone(slot)};};
- const run=calendarSyncService({store,google:api,reservations,ownerId:owner,enabled});
+ const run=calendarSyncService({store,google:api,reservations,ownerId:owner,enabled,background});
  return {run:body=>run(owner,body),row,writes,slot:()=>slot,changeEnrolment:()=>slot.booked++,changeGoogle:()=>google.etag='"v2"',foreign:()=>google.extendedProperties.private.hana_owner='other',lock:()=>locked=true};
 }
 test('enrolled course changes display pending review and perform no external write until approved',async()=>{
@@ -62,3 +62,5 @@ test('task-only scheduling does not require or touch Reservation and unschedulin
  await run(owner,{action:'calendar_sync_run',month:'2099-12',task_id:taskId});await run(owner,{action:'calendar_sync_run',month:'2099-12',task_id:taskId});assert.equal(puts,1);
  await run(owner,{action:'calendar_task_schedule',task_id:taskId,revision:t.record_revision,start:null,end:null});await run(owner,{action:'calendar_sync_run',month:'2099-12',task_id:taskId});assert.equal(deletes,1);assert.equal(t.title,'合成任務');assert.equal(t.work_state,'todo');
 });
+
+test('background never changes a reservation slot, even without bookings',async()=>{const f=fixture({enrolled:0,background:true});const r=await f.run({action:'calendar_sync_run',month:'2099-12'});assert.equal(r.pending,1);assert.equal(f.row.pending.reason,'background_reservation_review');assert.deepEqual(f.writes,[]);await assert.rejects(f.run({action:'calendar_sync_review',link_id:'row',review_id:f.row.pending.id,decision:'approved',direction:'import'}),{code:'calendar_sync_invalid'});assert.deepEqual(f.writes,[]);});
