@@ -2,10 +2,10 @@
 export const skillResources={
   "corporate-strategy": {
     "id": "corporate-strategy",
-    "version": "1.0.0",
-    "hash": "52b82abaf28fef7e7aca6b435c8a50f77106a04d0d3678f21a5f36e808c5ecad",
+    "version": "1.1.0",
+    "hash": "d2b3331f30e4f690faa24af5eaa2efbc04e22645e22042f99f24f8b6e60e3131",
     "source": "business-hq/skills/corporate-strategy/SKILL.md",
-    "content": "---\nname: corporate-strategy\ndescription: 當評估商業模式、定位、市場進入、成長路線及資源配置時使用。\n---\n# corporate-strategy\n版本：1.0.0｜繁體中文\n## 工作流程\n1. 定義決策、限制、可承受損失與成功指標。\n2. 建立客群、價值主張、通路、收入、成本、資源、夥伴及活動九宮格；分清假設與證據。\n3. 比較維持現況、委外整合、產品化等可行方案，依市場需求、貢獻毛利、資金需求、交付能力與創辦人依賴排序。\n4. 將首選方案拆成低成本驗證實驗：樣本、期間、通過/停止門檻、負責人。\n## 交付與驗收\n決策備忘錄、商業模式圖、90日行動計畫；每個關鍵假設有驗證方式，不提供無來源成功機率。\n## 參考來源\n- https://www.strategyzer.com/library/the-business-model-canvas\n- https://www.ycombinator.com/library\n- https://www.sba.gov/business-guide\n\n## 共通執行規則\n- 先辨識目標、已授權的資料來源、可用工具及缺漏；不虛構來源、價格、客戶或成功狀態。\n- 事實附來源與取得日期；估算列公式、假設與敏感度；未知值標記待驗證。\n- 只在授權範圍執行；對外寄送、付款、發布、改正式資料需獨立核准。私有資料不得進入公開 GitHub 或未授權模型。\n- 回傳結構：goal、skill_version、sources、assumptions、deliverables、metrics、blockers、next_actions、approval_required。成果附實際檔案或紀錄 ID；無工具則標記 blocked，不以草稿冒充執行。\n"
+    "content": "---\nname: corporate-strategy\ndescription: 當評估商業模式、定位、市場進入、成長路線及資源配置時使用。\n---\n# corporate-strategy\n版本：1.1.0｜繁體中文\n## 工作流程\n1. 定義決策、限制、可承受損失與成功指標。\n2. 建立客群、價值主張、通路、收入、成本、資源、夥伴及活動九宮格；分清假設與證據。\n3. 比較維持現況、委外整合、產品化等可行方案，依市場需求、貢獻毛利、資金需求、交付能力與創辦人依賴排序。\n4. 將首選方案拆成低成本驗證實驗：樣本、期間、通過/停止門檻、負責人。\n## 戰略關卡與三層業務組合\n市場進入必須檢查：值得做（付費需求與可得市場）、活得了（貢獻毛利與現金流）、打得贏（可驗證差異）、進得去（通路、供應、法規與能力）。比較目標、可用資源及能力，不因市場大而盲目投入。研究大型競品未充分服務的細分人群、相鄰場景及服務升級機會。\nH1 現金流：既有調香教育、體驗、已具需求的客製與產品開發案；以實收現金及貢獻毛利衡量。H2 成長：日化香氛 B2B、供應鏈整合、持續補貨與跨品類開發；以付費試單、轉換、續約及重複訂單衡量。H3 種子：數位工具、IP 授權、平台等；限制預算與時間，用最小實驗驗證，不以預測營收代替成果。每月重估資源及停止條件；未核准不設定固定資金比例。\n課堂照片僅顯示 DMM 表達式 D×P×Q×F/T，未交代變數定義，暫不納入計算。\n## 交付與驗收\n決策備忘錄、商業模式圖、90日行動計畫；每個關鍵假設有驗證方式，不提供無來源成功機率。\n## 參考來源\n- https://www.strategyzer.com/library/the-business-model-canvas\n- https://www.ycombinator.com/library\n- https://www.sba.gov/business-guide\n\n## 共通執行規則\n- 先辨識目標、已授權的資料來源、可用工具及缺漏；不虛構來源、價格、客戶或成功狀態。\n- 事實附來源與取得日期；估算列公式、假設與敏感度；未知值標記待驗證。\n- 只在授權範圍執行；對外寄送、付款、發布、改正式資料需獨立核准。私有資料不得進入公開 GitHub 或未授權模型。\n- 回傳結構：goal、skill_version、sources、assumptions、deliverables、metrics、blockers、next_actions、approval_required。成果附實際檔案或紀錄 ID；無工具則標記 blocked，不以草稿冒充執行。\n"
   },
   "operations-management": {
     "id": "operations-management",
@@ -16,10 +16,10 @@ export const skillResources={
   },
   "sales-marketing": {
     "id": "sales-marketing",
-    "version": "1.0.0",
-    "hash": "11f048b68f563a8bf521d757ba806ad6445e8381cbb7bb8096c785630b5d32ce",
+    "version": "1.1.0",
+    "hash": "7da117bcfa087336de51efba2b71ae733c617f3ab12cca4d5b23e625c79a7a1e",
     "source": "business-hq/skills/sales-marketing/SKILL.md",
-    "content": "---\nname: sales-marketing\ndescription: 當進行 B2B 客戶研究、需求訪談、提案、CRM 與轉換分析時使用。\n---\n# sales-marketing\n版本：1.0.0｜繁體中文\n## 工作流程\n1. 明確服務範圍、理想客戶輪廓及排除條件。\n2. 從公開公司官網、公開商業資料及授權 CRM 尋找企業；記錄公司名稱、官網、公開商務聯絡管道、來源日期、需求證據、適配度與理由。\n3. 用需求適配 0–4、合作可行 0–3、證據完整 0–3 評分；不得推測私人聯絡資訊或將推測需求當事實。\n4. 草擬個別合作提案、訪談題與下一次追蹤日期；依公司官網網域去重，子公司例外需說明。\n5. 記錄 CRM 階段：identified、qualified、proposal_draft、approved、contacted、negotiating、won、lost；contacted 須有實際送達或人工紀錄。\n## 交付與驗收\n具來源的名單、客製提案、追蹤計畫；沒有真實搜尋結果則 blocked。不得自動寄信或大規模騷擾。\n## 參考來源\n- https://academy.hubspot.com/courses/inbound-sales\n- https://www.strategyzer.com/\n- https://www.ycombinator.com/library\n\n## 共通執行規則\n- 先辨識目標、已授權的資料來源、可用工具及缺漏；不虛構來源、價格、客戶或成功狀態。\n- 事實附來源與取得日期；估算列公式、假設與敏感度；未知值標記待驗證。\n- 只在授權範圍執行；對外寄送、付款、發布、改正式資料需獨立核准。私有資料不得進入公開 GitHub 或未授權模型。\n- 回傳結構：goal、skill_version、sources、assumptions、deliverables、metrics、blockers、next_actions、approval_required。成果附實際檔案或紀錄 ID；無工具則標記 blocked，不以草稿冒充執行。\n"
+    "content": "---\nname: sales-marketing\ndescription: 當進行 B2B 客戶研究、需求訪談、提案、CRM 與轉換分析時使用。\n---\n# sales-marketing\n版本：1.1.0｜繁體中文\n## 商機入口\n沿用 [market-intelligence](../market-intelligence/SKILL.md) 六關規則。優先已有客群的中小品牌、禮贈品/行銷公司、已有通路的日化品牌。CRM 應區分付費客戶、痛點承擔者、決策者、HANA 業務責任人及終端銷售方；沒有明確銷售出口不得進入正式提案審核。AI 僅研究與草擬，對外接洽須人工授權。\n## 工作流程\n1. 明確服務範圍、理想客戶輪廓及排除條件。\n2. 從公開公司官網、公開商業資料及授權 CRM 尋找企業；記錄公司名稱、官網、公開商務聯絡管道、來源日期、需求證據、適配度與理由。\n3. 用需求適配 0–4、合作可行 0–3、證據完整 0–3 評分；不得推測私人聯絡資訊或將推測需求當事實。\n4. 草擬個別合作提案、訪談題與下一次追蹤日期；依公司官網網域去重，子公司例外需說明。\n5. 記錄 CRM 階段：identified、qualified、proposal_draft、approved、contacted、negotiating、won、lost；contacted 須有實際送達或人工紀錄。\n## 交付與驗收\n具來源的名單、客製提案、追蹤計畫；沒有真實搜尋結果則 blocked。不得自動寄信或大規模騷擾。\n## 參考來源\n- https://academy.hubspot.com/courses/inbound-sales\n- https://www.strategyzer.com/\n- https://www.ycombinator.com/library\n\n## 共通執行規則\n- 先辨識目標、已授權的資料來源、可用工具及缺漏；不虛構來源、價格、客戶或成功狀態。\n- 事實附來源與取得日期；估算列公式、假設與敏感度；未知值標記待驗證。\n- 只在授權範圍執行；對外寄送、付款、發布、改正式資料需獨立核准。私有資料不得進入公開 GitHub 或未授權模型。\n- 回傳結構：goal、skill_version、sources、assumptions、deliverables、metrics、blockers、next_actions、approval_required。成果附實際檔案或紀錄 ID；無工具則標記 blocked，不以草稿冒充執行。\n"
   },
   "people-management": {
     "id": "people-management",
@@ -30,17 +30,17 @@ export const skillResources={
   },
   "research-development": {
     "id": "research-development",
-    "version": "1.0.0",
-    "hash": "af2d9c0bfbc18f21e856bfb2e8ba9aef859c7571601068a869178dbd3ee8f225",
+    "version": "1.1.0",
+    "hash": "470b68d295cef5a2391b5a687a618e9ef5d210701d6f7b44cc16bc15330fa2d7",
     "source": "business-hq/skills/research-development/SKILL.md",
-    "content": "---\nname: research-development\ndescription: 當評估產品概念、配方資產、研發階段、技術文件及產品化時使用。\n---\n# research-development\n版本：1.0.0｜繁體中文\n## 工作流程\n1. 確認使用情境、目標客群、載體、預期售價與法規分類。\n2. 定義產品規格、研發階段及驗證條件；依版本保留樣品、批次、測試證據與授權範圍。\n3. 讀取授權的 MY ORGAN 及供應商文件；不得推定 IFRA 合規或 PIF 已完成。需要合格專業人員與最新原始規範核對。\n4. 建立概念驗證、樣品確認、成本核對、品質/法規確認、量產放行等關卡，區分核准內部草稿與正式放行。\n## 交付與驗收\n產品需求規格、研發版本、測試/文件缺口清單及 go/no-go 建議。不得臆造配方安全、法規證明或測試結果。\n## 參考來源\n- https://ifrafragrance.org/standards-library\n- https://www.fda.gov.tw/\n- https://www.tipo.gov.tw/\n\n## 共通執行規則\n- 先辨識目標、已授權的資料來源、可用工具及缺漏；不虛構來源、價格、客戶或成功狀態。\n- 事實附來源與取得日期；估算列公式、假設與敏感度；未知值標記待驗證。\n- 只在授權範圍執行；對外寄送、付款、發布、改正式資料需獨立核准。私有資料不得進入公開 GitHub 或未授權模型。\n- 回傳結構：goal、skill_version、sources、assumptions、deliverables、metrics、blockers、next_actions、approval_required。成果附實際檔案或紀錄 ID；無工具則標記 blocked，不以草稿冒充執行。\n"
+    "content": "---\nname: research-development\ndescription: 當評估產品概念、配方資產、研發階段、技術文件及產品化時使用。\n---\n# research-development\n版本：1.1.0｜繁體中文\n## 工作流程\n1. 確認使用情境、目標客群、載體、預期售價與法規分類。\n2. 定義產品規格、研發階段及驗證條件；依版本保留樣品、批次、測試證據與授權範圍。\n3. 讀取授權的 MY ORGAN 及供應商文件；不得推定 IFRA 合規或 PIF 已完成。需要合格專業人員與最新原始規範核對。\n4. 建立概念驗證、樣品確認、成本核對、品質/法規確認、量產放行等關卡，區分核准內部草稿與正式放行。\n## 解法設計與驗收\n以市場研究已驗證的使用場景與理想結果為入口；先定義最低可接受成果，再比較三條路徑：升級（更快、穩定、低摩擦）、細分（特定客群與場景）、替代（改變交付方式而保留結果）。例如日化香氛以標準化打樣流程降低開發阻礙、為服飾品牌設計專屬品類、以外部研發服務替代自行建立團隊。案例為假設，非已驗證成效。依效果、客戶採用阻力、差異性、可實現性選一方案，記錄樣本、驗收指標、成本上限及停止條件；不得跳過安全、品質與法規。\n## 交付與驗收\n產品需求規格、研發版本、測試/文件缺口清單及 go/no-go 建議。不得臆造配方安全、法規證明或測試結果。\n## 參考來源\n- https://ifrafragrance.org/standards-library\n- https://www.fda.gov.tw/\n- https://www.tipo.gov.tw/\n\n## 共通執行規則\n- 先辨識目標、已授權的資料來源、可用工具及缺漏；不虛構來源、價格、客戶或成功狀態。\n- 事實附來源與取得日期；估算列公式、假設與敏感度；未知值標記待驗證。\n- 只在授權範圍執行；對外寄送、付款、發布、改正式資料需獨立核准。私有資料不得進入公開 GitHub 或未授權模型。\n- 回傳結構：goal、skill_version、sources、assumptions、deliverables、metrics、blockers、next_actions、approval_required。成果附實際檔案或紀錄 ID；無工具則標記 blocked，不以草稿冒充執行。\n"
   },
   "financial-management": {
     "id": "financial-management",
-    "version": "1.0.0",
-    "hash": "f3c921c1a92bbeead4334fa642e036990bb469349bca1bcf39281b7fa1201a97",
+    "version": "1.1.0",
+    "hash": "9472e36945e00e200f45da9c063640d5540761d7767094ec1687341e2cc77c9b",
     "source": "business-hq/skills/financial-management/SKILL.md",
-    "content": "---\nname: financial-management\ndescription: 當進行報價、單案損益、成本、現金流、應收帳款與經營財務分析時使用。\n---\n# financial-management\n版本：1.0.0｜繁體中文\n## 工作流程\n1. 取得已確認的數量、單價、稅別、成本、付款條件及期間；統一 TWD 與計量單位。\n2. 營收=未稅單價×數量；毛利=營收−直接銷貨成本；貢獻毛利=營收−全部變動成本；毛利率=毛利÷營收（零營收時不適用）。\n3. 另列固定成本、開發費、人工、運費、損耗、包裝、稅及回款時間；未知成本為 null，不是 0。損益兩平量=固定成本÷單位貢獻（須為正）。\n4. 建立基準/不利/有利情境，及13週現金預測；營收不等同收款，現金期末=期初+流入−流出。\n5. 不自動承諾報價、付款或改帳；稅務以台灣財政部最新規範及專業確認為準。\n## 交付與驗收\n可追溯公式、成本來源、毛利及現金缺口；必填缺漏阻擋正式報價。\n## 參考來源\n- https://www.etax.nat.gov.tw/\n- https://www.sba.gov/business-guide\n\n## 共通執行規則\n- 先辨識目標、已授權的資料來源、可用工具及缺漏；不虛構來源、價格、客戶或成功狀態。\n- 事實附來源與取得日期；估算列公式、假設與敏感度；未知值標記待驗證。\n- 只在授權範圍執行；對外寄送、付款、發布、改正式資料需獨立核准。私有資料不得進入公開 GitHub 或未授權模型。\n- 回傳結構：goal、skill_version、sources、assumptions、deliverables、metrics、blockers、next_actions、approval_required。成果附實際檔案或紀錄 ID；無工具則標記 blocked，不以草稿冒充執行。\n"
+    "content": "---\nname: financial-management\ndescription: 當進行報價、單案損益、成本、現金流、應收帳款與經營財務分析時使用。\n---\n# financial-management\n版本：1.1.0｜繁體中文\n## 工作流程\n1. 取得已確認的數量、單價、稅別、成本、付款條件及期間；統一 TWD 與計量單位。\n2. 營收=未稅單價×數量；毛利=營收−直接銷貨成本；貢獻毛利=營收−全部變動成本；毛利率=毛利÷營收（零營收時不適用）。\n3. 另列固定成本、開發費、人工、運費、損耗、包裝、稅及回款時間；未知成本為 null，不是 0。損益兩平量=固定成本÷單位貢獻（須為正）。\n4. 建立基準/不利/有利情境，及13週現金預測；營收不等同收款，現金期末=期初+流入−流出。\n5. 不自動承諾報價、付款或改帳；稅務以台灣財政部最新規範及專業確認為準。\n## 持續價值與收入驗證\n分列首次開發收入、後續供貨/補貨、跨品類擴充及持續服務收入；每項確認付款人、頻率、合約責任、貢獻毛利及現金回收。不能把一次性開發費視為經常性收入，也不假設客戶必然續購。依 corporate-strategy 三層業務組合區分實收、已簽約及假設收入，為種子實驗設定損失上限與停止條件；不以預估規模替代可得訂單。\n## 交付與驗收\n可追溯公式、成本來源、毛利及現金缺口；必填缺漏阻擋正式報價。\n## 參考來源\n- https://www.etax.nat.gov.tw/\n- https://www.sba.gov/business-guide\n\n## 共通執行規則\n- 先辨識目標、已授權的資料來源、可用工具及缺漏；不虛構來源、價格、客戶或成功狀態。\n- 事實附來源與取得日期；估算列公式、假設與敏感度；未知值標記待驗證。\n- 只在授權範圍執行；對外寄送、付款、發布、改正式資料需獨立核准。私有資料不得進入公開 GitHub 或未授權模型。\n- 回傳結構：goal、skill_version、sources、assumptions、deliverables、metrics、blockers、next_actions、approval_required。成果附實際檔案或紀錄 ID；無工具則標記 blocked，不以草稿冒充執行。\n"
   },
   "business-systemization": {
     "id": "business-systemization",
