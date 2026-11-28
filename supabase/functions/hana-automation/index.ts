@@ -43,7 +43,7 @@ const googleSync=syncEnabled?googleOAuth({...monthlyOptions,sync:true}):null;
 const calendarSync=calendarSyncService({ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),store,enabled:syncEnabled,google:googleSyncApi(monthlyOptions),reservations:reservationSyncApi({token:env('RESERVATION_SYNC_TOKEN')})});
 const backgroundCalendar=calendarSyncService({ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),store,enabled:true,background:true,google:googleSyncApi(monthlyOptions),reservations:reservationSyncApi({token:env('RESERVATION_SYNC_TOKEN')})});
 const calendarWorker=calendarBackgroundWorker({store,run:backgroundCalendar,ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),configured:()=>syncEnabled&&googleConfigured()&&!!env('RESERVATION_SYNC_TOKEN')});
-const monthlyAutoWorker=monthlyWorker({store,run:monthly,enabled:()=>true,verify:async token=>{try{return (await store.calendarBackgroundStatus()).monthly===true&&await store.calendarWorkerAuthorized(token);}catch{return false;}}});
+const monthlyAutoWorker=monthlyWorker({store,run:monthly,enabled:()=>true,verify:async (token:string)=>{try{return (await store.calendarBackgroundStatus()).monthly===true&&await store.calendarWorkerAuthorized(token);}catch{return false;}}});
 const hq=businessHQ({
  store:hqStore({url:env('SUPABASE_URL'),service:env('SUPABASE_SERVICE_ROLE_KEY')}),
  sourceReader:publicSourceReader({allowedHosts:env('HANA_HQ_SOURCE_HOSTS').split(',').map(s=>s.trim()).filter(Boolean)}),
