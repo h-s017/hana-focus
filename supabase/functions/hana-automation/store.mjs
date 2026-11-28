@@ -26,6 +26,7 @@ export function automationStore({url,service,fetcher=fetch}) {
    return (await rpc('hana_calendar_worker_verify',{p_token:candidate}))===true;
   },
   calendarBackgroundStatus:()=>rpc('hana_calendar_background_status'),
+  calendarBackgroundHistory:owner=>request(query('hana_automation_events',{owner_id:'eq.'+owner,code:'in.(calendar_background_run,calendar_background_failed)',select:'code,created_at,details',order:'created_at.desc',limit:'12'})),
   async canvaWorkerAuthorized(candidate){
    if(typeof candidate!=='string'||!/^[0-9a-f]{64}$/.test(candidate))return false;
    const result=await rpc('hana_canva_worker_verify',{p_token:candidate});
