@@ -63,7 +63,7 @@ export function calendarSyncService({store,google,reservations,ownerId,enabled=f
  }
  return async(owner,body)=>{
   if(owner!==ownerId||!await store.googleOwnerAllowed(owner))throw fail('calendar_sync_owner_required');
-  if(body.action==='calendar_sync_status'){let scheduled=null;try{scheduled=await store.calendarBackgroundStatus?.();}catch{}const authorized=!!await store.credential(owner,'google_sync');return {enabled,links:await store.calendarLinks(owner),authorized,background_enabled:authorized&&scheduled?.current===true,background_schedule:scheduled};}
+  if(body.action==='calendar_sync_status'){let scheduled=null;try{scheduled=await store.calendarBackgroundStatus?.();}catch{}const authorized=!!await store.credential(owner,'google_sync');return {enabled,links:await store.calendarLinks(owner),authorized,background_enabled:enabled&&authorized&&scheduled?.current===true,background_schedule:scheduled,background_history:await store.calendarBackgroundHistory?.(owner)||[]};}
   if(!enabled)throw fail('calendar_sync_activation_required');
   const lock=crypto.randomUUID();if(!await store.calendarLock(owner,lock))throw fail('calendar_sync_busy');
   try{
