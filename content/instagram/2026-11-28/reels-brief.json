@@ -1,0 +1,57 @@
+{
+  "status": "storyboard_only",
+  "weeklyCandidate": false,
+  "durationSeconds": 24,
+  "width": 1080,
+  "height": 1920,
+  "requiresFilming": false,
+  "rendered": false,
+  "published": false,
+  "founderApprovalRequired": true,
+  "recordingRights": "未確認；使用已授權錄音或靜音",
+  "visualDirection": "沿用當日獨立原創圖片及統一色調；無人物、器官、柑橘、燒杯、試紙、配方紙；緩慢推移、淡入淡出；不重複素材",
+  "scenes": [
+    {
+      "startSeconds": 0,
+      "endSeconds": 4,
+      "sourceSlide": 1,
+      "caption": "氣味創作的紀錄方式",
+      "detail": "HANA 嗅覺微課 · Day 041\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "startSeconds": 4,
+      "endSeconds": 8,
+      "sourceSlide": 2,
+      "caption": "記錄先於詮釋",
+      "detail": "把觀察、推測與結論分開書寫。"
+    },
+    {
+      "startSeconds": 8,
+      "endSeconds": 12,
+      "sourceSlide": 3,
+      "caption": "一致欄位更易比較",
+      "detail": "日期、版本、媒材、情境能讓紀錄更有用。"
+    },
+    {
+      "startSeconds": 12,
+      "endSeconds": 16,
+      "sourceSlide": 4,
+      "caption": "避免補寫記憶",
+      "detail": "事後推測與當下紀錄要清楚標示。"
+    },
+    {
+      "startSeconds": 16,
+      "endSeconds": 20,
+      "sourceSlide": 5,
+      "caption": "保存來源與授權",
+      "detail": "素材與參考資料應有基本的出處資訊。"
+    },
+    {
+      "startSeconds": 20,
+      "endSeconds": 24,
+      "sourceSlide": 6,
+      "caption": "今天的觀察練習",
+      "detail": "設計一張含日期、作品、觀察、推測、待確認的紀錄卡。"
+    }
+  ]
+}

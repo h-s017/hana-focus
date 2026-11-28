@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-28",
+  "day": 41,
+  "title": "氣味創作的紀錄方式",
+  "status": "editorial_ready",
+  "pages": [
+    {
+      "title": "氣味創作的紀錄方式",
+      "body": "HANA 嗅覺微課 · Day 041\n用一個概念，重新閱讀氣味。"
+    },
+    {
+      "title": "記錄先於詮釋",
+      "body": "把觀察、推測與結論分開書寫。"
+    },
+    {
+      "title": "一致欄位更易比較",
+      "body": "日期、版本、媒材、情境能讓紀錄更有用。"
+    },
+    {
+      "title": "避免補寫記憶",
+      "body": "事後推測與當下紀錄要清楚標示。"
+    },
+    {
+      "title": "保存來源與授權",
+      "body": "素材與參考資料應有基本的出處資訊。"
+    },
+    {
+      "title": "今天的觀察練習",
+      "body": "設計一張含日期、作品、觀察、推測、待確認的紀錄卡。"
+    }
+  ],
+  "canvas": {
+    "width": 1080,
+    "height": 1350,
+    "pages": 6
+  },
+  "visuals": {
+    "preset_id": "hana-art-editorial-2026-10-20",
+    "style": "復古檔案夾攝影",
+    "style_mode": "one_style_per_day",
+    "layout_reference_design_id": "DAHYaeidsPw",
+    "original_reference_design_id": "DAHYaVlqYOg",
+    "typography": "preserve_native_canva",
+    "generation_mode": "individual_images",
+    "layout_status": "not_verified",
+    "artwork_ready": false,
+    "image_count": 0,
+    "human_review": "not_started",
+    "reason": "missing_original_artwork"
+  },
+  "fields": {
+    "SERIES": "HANA 嗅覺微課",
+    "DAY": "041",
+    "DATE": "2026-11-28",
+    "PAGE_01_TITLE": "氣味創作的紀錄方式",
+    "PAGE_01_BODY": "HANA 嗅覺微課 · Day 041\n用一個概念，重新閱讀氣味。",
+    "PAGE_02_TITLE": "記錄先於詮釋",
+    "PAGE_02_BODY": "把觀察、推測與結論分開書寫。",
+    "PAGE_03_TITLE": "一致欄位更易比較",
+    "PAGE_03_BODY": "日期、版本、媒材、情境能讓紀錄更有用。",
+    "PAGE_04_TITLE": "避免補寫記憶",
+    "PAGE_04_BODY": "事後推測與當下紀錄要清楚標示。",
+    "PAGE_05_TITLE": "保存來源與授權",
+    "PAGE_05_BODY": "素材與參考資料應有基本的出處資訊。",
+    "PAGE_06_TITLE": "今天的觀察練習",
+    "PAGE_06_BODY": "設計一張含日期、作品、觀察、推測、待確認的紀錄卡。"
+  },
+  "music": {
+    "composer": "Claude Debussy",
+    "work": "Suite bergamasque: Clair de lune",
+    "reason": "觀察光線與氣氛的象徵",
+    "recordingRights": "未取得任何特定錄音的使用授權"
+  },
+  "claimStatus": "original_editorial_not_externally_fact_checked"
+}
