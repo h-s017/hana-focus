@@ -2,9 +2,9 @@ import {createMonthlyDraft,applyMonthlyOverrides,monthlyDiff,monthBounds,validat
 const fail=code=>Object.assign(Error(code),{code});
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export function monthlyService({store,readSources,readReservations,now=Date.now}){
- return async(owner,body)=>{
+ return async(owner,body,{background=false}={})=>{
   let bounds;try{bounds=monthBounds(body.month);}catch{throw fail('invalid_monthly');}
-  if(body.action==='monthly_load')return {record:await store.monthlyGet(owner,body.month),scheduleEnabled:false,externalWrites:false};
+  if(body.action==='monthly_load'){const record=await store.monthlyGet(owner,body.month);let scheduleEnabled=false;try{scheduleEnabled=(await store.calendarBackgroundStatus?.())?.monthly===true&&(await store.monthlyScheduled()).some(s=>s.owner_id===owner);}catch{}return {record,scheduleEnabled,externalWrites:false};}
   if(!uuid.test(body.request_id||'')||!Number.isInteger(body.revision)||body.revision<0)throw fail('invalid_monthly');
   const prior=await store.monthlyGet(owner,body.month);
   // A committed replay is acknowledged, without fetching upstream again.
@@ -24,6 +24,8 @@ export function monthlyService({store,readSources,readReservations,now=Date.now}
   let fallbackSlots=[];if(!source&&readReservations){try{fallbackSlots=await readReservations();sourceStatus.reservation='verified';}catch{sourceStatus.reservation='unverified';}}
   let generated;try{generated=applyMonthlyOverrides(createMonthlyDraft({month:body.month,policy,overrides,events:source?.events||[],slots:source?.slots||fallbackSlots,sources:{calendar:!!source,reservation:sourceStatus.reservation==='verified'}}),overrides);}catch{sourceStatus={calendar:'unverified',reservation:'unverified'};generated=applyMonthlyOverrides(createMonthlyDraft({month:body.month,policy,sources:{}}),overrides);}
   generated={...generated,sourceStatus,checkedAt:new Date(now()).toISOString(),sourceCheckedAt:source?.checked_at||null,policyConfigured:!!Object.keys(policy).length,ruleMode:policy.mode==='existing_slots_only'?'existing_inventory_only':'manual_policy',inventoryCount:(source?.slots||fallbackSlots).filter(s=>s.date?.startsWith(body.month+'-')).length};
+  // Never replace a verified draft with degraded upstream data in the background.
+  if(background&&prior?.generated?.sourceStatus?.calendar==='verified'&&prior?.generated?.sourceStatus?.reservation==='verified'&&(sourceStatus.calendar!=='verified'||sourceStatus.reservation!=='verified'))throw fail('monthly_sources_unverified');
   // Store only availability aggregates, never raw Google events or Reservation customer records.
   const changed=monthlyDiff(prior?.generated,generated);
   generated.changedDates=changed;
@@ -43,7 +45,8 @@ export function monthlyWorker({store,run,enabled,verify,now=Date.now}){
   for(const setting of (await store.monthlyScheduled()).slice(0,10)){
    if(!await store.monthlyClaim(setting.owner_id,clock.toISOString()))continue;
    try{const prior=await store.monthlyGet(setting.owner_id,plan.targetMonth);
-    const value=await run(setting.owner_id,{action:'monthly_generate',month:plan.targetMonth,revision:prior?.revision||0,request_id:crypto.randomUUID(),policy:Object.keys(prior?.policy||{}).length?prior.policy:setting.policy});results.push({status:value.record?.state||'unverified'});
+    if(prior&&['approved_internal','rejected'].includes(prior.state)){results.push({status:'reviewed_preserved'});continue;}
+    const value=await run(setting.owner_id,{action:'monthly_generate',month:plan.targetMonth,revision:prior?.revision||0,request_id:crypto.randomUUID(),policy:Object.keys(prior?.policy||{}).length?prior.policy:setting.policy},{background:true});results.push({status:value.record?.state||'unverified'});
    }catch{await store.event(setting.owner_id,'課程預約',null,null,'monthly_job_failed',{run_day:day,requires_human:true,external_writes:false});results.push({status:'failed'});}
   }
   return Response.json({status:'processed',results,externalWrites:false,paid_api_calls:0});

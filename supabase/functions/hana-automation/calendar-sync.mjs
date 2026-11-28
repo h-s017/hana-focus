@@ -35,7 +35,7 @@ export function syncDecision(baseSource,baseGoogle,source,google,booked=0){
 const eventPayload=v=>({summary:v.title,start:{dateTime:v.start,timeZone:'Asia/Taipei'},end:{dateTime:v.end,timeZone:'Asia/Taipei'}});
 const taipei=v=>new Date(Date.parse(v)+28800000).toISOString();
 const monthFor=(kind,s,fallback)=>kind==='slot'?s.date?.slice(0,7)||fallback:s.schedule_start_at?taipei(s.schedule_start_at).slice(0,7):fallback;
-export function calendarSyncService({store,google,reservations,ownerId,enabled=false,now=Date.now}){
+export function calendarSyncService({store,google,reservations,ownerId,enabled=false,background=false,now=Date.now}){
  async function source(owner,kind,id){return kind==='slot'?(await reservations({action:'get',id})).slot:store.calendarTask(owner,id);}
  async function googleCurrent(owner,row,events){const g=events?.get(row.event_id)||await google.get(owner,row.event_id);if(g&&g.status!=='cancelled'&&g.extendedProperties?.private?.hana_owner!==owner)throw fail('calendar_sync_conflict');return g;}
  async function save(owner,row,patch){return store.calendarLinkSave(owner,row.id,row.revision,{...patch,revision:row.revision+1,updated_at:new Date(now()).toISOString()});}
@@ -63,7 +63,7 @@ export function calendarSyncService({store,google,reservations,ownerId,enabled=f
  }
  return async(owner,body)=>{
   if(owner!==ownerId||!await store.googleOwnerAllowed(owner))throw fail('calendar_sync_owner_required');
-  if(body.action==='calendar_sync_status')return {enabled,links:await store.calendarLinks(owner),authorized:!!await store.credential(owner,'google_sync'),background_enabled:false};
+  if(body.action==='calendar_sync_status'){let scheduled=null;try{scheduled=await store.calendarBackgroundStatus?.();}catch{}const authorized=!!await store.credential(owner,'google_sync');return {enabled,links:await store.calendarLinks(owner),authorized,background_enabled:enabled&&authorized&&scheduled?.current===true,background_schedule:scheduled,background_history:await store.calendarBackgroundHistory?.(owner)||[]};}
   if(!enabled)throw fail('calendar_sync_activation_required');
   const lock=crypto.randomUUID();if(!await store.calendarLock(owner,lock))throw fail('calendar_sync_busy');
   try{
@@ -73,6 +73,7 @@ export function calendarSyncService({store,google,reservations,ownerId,enabled=f
     return {status:'scheduled',synced:false};
    }
    if(body.action==='calendar_sync_review'){
+    if(background)throw fail('calendar_sync_invalid');
     const row=await store.calendarLink(owner,body.link_id);if(!row?.pending||!['pending','conflict'].includes(row.status)||row.pending.id!==body.review_id||!['approved','rejected'].includes(body.decision))throw fail('calendar_sync_conflict');
     if(body.decision==='rejected'){await save(owner,row,{status:'rejected'});return {status:'rejected',external_writes:false};}
     if(!['import','export'].includes(body.direction))throw fail('calendar_sync_invalid');
@@ -110,7 +111,7 @@ export function calendarSyncService({store,google,reservations,ownerId,enabled=f
      if(['pending','conflict','rejected','unknown'].includes(row.status)){pending++;continue;}
      const g=await googleCurrent(owner,row,events),gv=googleEvent(g),decision=syncDecision(row.base_source,row.base_google,v,gv,kind==='slot'?s.booked:0);
      if(decision==='aligned'){if(!same(row.base_source,v)||!same(row.base_google,gv))await baseline(owner,row,s,g);continue;}
-     if(decision==='review'||decision==='conflict'){await stage(owner,row,s,g,decision==='review'?'import':null,decision==='review'?'enrolled':'both_changed');pending++;changed++;continue;}
+     if(decision==='review'||decision==='conflict'||(background&&kind==='slot'&&decision==='import')){const conflict=decision==='conflict';await stage(owner,row,s,g,conflict?null:'import',conflict?'both_changed':decision==='review'?'enrolled':'background_reservation_review');pending++;changed++;continue;}
      // Re-fetch immediately before comparing/writing. CAS on Reservation and If-Match on Google close the race.
      const fresh=await source(owner,kind,id);if(!same(fresh,s))throw fail('calendar_sync_conflict');
      const attempt=await claim(owner,row,s,g,decision),claimed=attempt.row;let next=s,newGoogle=g;
@@ -118,7 +119,7 @@ export function calendarSyncService({store,google,reservations,ownerId,enabled=f
      await baseline(owner,claimed,next,newGoogle);changed++;
     }catch(error){skipped++;warnings.push({kind,source_id:id,code:['calendar_sync_duration_required','calendar_sync_conflict','calendar_sync_unknown'].includes(error.code)?error.code:'calendar_sync_failed'});}
    }
-   return {status:'complete',changed,pending,skipped,warnings,background_enabled:false};
+   return {status:'complete',changed,pending,skipped,warnings,background_enabled:background};
   }finally{await store.calendarUnlock(owner,lock);}
  };
 }

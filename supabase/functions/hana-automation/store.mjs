@@ -21,6 +21,12 @@ export function automationStore({url,service,fetcher=fetch}) {
   oauthCreate:(owner,id,details)=>request('hana_automation_events','POST',{id,owner_id:owner,project:'課程預約',code:'google_oauth_pending',details}),
   async oauthGet(owner,id){const rows=await request(query('hana_automation_events',{id:'eq.'+id,owner_id:'eq.'+owner,code:'eq.google_oauth_pending',select:'details'}));return rows[0]||null;},
   async oauthClaim(owner,id,stateHash,expires){const rows=await request(query('hana_automation_events',{id:'eq.'+id,owner_id:'eq.'+owner,code:'eq.google_oauth_pending','details->>state_hash':'eq.'+stateHash,'details->>expires_at':'eq.'+expires}),'PATCH',{code:'google_oauth_claimed',details:{consumed_at:new Date().toISOString()}});return rows.length===1;},
+  async calendarWorkerAuthorized(candidate){
+   if(typeof candidate!=='string'||!/^[0-9a-f]{64}$/.test(candidate))return false;
+   return (await rpc('hana_calendar_worker_verify',{p_token:candidate}))===true;
+  },
+  calendarBackgroundStatus:()=>rpc('hana_calendar_background_status'),
+  calendarBackgroundHistory:owner=>request(query('hana_automation_events',{owner_id:'eq.'+owner,code:'in.(calendar_background_run,calendar_background_failed)',select:'code,created_at,details',order:'created_at.desc',limit:'12'})),
   async canvaWorkerAuthorized(candidate){
    if(typeof candidate!=='string'||!/^[0-9a-f]{64}$/.test(candidate))return false;
    const result=await rpc('hana_canva_worker_verify',{p_token:candidate});
