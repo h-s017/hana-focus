@@ -11,6 +11,7 @@ import {automationStore} from './store.mjs';
 import {microsoft,cipher} from './microsoft.mjs';
 import {calendarPreview,calendarSources} from './calendar.mjs';
 import {calendarSyncService} from './calendar-sync.mjs';
+import {calendarBackgroundWorker} from './calendar-background.mjs';
 import {googleSyncApi,reservationSyncApi} from './calendar-sync-api.mjs';
 import {reservationReader} from './reservations.mjs';
 import {bookingService} from './booking.mjs';
@@ -40,6 +41,9 @@ const canva=canvaOAuth({clientId:env('CANVA_CLIENT_ID'),clientSecret:env('CANVA_
 const syncEnabled=env('HANA_CALENDAR_SYNC_ENABLED')==='true';
 const googleSync=syncEnabled?googleOAuth({...monthlyOptions,sync:true}):null;
 const calendarSync=calendarSyncService({ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),store,enabled:syncEnabled,google:googleSyncApi(monthlyOptions),reservations:reservationSyncApi({token:env('RESERVATION_SYNC_TOKEN')})});
+const backgroundCalendar=calendarSyncService({ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),store,enabled:true,background:true,google:googleSyncApi(monthlyOptions),reservations:reservationSyncApi({token:env('RESERVATION_SYNC_TOKEN')})});
+const calendarWorker=calendarBackgroundWorker({store,run:backgroundCalendar,ownerId:env('GOOGLE_CALENDAR_OWNER_ID'),configured:()=>syncEnabled&&googleConfigured()&&!!env('RESERVATION_SYNC_TOKEN')});
+const monthlyAutoWorker=monthlyWorker({store,run:monthly,enabled:()=>true,verify:async token=>{try{return (await store.calendarBackgroundStatus()).monthly===true&&await store.calendarWorkerAuthorized(token);}catch{return false;}}});
 const hq=businessHQ({
  store:hqStore({url:env('SUPABASE_URL'),service:env('SUPABASE_SERVICE_ROLE_KEY')}),
  sourceReader:publicSourceReader({allowedHosts:env('HANA_HQ_SOURCE_HOSTS').split(',').map(s=>s.trim()).filter(Boolean)}),
@@ -66,6 +70,8 @@ async function canvaScheduledRequest(req:Request){
 }
 Deno.serve((req:Request)=>{
  const route=new URL(req.url).pathname;
+ if(route.endsWith('/calendar-worker')||route.endsWith('/calendar-worker-next'))return calendarWorker(req);
+ if(route.endsWith('/monthly-worker-auto'))return monthlyAutoWorker(req);
  if(route.endsWith('/monthly-worker'))return worker(req);
  if(route.endsWith('/canva-worker'))return canvaScheduledRequest(req);
  return controls(req);
