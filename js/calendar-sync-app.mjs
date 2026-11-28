@@ -13,7 +13,8 @@ export function mountCalendarSyncPanel(host,{db,onChange=()=>{}}){
  async function call(body){const {data,error}=await db.functions.invoke('hana-automation',{body});if(error||data?.error){let code=data?.error;try{code||=(await error.context?.json())?.error;}catch{}throw Object.assign(Error('sync_failed'),{code});}return data;}
  let busy=false;
  async function operate(fn){if(busy)return;busy=true;host.querySelectorAll('button').forEach(b=>b.disabled=true);try{await fn();}catch(e){const messages={calendar_sync_activation_required:'日曆寫入同步尚未啟用；原唯讀連線仍可使用。',calendar_sync_authorization_required:'請先完成 Google 同步寫入授權。',reservation_sync_setup_required:'原課程系統的專用同步連線尚未完成。',calendar_sync_conflict:'資料已變動，請更新警告內容後重新審核。',calendar_sync_busy:'另一個同步正在執行，請稍後更新狀態。'};status.textContent=messages[e.code]||'同步未確認完成，請更新狀態；不要將此狀態視為成功。';}finally{busy=false;host.querySelectorAll('button').forEach(b=>b.disabled=false);}}
- async function load(){const d=await call({action:'calendar_sync_status'});status.textContent=(d.enabled?'同步功能已啟用':'同步尚未啟用')+'；Google 寫入授權：'+(d.authorized?'已保存':'尚未取得')+'；背景排程關閉。';list.replaceChildren();
+ async function load(){const d=await call({action:'calendar_sync_status'});status.textContent=(d.enabled?'同步功能已啟用':'同步尚未啟用')+'；Google 寫入授權：'+(d.authorized?'已保存':'尚未取得')+'；'+(d.background_enabled?'本月背景排程已啟用。':'本月背景排程未啟用。');list.replaceChildren();
+  for(const mode of ['current','next']){const entry=(d.background_history||[]).find(x=>x.details?.mode===mode);const active=d.background_schedule?.[mode]===true;const last=entry?new Date(entry.created_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):'尚無紀錄';list.append(el('p',(mode==='current'?'本月':'下月')+'排程：'+(active?'啟用':'停用')+'｜最近執行：'+last+(entry?'｜'+(entry.code==='calendar_background_failed'?'未完成 '+(entry.details?.error_code||''):'處理 '+(entry.details?.changed??0)+' 項、待審 '+(entry.details?.pending??0)+' 項、略過 '+(entry.details?.skipped??0)+' 項'):'')));}
   for(const r of d.links.filter(r=>r.status!=='ready')){
    const card=el('article'),p=r.pending;card.append(el('h4',p?.source?.course||p?.source?.title||r.source_id));
    const enrolled=r.kind==='slot'&&(p?.source?.booked||0)>0;
@@ -26,7 +27,7 @@ export function mountCalendarSyncPanel(host,{db,onChange=()=>{}}){
    card.append(button('重新查核兩邊資料',async()=>{await call({action:'calendar_sync_reconcile',link_id:r.id});await load();}));list.append(card);
   }
  }
- host.append(el('p','課程雙向同步；已報名課程先警告並送本人審核。只有已排開始／結束時間的任務會同步。'),month,
+ host.append(el('p','課程雙向同步；背景程序不直接修改原預約場次，Google 改期或取消須審核。只有已排開始／結束時間的任務會同步。'),month,
   button('授權 Google 日曆同步寫入',async()=>{if(!confirm('允許 HANA 管理同步事件；Google 將要求日曆事件寫入權限。本人需在 Google 最後同意。'))return;await beginGoogleConnection({db,storage:sessionStorage,navigate:url=>location.assign(url),sync:true});}),
   button('更新同步與待審核狀態',load),button('同步此月份課程與任務',async()=>{const r=await call({action:'calendar_sync_run',month:month.value});await load();status.textContent='本次同步 '+r.changed+' 項；待審核 '+r.pending+' 項；未完成 '+r.skipped+' 項。'+(r.status==='more_pending'?'仍有待處理資料，請再次同步。':'');for(const w of r.warnings||[])list.append(el('p',w.source_id+'：'+w.code));await onChange();}),status,list);
  return {setMonth(value){month.value=value;},refresh:()=>operate(load)};
